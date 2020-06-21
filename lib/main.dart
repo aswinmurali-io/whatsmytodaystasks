@@ -12,12 +12,19 @@ class WhatsMyTodaysTasks extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "What's my today's task",
+      debugShowCheckedModeBanner: false,
       color: Colors.blueGrey,
       builder: ExtendedNavigator<Router>(router: Router()),
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+          brightness: Brightness.light,
+          primarySwatch: Colors.blueGrey,
+          primaryIconTheme: const IconThemeData.fallback().copyWith(
+            color: Colors.blueGrey,
+          ),
+          primaryTextTheme: TextTheme(
+              headline6: TextStyle(
+                  color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+          visualDensity: VisualDensity.adaptivePlatformDensity),
     );
   }
 }

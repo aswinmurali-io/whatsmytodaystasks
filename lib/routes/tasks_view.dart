@@ -12,15 +12,14 @@ class _TaskViewState extends State<TaskView> {
         appBar: AppBar(
           actions: [
             IconButton(
-              color: Colors.blueGrey,
               icon: Icon(Icons.settings),
               onPressed: () => null,
             )
           ],
           title: Text(
             "What's my today's tasks ?",
-            style:
-                TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold),
+            //style:
+            //    TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold),
           ),
           elevation: 0,
           backgroundColor: Colors.transparent,
