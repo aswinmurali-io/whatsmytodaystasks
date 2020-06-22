@@ -7,12 +7,12 @@ import 'package:gradient_widgets/gradient_widgets.dart';
 
 import 'routes.gr.dart';
 
-class TaskView extends StatefulWidget {
+class TodaysView extends StatefulWidget {
   @override
-  _TaskViewState createState() => _TaskViewState();
+  _TodaysViewState createState() => _TodaysViewState();
 }
 
-class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
+class _TodaysViewState extends State<TodaysView> with TickerProviderStateMixin {
   double initialCardSize = 60;
 
   final _allGradColors = [
@@ -23,12 +23,6 @@ class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
     MoreGradientColors.instagram,
     MoreGradientColors.darkSkyBlue,
   ];
-
-  final _breadCrumbs = {
-    "Weeks Plans": [Gradients.hotLinear, 60],
-    "0 Tasks": [Gradients.blush, 30],
-    "0% Success": [Gradients.tameer, 55]
-  };
 
   final weeks = [
     "All days",
@@ -54,24 +48,7 @@ class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          titleSpacing: 20,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => null,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-              child: CircleAvatar(
-                  backgroundColor: Colors.red,
-                  child: IconButton(
-                      icon: Icon(Icons.account_circle),
-                      color: Colors.white,
-                      onPressed: () => ExtendedNavigator.of(context)
-                          .pushNamed(Routes.todaysView))),
-            ),
-          ],
-          title: const Text("What's my today's tasks ?"),
+          title: const Text("Account"),
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
@@ -82,26 +59,31 @@ class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: BouncingScrollPhysics(),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        for (String text in _breadCrumbs.keys)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                            child: GradientButton(
-                              gradient: _breadCrumbs[text][0],
-                              shadowColor: Colors.transparent,
-                              increaseWidthBy: _breadCrumbs[text][1],
-                              child: Text(text, style: TextStyle(fontSize: 20)),
-                              callback: null,
-                            ),
-                          ),
-                      ],
-                    ),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 10),
+                  child: Container(
+                    decoration: new BoxDecoration(
+                        borderRadius: BorderRadius.circular(48.0),
+                        boxShadow: [
+                          new BoxShadow(
+                              color: Colors.blueGrey[100], blurRadius: 18)
+                        ]),
+                    child: CircleAvatar(
+                        maxRadius: 60,
+                        backgroundColor: Colors.red,
+                        child: IconButton(
+                            icon: Icon(Icons.account_circle),
+                            color: Colors.white,
+                            onPressed: () => null)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
+                  child: GradientButton(
+                    gradient: Gradients.blush,
+                    shadowColor: Colors.transparent,
+                    increaseWidthBy: 60,
+                    child: Text("User Name", style: TextStyle(fontSize: 20)),
+                    callback: null,
                   ),
                 ),
                 for (String day in weeks)
@@ -146,7 +128,7 @@ class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
         floatingActionButton:
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [
           FloatingActionButton(
-            heroTag: "btn3",
+            heroTag: "btn1",
             focusElevation: 80,
             onPressed: () => null,
             tooltip: 'Add a task',
@@ -160,7 +142,7 @@ class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
           Padding(
               padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
               child: FloatingActionButton(
-                heroTag: "btn4",
+                heroTag: "btn2",
                 focusElevation: 80,
                 onPressed: () => null,
                 tooltip: 'Add a task',

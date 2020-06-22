@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:whatsmytodaystasks/routes/tasks_view.dart';
+import 'package:whatsmytodaystasks/routes/todays_view.dart';
 
 abstract class Routes {
   static const taskView = '/';
+  static const todaysView = '/todays-view';
   static const all = {
     taskView,
+    todaysView,
   };
 }
 
@@ -30,6 +33,11 @@ class Router extends RouterBase {
       case Routes.taskView:
         return MaterialPageRoute<dynamic>(
           builder: (context) => TaskView(),
+          settings: settings,
+        );
+      case Routes.todaysView:
+        return MaterialPageRoute<dynamic>(
+          builder: (context) => TodaysView(),
           settings: settings,
         );
       default:

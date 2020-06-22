@@ -16,14 +16,19 @@ class WhatsMyTodaysTasks extends StatelessWidget {
       color: Colors.blueGrey,
       builder: ExtendedNavigator<Router>(router: Router()),
       theme: ThemeData(
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+              backgroundColor: Colors.transparent),
           brightness: Brightness.light,
           primarySwatch: Colors.blueGrey,
-          primaryIconTheme: const IconThemeData.fallback().copyWith(
-            color: Colors.blueGrey,
-          ),
+          primaryIconTheme: const IconThemeData.fallback()
+              .copyWith(color: Colors.red[600]),
           primaryTextTheme: TextTheme(
-              headline6: TextStyle(
-                  color: Colors.blueGrey, fontWeight: FontWeight.bold)),
+            headline6: TextStyle(
+              color: Colors.blueGrey[200],
+              fontWeight: FontWeight.bold,
+            ),
+            bodyText2: TextStyle(color: Colors.red[600]),
+          ),
           visualDensity: VisualDensity.adaptivePlatformDensity),
     );
   }
