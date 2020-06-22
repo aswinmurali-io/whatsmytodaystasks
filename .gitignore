@@ -1,0 +1,7 @@
+/.dart_tool
+/.idea
+/.metadata
+/.packages
+/.vscode
+/build
+routes.gr.dart
