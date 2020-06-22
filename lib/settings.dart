@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /*
   key => Settings Title (string)
   value => List(
@@ -10,6 +8,8 @@ import 'package:flutter/material.dart';
     4) Settings button
   )
 */
+
+import 'package:flutter/material.dart';
 
 final settings = {
   "Disable notification": [

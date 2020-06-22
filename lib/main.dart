@@ -1,17 +1,23 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --release --tree-shake-icons
 
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import 'package:whatsmytodaystasks/routes/routes.gr.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
-void main() {
-  runApp(WhatsMyTodaysTasks());
-}
+import 'routes/routes.gr.dart';
+
+void main() => runApp(WhatsMyTodaysTasks());
 
 class WhatsMyTodaysTasks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Set up mobile system status and navigation bar style
+    FlutterStatusbarcolor.setStatusBarColor(Colors.white30);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    FlutterStatusbarcolor.setNavigationBarColor(Colors.white30);
+    FlutterStatusbarcolor.setNavigationBarWhiteForeground(false);
+
     return MaterialApp(
       title: "What's my today's task",
       debugShowCheckedModeBanner: false,

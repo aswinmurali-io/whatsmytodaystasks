@@ -1,11 +1,12 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+
+import 'package:auto_route/auto_route.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 
-import 'package:whatsmytodaystasks/routes/routes.gr.dart';
+import '../globals.dart';
+import '../routes/routes.gr.dart';
 
 class WeekendPlanView extends StatefulWidget {
   @override
@@ -13,43 +14,17 @@ class WeekendPlanView extends StatefulWidget {
 }
 
 class _WeekendPlanViewState extends State<WeekendPlanView> {
-  final _allGradColors = [
-    GradientColors.aqua,
-    GradientColors.harmonicEnergy,
-    GradientColors.noontoDusk,
-    MoreGradientColors.azureLane,
-    MoreGradientColors.instagram,
-    MoreGradientColors.darkSkyBlue,
-  ];
-
   final _breadCrumbs = {
-    "Weeks Plans": [Gradients.hotLinear, 60],
-    "0 Tasks": [Gradients.blush, 30],
-    "0% Success": [Gradients.tameer, 55]
+    "Weeks Plans": [Gradients.hotLinear, 60.0], // Must be decimal
+    "0 Tasks": [Gradients.blush, 30.0],
+    "0% Success": [Gradients.tameer, 55.0]
   };
-
-  final weeks = [
-    "All days",
-    "Any days",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday"
-  ];
-
-  int _allGradColorsIndex = 0;
-
-  List<Color> _getNextGradient() {
-    _allGradColorsIndex++;
-    if (_allGradColorsIndex >= _allGradColors.length) _allGradColorsIndex = 0;
-    return _allGradColors[_allGradColorsIndex];
-  }
 
   @override
   Widget build(BuildContext context) {
+    // reset the gradiant scale
+    allGradColorsIndex = 0;
+
     return Scaffold(
         appBar: AppBar(
           titleSpacing: 20,
@@ -118,7 +93,7 @@ class _WeekendPlanViewState extends State<WeekendPlanView> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: _getNextGradient(),
+                          colors: getNextGradient(),
                         ),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),
