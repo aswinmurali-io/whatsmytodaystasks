@@ -12,7 +12,7 @@ class TaskView extends StatefulWidget {
   _TaskViewState createState() => _TaskViewState();
 }
 
-class _TaskViewState extends State<TaskView> with TickerProviderStateMixin {
+class _TaskViewState extends State<TaskView> {
   double initialCardSize = 60;
 
   final _allGradColors = [
