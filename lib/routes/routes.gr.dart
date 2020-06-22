@@ -7,8 +7,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:whatsmytodaystasks/routes/tasks_view.dart';
-import 'package:whatsmytodaystasks/routes/todays_view.dart';
+import 'package:whatsmytodaystasks/routes/weekend_plan_view.dart';
+import 'package:whatsmytodaystasks/routes/account_view.dart';
 
 abstract class Routes {
   static const taskView = '/';

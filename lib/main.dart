@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import 'routes/routes.gr.dart';
+import 'package:whatsmytodaystasks/routes/routes.gr.dart';
 
 void main() {
   runApp(WhatsMyTodaysTasks());
@@ -20,8 +20,8 @@ class WhatsMyTodaysTasks extends StatelessWidget {
               backgroundColor: Colors.transparent),
           brightness: Brightness.light,
           primarySwatch: Colors.blueGrey,
-          primaryIconTheme: const IconThemeData.fallback()
-              .copyWith(color: Colors.red[600]),
+          primaryIconTheme:
+              const IconThemeData.fallback().copyWith(color: Colors.red[600]),
           primaryTextTheme: TextTheme(
             headline6: TextStyle(
               color: Colors.blueGrey[200],

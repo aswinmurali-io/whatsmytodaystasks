@@ -28,19 +28,18 @@ class _TodaysViewState extends State<TodaysView> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 8, 0, 10),
                 child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(48.0),
-                      boxShadow: [
-                        BoxShadow(color: Colors.blueGrey[100], blurRadius: 18)
-                      ]),
-                  child: CircleAvatar(
-                      maxRadius: 60,
-                      backgroundColor: Colors.red,
-                      child: IconButton(
-                          icon: Icon(Icons.account_circle),
-                          color: Colors.white,
-                          onPressed: () => null)),
-                ),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(48.0),
+                        boxShadow: [
+                          BoxShadow(color: Colors.blueGrey[100], blurRadius: 18)
+                        ]),
+                    child: CircleAvatar(
+                        maxRadius: 60,
+                        backgroundColor: Colors.red,
+                        child: IconButton(
+                            icon: Icon(Icons.account_circle),
+                            color: Colors.white,
+                            onPressed: () => null))),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
