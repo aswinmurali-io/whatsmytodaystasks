@@ -7,12 +7,12 @@ import 'package:gradient_widgets/gradient_widgets.dart';
 
 import 'package:whatsmytodaystasks/routes/routes.gr.dart';
 
-class TaskView extends StatefulWidget {
+class WeekendPlanView extends StatefulWidget {
   @override
-  _TaskViewState createState() => _TaskViewState();
+  _WeekendPlanViewState createState() => _WeekendPlanViewState();
 }
 
-class _TaskViewState extends State<TaskView> {
+class _WeekendPlanViewState extends State<WeekendPlanView> {
   final _allGradColors = [
     GradientColors.aqua,
     GradientColors.harmonicEnergy,
@@ -66,10 +66,10 @@ class _TaskViewState extends State<TaskView> {
                       icon: Icon(Icons.account_circle),
                       color: Colors.white,
                       onPressed: () => ExtendedNavigator.of(context)
-                          .pushNamed(Routes.todaysView))),
+                          .pushNamed(Routes.accountSettingsView))),
             ),
           ],
-          title: const Text("What's my today's tasks ?"),
+          title: const Text("Manage weekend tasks"),
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),

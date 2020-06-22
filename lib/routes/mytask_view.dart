@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,15 +26,7 @@ class _TaskViewState extends State<TaskView> {
     MoreGradientColors.darkSkyBlue,
   ];
 
-  final _breadCrumbs = {
-    "Weeks Plans": [Gradients.hotLinear, 60],
-    "0 Tasks": [Gradients.blush, 30],
-    "0% Success": [Gradients.tameer, 55]
-  };
-
   final weeks = [
-    "All days",
-    "Any days",
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -41,6 +35,10 @@ class _TaskViewState extends State<TaskView> {
     "Saturday",
     "Sunday"
   ];
+
+  String _currentWeek = "Monday";
+
+  double _currentWeekTabSize = 30.0;
 
   int _allGradColorsIndex = 0;
 
@@ -51,14 +49,22 @@ class _TaskViewState extends State<TaskView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 5),
+        () => setState(() => _currentWeekTabSize += 30));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           titleSpacing: 20,
           actions: [
             IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => null,
+              icon: const Icon(Icons.calendar_view_day),
+              onPressed: () => ExtendedNavigator.of(context)
+                  .pushNamed(Routes.weekendPlanView),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
@@ -68,7 +74,7 @@ class _TaskViewState extends State<TaskView> {
                       icon: Icon(Icons.account_circle),
                       color: Colors.white,
                       onPressed: () => ExtendedNavigator.of(context)
-                          .pushNamed(Routes.todaysView))),
+                          .pushNamed(Routes.accountSettingsView))),
             ),
           ],
           title: const Text("What's my today's tasks ?"),
@@ -89,15 +95,29 @@ class _TaskViewState extends State<TaskView> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        for (String text in _breadCrumbs.keys)
+                        for (String text in weeks)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                            child: GradientButton(
-                              gradient: _breadCrumbs[text][0],
-                              shadowColor: Colors.transparent,
-                              increaseWidthBy: _breadCrumbs[text][1],
-                              child: Text(text, style: TextStyle(fontSize: 20)),
-                              callback: null,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: (text == _currentWeek)
+                                  ? _currentWeekTabSize + 70
+                                  : _currentWeekTabSize + 60,
+                              height: (text == _currentWeek)
+                                  ? _currentWeekTabSize
+                                  : _currentWeekTabSize - 30,
+                              child: GradientButton(
+                                gradient: (text == _currentWeek)
+                                    ? Gradients.cosmicFusion
+                                    : Gradients.taitanum,
+                                shadowColor: Colors.transparent,
+                                increaseWidthBy: _currentWeekTabSize + 10,
+                                child: Text(text,
+                                    style: TextStyle(
+                                        fontSize:
+                                            (text == _currentWeek) ? 20 : 15)),
+                                callback: null,
+                              ),
                             ),
                           ),
                       ],

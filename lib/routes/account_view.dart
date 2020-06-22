@@ -5,12 +5,12 @@ import 'package:gradient_widgets/gradient_widgets.dart';
 
 import '../settings.dart';
 
-class TodaysView extends StatefulWidget {
+class AccountSettingsView extends StatefulWidget {
   @override
-  _TodaysViewState createState() => _TodaysViewState();
+  _AccountSettingsViewState createState() => _AccountSettingsViewState();
 }
 
-class _TodaysViewState extends State<TodaysView> {
+class _AccountSettingsViewState extends State<AccountSettingsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
