@@ -24,7 +24,8 @@ dependencies:
   flutter_gradient_colors: ^1.0.0
   gradient_widgets: ^0.5.1
   flutter_statusbarcolor: ^0.2.3
-  intl: ^0.16.1
+  jiffy: ^3.0.1
+  flutter_animator: ^2.0.9
 
 dev_dependencies:
   flutter_test:

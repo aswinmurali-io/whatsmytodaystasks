@@ -14,9 +14,7 @@ class WhatsMyTodaysTasks extends StatelessWidget {
   Widget build(BuildContext context) {
     // Set up mobile system status and navigation bar style
     FlutterStatusbarcolor.setStatusBarColor(Colors.white30);
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     FlutterStatusbarcolor.setNavigationBarColor(Colors.white30);
-    FlutterStatusbarcolor.setNavigationBarWhiteForeground(false);
 
     return MaterialApp(
       title: "What's my today's task",
