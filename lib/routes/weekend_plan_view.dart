@@ -93,7 +93,7 @@ class _WeekendPlanViewState extends State<WeekendPlanView> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: getNextGradient(),
+                          colors: getNextGradientForPlanView(),
                         ),
                         borderRadius:
                             const BorderRadius.all(Radius.circular(15)),

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_animator/flutter_animator.dart';
-import 'package:flutter_animator/widgets/animator_widget.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 
@@ -21,61 +18,65 @@ class TaskView extends StatefulWidget {
 
 class _TaskViewState extends State<TaskView>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  int _initialIndex, incrementDuration, __internalKey = -1;
-  bool lockAnimation = false;
+  int _initialIndex, incrementDuration;
   TabController _tabController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
-  final List<GlobalKey<AnimatorWidgetState<AnimatorWidget>>> _animationKeys =
-      List.generate(49, (index) => GlobalKey<AnimatorWidgetState>());
+  List<Widget> _tasksCards = [];
 
-  GlobalKey<AnimatorWidgetState<AnimatorWidget>> _getAnimationKey() {
-    __internalKey++;
-    if (__internalKey == 49) __internalKey = 0;
-    return _animationKeys[__internalKey];
-  }
+  List<Widget> _renderTask() {
+    _tasksCards.clear();
 
-  void _tabListenerAnimation() {
-    // based on the swipe location this code will detect if user is swiping
-    // backwards or forwards and set the active tab ahead of time
-    int _futureIncrementForTabIndex =
-        (int.parse(_tabController.animation.value.toString()[0]) <
-                _tabController.index)
-            ? -1
-            : 1;
-
-    if (int.parse(_tabController.animation.value.toString()[2]) >= 6) {
-      _currentWeek = weeks[_tabController.index + _futureIncrementForTabIndex];
-      // set the initial animation frame delay
-      incrementDuration = 30;
-
-      // do the animation if there is a change in tab index
-      //   if (_currentWeek != weeks[_tabController.index + 1]) {
-
-      setState(() {
-        // call the animation for each card animation key
-        if (!lockAnimation) {
-          lockAnimation = true;
-          _animationKeys.forEach((element) {
-            // add a little delay to make it more cool
-            incrementDuration += 30;
-
-            // call the animation key with that delay using a future delay and also check
-            // if the element is null or  not by using NoSuchMethodError exception
-            return Future.delayed(Duration(milliseconds: incrementDuration),
-                () {
-              try {
-                element.currentState.forward();
-              } on NoSuchMethodError {}
-            });
-          });
-        }
-
-        // set the current week as the tab index to trigger the tab animation
-        _currentWeek =
-            weeks[_tabController.index + _futureIncrementForTabIndex];
-      });
+    for (int i = 0; i < 7; i++) {
+      _tasksCards.add(CupertinoScrollbar(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+          child: Column(
+            children: <Widget>[
+              for (String day in weeks)
+                BounceIn(
+                  preferences:
+                      AnimationPreferences(offset: Duration(milliseconds: 300)),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueGrey[200],
+                            blurRadius: 10.0,
+                          )
+                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: getNextGradient(),
+                        ),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15)),
+                      ),
+                      child: ListTileTheme(
+                        iconColor: Colors.white,
+                        textColor: Colors.white,
+                        child: ListTile(
+                          title: Text(day),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => null,
+                          ),
+                          onTap: () => null,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ),
+      ));
     }
+    return _tasksCards;
   }
 
   @override
@@ -94,8 +95,8 @@ class _TaskViewState extends State<TaskView>
     // set up the tab controller
     _tabController = TabController(length: 7, vsync: this);
     _tabController.index = _initialIndex;
-    _tabController.animation.addListener(_tabListenerAnimation);
-    _tabController.addListener(() => lockAnimation = false);
+    _tabController.addListener(
+        () => setState(() => _currentWeek = weeks[_tabController.index]));
   }
 
   @override
@@ -179,66 +180,7 @@ class _TaskViewState extends State<TaskView>
           body: TabBarView(
               controller: _tabController,
               physics: BouncingScrollPhysics(),
-              children: [
-                for (int i = 0; i < 7; i++)
-                  CupertinoScrollbar(
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [],
-                              ),
-                            ),
-                          ),
-                          for (String day in weeks)
-                            BounceIn(
-                              key: _getAnimationKey(),
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.blueGrey[200],
-                                        blurRadius: 10.0,
-                                      )
-                                    ],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: getNextGradient(),
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(15)),
-                                  ),
-                                  child: ListTileTheme(
-                                    iconColor: Colors.white,
-                                    textColor: Colors.white,
-                                    child: ListTile(
-                                      title: Text(day),
-                                      trailing: IconButton(
-                                        icon: Icon(Icons.edit),
-                                        onPressed: () => null,
-                                      ),
-                                      onTap: () => null,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                        ],
-                      ),
-                    ),
-                  ),
-              ]),
+              children: _renderTask()),
           floatingActionButton:
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             FloatingActionButton(
