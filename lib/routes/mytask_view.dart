@@ -1,17 +1,15 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_animator/widgets/animator_widget.dart';
-import 'package:flutter_animator/widgets/attention_seekers/tada.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
-import 'package:jiffy/jiffy.dart';
 
 import '../globals.dart';
 import '../routes/routes.gr.dart';
@@ -24,10 +22,11 @@ class TaskView extends StatefulWidget {
 class _TaskViewState extends State<TaskView>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _initialIndex, incrementDuration, __internalKey = -1;
+  bool lockAnimation = false;
   TabController _tabController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
-  List<GlobalKey<AnimatorWidgetState<AnimatorWidget>>> _animationKeys =
+  final List<GlobalKey<AnimatorWidgetState<AnimatorWidget>>> _animationKeys =
       List.generate(49, (index) => GlobalKey<AnimatorWidgetState>());
 
   GlobalKey<AnimatorWidgetState<AnimatorWidget>> _getAnimationKey() {
@@ -36,29 +35,45 @@ class _TaskViewState extends State<TaskView>
     return _animationKeys[__internalKey];
   }
 
-  void _tabListener() {
-    // set the initial animation frame delay
-    incrementDuration = 30;
+  void _tabListenerAnimation() {
+    // based on the swipe location this code will detect if user is swiping
+    // backwards or forwards and set the active tab ahead of time
+    int _futureIncrementForTabIndex =
+        (int.parse(_tabController.animation.value.toString()[0]) <
+                _tabController.index)
+            ? -1
+            : 1;
 
-    // do the animation if there is a change in tab index
-    if (_currentWeek != weeks[_tabController.index]) {
+    if (int.parse(_tabController.animation.value.toString()[2]) >= 6) {
+      _currentWeek = weeks[_tabController.index + _futureIncrementForTabIndex];
+      // set the initial animation frame delay
+      incrementDuration = 30;
+
+      // do the animation if there is a change in tab index
+      //   if (_currentWeek != weeks[_tabController.index + 1]) {
+
       setState(() {
         // call the animation for each card animation key
-        _animationKeys.forEach((element) {
-          // add a little delay to make it more cool
-          incrementDuration += 30;
+        if (!lockAnimation) {
+          lockAnimation = true;
+          _animationKeys.forEach((element) {
+            // add a little delay to make it more cool
+            incrementDuration += 30;
 
-          // call the animation key with that delay using a future delay and also check
-          // if the element is null or  not by using NoSuchMethodError exception
-          return Future.delayed(Duration(milliseconds: incrementDuration), () {
-            try {
-              element.currentState.forward();
-            } on NoSuchMethodError {}
+            // call the animation key with that delay using a future delay and also check
+            // if the element is null or  not by using NoSuchMethodError exception
+            return Future.delayed(Duration(milliseconds: incrementDuration),
+                () {
+              try {
+                element.currentState.forward();
+              } on NoSuchMethodError {}
+            });
           });
-        });
+        }
 
         // set the current week as the tab index to trigger the tab animation
-        _currentWeek = weeks[_tabController.index];
+        _currentWeek =
+            weeks[_tabController.index + _futureIncrementForTabIndex];
       });
     }
   }
@@ -79,7 +94,8 @@ class _TaskViewState extends State<TaskView>
     // set up the tab controller
     _tabController = TabController(length: 7, vsync: this);
     _tabController.index = _initialIndex;
-    _tabController.addListener(_tabListener);
+    _tabController.animation.addListener(_tabListenerAnimation);
+    _tabController.addListener(() => lockAnimation = false);
   }
 
   @override
@@ -184,7 +200,7 @@ class _TaskViewState extends State<TaskView>
                           ),
                           for (String day in weeks)
                             BounceIn(
-                              key: (i == 0) ? _getAnimationKey() : null,
+                              key: _getAnimationKey(),
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
                                 child: Container(
