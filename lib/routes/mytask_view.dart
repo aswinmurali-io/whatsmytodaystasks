@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -28,6 +29,9 @@ class _TaskViewState extends State<TaskView>
   final _totalTabs = 7;
   int _uniqueColorIndex;
   int __offset;
+
+  String title, description, week;
+  Future<TimeOfDay> selectedTime;
 
   @override
   void initState() {
@@ -60,13 +64,13 @@ class _TaskViewState extends State<TaskView>
   void _editTaskCard() {
     showDialog(
         context: context,
-        child: DialogForm(
+        child: CustomGradientDialogForm(
           title: const Text(
             "Edit Task",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 25),
           ),
           content: SizedBox(
-            height: 250,
+            height: 287,
             width: 90,
             child: Column(
               children: [
@@ -79,6 +83,7 @@ class _TaskViewState extends State<TaskView>
                     autofocus: true,
                     enableSuggestions: true,
                     maxLength: 40,
+                    onChanged: (value) => title = value,
                   ),
                 ),
                 Text("Something else to remember with it?"),
@@ -90,14 +95,38 @@ class _TaskViewState extends State<TaskView>
                   autofocus: true,
                   enableSuggestions: true,
                   maxLength: 40,
+                  onChanged: (value) => description = value,
                 )),
-                DropdownButton(
-                  value: weeks[0],
-                  items: weeks
-                      .map((value) => DropdownMenuItem<String>(
-                          value: value, child: Text(value)))
-                      .toList(),
-                  onChanged: (value) {},
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Pick a day"),
+                    DropdownButton(
+                      value: weeks[0],
+                      items: weeks
+                          .map((value) => DropdownMenuItem<String>(
+                              value: value, child: Text(value)))
+                          .toList(),
+                      onChanged: (value) => setState(() => week = value),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Set the time"),
+                    GradientButton(
+                        shadowColor: Colors.black26,
+                        elevation: 6.0,
+                        shapeRadius: BorderRadius.circular(10),
+                        gradient: Gradients.blush,
+                        increaseWidthBy: 20,
+                        child: Text("Choose Time"),
+                        callback: () {
+                          selectedTime = showTimePicker(
+                              context: context, initialTime: TimeOfDay.now());
+                        }),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -108,22 +137,14 @@ class _TaskViewState extends State<TaskView>
                           shadowColor: Colors.black26,
                           elevation: 6.0,
                           shapeRadius: BorderRadius.circular(10),
-                          gradient: Gradients.blush,
-                          increaseWidthBy: 20,
-                          child: Text("Choose Time"),
-                          callback: () {
-                            return showTimePicker(
-                                context: context, initialTime: TimeOfDay.now());
-                          }),
-                      GradientButton(
-                          shadowColor: Colors.black26,
-                          elevation: 6.0,
-                          shapeRadius: BorderRadius.circular(10),
                           gradient: Gradients.coldLinear,
                           increaseWidthBy: 20,
                           child: Text("Save",
                               style: TextStyle(color: Colors.white)),
-                          callback: () {}),
+                          callback: () async {
+                            print("$title\n$description\n${await selectedTime}\n$week");
+                            Navigator.of(context).pop();
+                          }),
                     ],
                   ),
                 )
@@ -135,6 +156,7 @@ class _TaskViewState extends State<TaskView>
           icon: const Icon(
             Icons.edit,
             color: Colors.white,
+            size: 25,
           ),
         ));
   }
