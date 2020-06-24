@@ -1,13 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 
 import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 
+import '../custom_dialog.dart';
 import '../globals.dart';
 import '../routes/routes.gr.dart';
 
@@ -21,65 +25,9 @@ class _TaskViewState extends State<TaskView>
   TabController _tabController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
-  List<Widget> _tasksCards = [];
   final _totalTabs = 7;
-
-  List<Widget> _renderTask() {
-    int __offset;
-    // clean the task card list otherwise it will exceed limit by repeated rebuilding
-    _tasksCards.clear();
-    for (int i = 1; i <= _totalTabs; i++) {
-      __offset = 100;
-      _tasksCards.add(CupertinoScrollbar(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-          child: Column(
-            children: <Widget>[
-              for (String day in weeks)
-                BounceIn(
-                  preferences: AnimationPreferences(
-                      offset: Duration(milliseconds: __offset += 50)),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.blueGrey[200],
-                            blurRadius: 10.0,
-                          )
-                        ],
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: getNextGradient(),
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(15)),
-                      ),
-                      child: ListTileTheme(
-                        iconColor: Colors.white,
-                        textColor: Colors.white,
-                        child: ListTile(
-                          title: Text(day),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => null,
-                          ),
-                          onTap: () => null,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-            ],
-          ),
-        ),
-      ));
-    }
-    return _tasksCards;
-  }
+  int _uniqueColorIndex;
+  int __offset;
 
   @override
   void initState() {
@@ -109,12 +57,109 @@ class _TaskViewState extends State<TaskView>
         systemNavigationBarIconBrightness: Brightness.dark));
   }
 
-  void _addPlanCallback() {
+  void _editTaskCard() {
+    showDialog(
+        context: context,
+        child: DialogForm(
+          title: const Text(
+            "Edit Task",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            height: 250,
+            width: 90,
+            child: Column(
+              children: [
+                Text("What's the task ?"),
+                Expanded(
+                  child: TextField(
+                    autocorrect: true,
+                    cursorColor: Colors.red,
+                    maxLines: 1,
+                    autofocus: true,
+                    enableSuggestions: true,
+                    maxLength: 40,
+                  ),
+                ),
+                Text("Something else to remember with it?"),
+                Expanded(
+                    child: TextField(
+                  autocorrect: true,
+                  cursorColor: Colors.red,
+                  maxLines: 1,
+                  autofocus: true,
+                  enableSuggestions: true,
+                  maxLength: 40,
+                )),
+                DropdownButton(
+                  value: weeks[0],
+                  items: weeks
+                      .map((value) => DropdownMenuItem<String>(
+                          value: value, child: Text(value)))
+                      .toList(),
+                  onChanged: (value) {},
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GradientButton(
+                          shadowColor: Colors.black26,
+                          elevation: 6.0,
+                          shapeRadius: BorderRadius.circular(10),
+                          gradient: Gradients.blush,
+                          increaseWidthBy: 20,
+                          child: Text("Choose Time"),
+                          callback: () {
+                            return showTimePicker(
+                                context: context, initialTime: TimeOfDay.now());
+                          }),
+                      GradientButton(
+                          shadowColor: Colors.black26,
+                          elevation: 6.0,
+                          shapeRadius: BorderRadius.circular(10),
+                          gradient: Gradients.coldLinear,
+                          increaseWidthBy: 20,
+                          child: Text("Save",
+                              style: TextStyle(color: Colors.white)),
+                          callback: () {}),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          titleBackground: Colors.red,
+          contentBackground: Colors.white,
+          icon: const Icon(
+            Icons.edit,
+            color: Colors.white,
+          ),
+        ));
+  }
 
+  void _addPlanCallback() {
+    print("Hi");
+    __offset = 100;
+    setState(() => userTasks.addAll({
+          "Test ${Random().nextInt(324)}": {
+            "time": "9:00AM",
+            "endtime": "11:00AM",
+            "notify": true,
+            "description": "This is a test task, blah, blah, blah, blah, blah",
+            "image": null,
+            "importance": 0,
+            "done": false,
+            "week": 2
+          },
+        }));
   }
 
   @override
   Widget build(BuildContext context) {
+    __offset = 200;
+    _uniqueColorIndex = 0;
     return DefaultTabController(
       length: _totalTabs,
       child: Scaffold(
@@ -177,7 +222,94 @@ class _TaskViewState extends State<TaskView>
           body: TabBarView(
               controller: _tabController,
               physics: const BouncingScrollPhysics(),
-              children: _renderTask()),
+              children: [
+                for (int i = 1; i <= _totalTabs; i++)
+                  CupertinoScrollbar(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                      child: Column(
+                        children: [
+                          for (String task in userTasks.keys)
+                            if (userTasks[task]["week"] == _tabController.index)
+                              BounceIn(
+                                preferences: AnimationPreferences(
+                                    offset:
+                                        Duration(milliseconds: __offset += 50)),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.blueGrey[200],
+                                          blurRadius: 10.0,
+                                        )
+                                      ],
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: autoGenerateColorCard[
+                                            _uniqueColorIndex++],
+                                      ),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(15)),
+                                    ),
+                                    child: ListTileTheme(
+                                      iconColor: Colors.white,
+                                      textColor: Colors.white,
+                                      child: ListTile(
+                                        title: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0, 10, 0, 0),
+                                          child: Text(task),
+                                        ),
+                                        subtitle: Row(
+                                          verticalDirection:
+                                              VerticalDirection.up,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Flexible(
+                                                child: Text(userTasks[task]
+                                                    ['description'])),
+                                            Card(
+                                              elevation: 0,
+                                              color: Colors.black12,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Text(
+                                                  "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                            Checkbox(
+                                                value: userTasks[task]['done'],
+                                                onChanged: (value) => setState(
+                                                    () => userTasks[task]
+                                                        ['done'] = value))
+                                          ],
+                                        ),
+                                        isThreeLine: true,
+                                        trailing: IconButton(
+                                          icon: const Icon(Icons.edit),
+                                          onPressed: _editTaskCard,
+                                        ),
+                                        onTap: () => null,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                        ],
+                      ),
+                    ),
+                  )
+              ]),
           floatingActionButton:
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             FloatingActionButton(
