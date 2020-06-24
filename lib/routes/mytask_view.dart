@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_animator/flutter_animator.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
+import 'package:flutter_animator/flutter_animator.dart';
 
 import '../globals.dart';
 import '../routes/routes.gr.dart';
@@ -18,16 +18,18 @@ class TaskView extends StatefulWidget {
 
 class _TaskViewState extends State<TaskView>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  int _initialIndex, incrementDuration;
   TabController _tabController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
   List<Widget> _tasksCards = [];
+  final _totalTabs = 7;
 
   List<Widget> _renderTask() {
+    int __offset;
+    // clean the task card list otherwise it will exceed limit by repeated rebuilding
     _tasksCards.clear();
-
-    for (int i = 0; i < 7; i++) {
+    for (int i = 1; i <= _totalTabs; i++) {
+      __offset = 100;
       _tasksCards.add(CupertinoScrollbar(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -36,8 +38,8 @@ class _TaskViewState extends State<TaskView>
             children: <Widget>[
               for (String day in weeks)
                 BounceIn(
-                  preferences:
-                      AnimationPreferences(offset: Duration(milliseconds: 300)),
+                  preferences: AnimationPreferences(
+                      offset: Duration(milliseconds: __offset += 50)),
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
                     child: Container(
@@ -82,56 +84,51 @@ class _TaskViewState extends State<TaskView>
   @override
   void initState() {
     super.initState();
-
-    // add an observer to detect life cycle change
     WidgetsBinding.instance.addObserver(this);
-
-    // set up the _initialIndex to be the current week in index form
-    _initialIndex = weeks.indexOf(_currentWeek);
-
-    // trigger the scale transition for the tab
-    setState(() => _currentWeekTabSize += 30);
-
-    // set up the tab controller
-    _tabController = TabController(length: 7, vsync: this);
-    _tabController.index = _initialIndex;
+    setState(() =>
+        _currentWeekTabSize += 30); // trigger the scale transition for the tab
+    _tabController = TabController(length: _totalTabs, vsync: this);
+    _tabController.index = weeks.indexOf(_currentWeek);
     _tabController.addListener(
         () => setState(() => _currentWeek = weeks[_tabController.index]));
   }
 
   @override
   void dispose() {
-    // dispose the tab controller
     _tabController.dispose();
-
-    // dispose the observer for life cycle change
     WidgetsBinding.instance.removeObserver(this);
-
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // re-render the status foreground to be black
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
-    FlutterStatusbarcolor.setNavigationBarWhiteForeground(false);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.white30,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white30,
+        systemNavigationBarIconBrightness: Brightness.dark));
+  }
+
+  void _addPlanCallback() {
+
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 7,
+      length: _totalTabs,
       child: Scaffold(
           appBar: AppBar(
             titleSpacing: 20,
+            brightness: Brightness.light,
             bottom: TabBar(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               isScrollable: true,
               indicatorColor: Colors.transparent,
               indicatorWeight: 0.1,
               indicatorSize: TabBarIndicatorSize.label,
               controller: _tabController,
-              tabs: [
+              tabs: <Widget>[
                 for (String text in weeks)
                   Tab(
                     child: Padding(
@@ -167,7 +164,7 @@ class _TaskViewState extends State<TaskView>
                 child: CircleAvatar(
                     backgroundColor: Colors.red,
                     child: IconButton(
-                        icon: Icon(Icons.account_circle),
+                        icon: const Icon(Icons.account_circle),
                         color: Colors.white,
                         onPressed: () => ExtendedNavigator.of(context)
                             .pushNamed(Routes.accountSettingsView))),
@@ -179,7 +176,7 @@ class _TaskViewState extends State<TaskView>
           ),
           body: TabBarView(
               controller: _tabController,
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               children: _renderTask()),
           floatingActionButton:
               Row(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -187,9 +184,9 @@ class _TaskViewState extends State<TaskView>
               heroTag: "btn3",
               focusElevation: 80,
               onPressed: () => null,
-              tooltip: 'Add a task',
+              tooltip: 'Edit Plan View',
               child: CircularGradientButton(
-                child: Icon(Icons.calendar_today),
+                child: const Icon(Icons.calendar_today),
                 callback: () => ExtendedNavigator.of(context)
                     .pushNamed(Routes.weekendPlanView),
                 gradient: Gradients.blush,
@@ -197,15 +194,15 @@ class _TaskViewState extends State<TaskView>
               ),
             ),
             Padding(
-                padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: FloatingActionButton(
                   heroTag: "btn4",
                   focusElevation: 80,
                   onPressed: () => null,
                   tooltip: 'Add a task',
                   child: CircularGradientButton(
-                    child: Icon(Icons.add),
-                    callback: () {},
+                    child: const Icon(Icons.add),
+                    callback: _addPlanCallback,
                     gradient: Gradients.hotLinear,
                     elevation: 0,
                   ),

@@ -3,8 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
-
+import 'package:flutter/services.dart';
 import 'routes/routes.gr.dart';
 
 void main() => runApp(WhatsMyTodaysTasks());
@@ -12,10 +11,11 @@ void main() => runApp(WhatsMyTodaysTasks());
 class WhatsMyTodaysTasks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Set up mobile system status and navigation bar style
-    FlutterStatusbarcolor.setStatusBarColor(Colors.white30);
-    FlutterStatusbarcolor.setNavigationBarColor(Colors.white30);
-
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.white30,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white30,
+        systemNavigationBarIconBrightness: Brightness.dark));
     return MaterialApp(
       title: "What's my today's task",
       debugShowCheckedModeBanner: false,
@@ -29,12 +29,10 @@ class WhatsMyTodaysTasks extends StatelessWidget {
           primaryIconTheme:
               const IconThemeData.fallback().copyWith(color: Colors.red[600]),
           primaryTextTheme: TextTheme(
-            headline6: TextStyle(
-              color: Colors.blueGrey[200],
-              fontWeight: FontWeight.bold,
-            ),
-            bodyText2: TextStyle(color: Colors.red[600]),
-          ),
+              headline6: TextStyle(
+            color: Colors.blueGrey[200],
+            fontWeight: FontWeight.bold,
+          )),
           visualDensity: VisualDensity.adaptivePlatformDensity),
     );
   }
