@@ -31,7 +31,7 @@ class _TaskViewState extends State<TaskView>
   int __offset;
 
   // for details
-  String title, description, week;
+  String title, description, week = "Monday";
   Future<TimeOfDay> selectedTime;
 
   @override
@@ -64,9 +64,10 @@ class _TaskViewState extends State<TaskView>
 
   void _tasksEditDialog(
       {bool modifyWhat: false,
+      bool done,
       String title,
       description,
-      week,
+      week2,
       oldTitle,
       dynamic selectedTime}) {
     // reset the form details or fill the current card details for edit
@@ -75,11 +76,6 @@ class _TaskViewState extends State<TaskView>
       description = null;
       week = null;
       selectedTime = null;
-    } else {
-      title = title;
-      description = description;
-      week = week;
-      selectedTime = selectedTime;
     }
 
     _textFieldTaskController = TextEditingController(text: title);
@@ -122,7 +118,7 @@ class _TaskViewState extends State<TaskView>
                   children: [
                     const Text("Pick a day"),
                     DropdownButton(
-                        value: weeks[0],
+                        value: week,
                         items: weeks
                             .map((value) => DropdownMenuItem<String>(
                                 value: value, child: Text(value)))
@@ -169,14 +165,14 @@ class _TaskViewState extends State<TaskView>
                                         .length !=
                                     0) {
                               TimeOfDay _awaitedTime;
-                              if (selectedTime is String) {
+                              if (selectedTime is String && selectedTime != "Any Time") {
                                 DateTime dateTimeFromString =
                                     DateFormat.jm().parse(selectedTime);
                                 selectedTime = TimeOfDay(
                                     hour: dateTimeFromString.hour,
                                     minute: dateTimeFromString.minute);
                                 _awaitedTime = selectedTime;
-                              } else {
+                              } else if (selectedTime is Future<TimeOfDay>) {
                                 _awaitedTime = (await selectedTime);
                               }
                               // if modifiying then first check if key present else make one
@@ -194,7 +190,7 @@ class _TaskViewState extends State<TaskView>
                                     "description": description,
                                     "image": null,
                                     "importance": 0,
-                                    "done": false,
+                                    "done": done,
                                     "week": weeks.indexOf(week)
                                   },
                                 });
@@ -363,10 +359,11 @@ class _TaskViewState extends State<TaskView>
                                               oldTitle: task,
                                               description: userTasks[task]
                                                   ["description"],
-                                              week: weeks[userTasks[task]
+                                              week2: weeks[userTasks[task]
                                                   ["week"]],
                                               selectedTime: userTasks[task]
                                                   ["time"],
+                                                  done:  userTasks[task]["done"]
                                             ),
                                           ),
                                           onTap: () => null,
@@ -453,7 +450,18 @@ class _TaskViewState extends State<TaskView>
                                           isThreeLine: true,
                                           trailing: IconButton(
                                             icon: const Icon(Icons.edit),
-                                            onPressed: _tasksEditDialog,
+                                            onPressed: () => _tasksEditDialog(
+                                              modifyWhat: true,
+                                              title: task,
+                                              oldTitle: task,
+                                              description: userTasks[task]
+                                                  ["description"],
+                                              week2: weeks[userTasks[task]
+                                                  ["week"]],
+                                              selectedTime: userTasks[task]
+                                                  ["time"],
+                                                  done:  userTasks[task]["done"],
+                                            ),
                                           ),
                                           onTap: () => null,
                                         ),
