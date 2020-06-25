@@ -25,6 +25,7 @@ dependencies:
   gradient_widgets: ^0.5.1
   jiffy: ^3.0.1
   flutter_animator: ^2.0.9
+  intl: ^0.16.1
 
 dev_dependencies:
   flutter_test:

@@ -28,8 +28,8 @@ final weeks = [
 
 Map<String, Map<String, Object>> userTasks = {
   "Test 1": {
-    "time": "9:00AM",
-    "endtime": "11:00AM",
+    "time": "9:00 AM",
+    "endtime": "11:00 AM",
     "notify": true,
     "description": "This is a test task, blah, blah, blah, blah, blah",
     "image": null,
@@ -38,8 +38,8 @@ Map<String, Map<String, Object>> userTasks = {
     "week": 0
   },
   "Test 2": {
-    "time": "11:00AM",
-    "endtime": "12:00AM",
+    "time": "11:00 AM",
+    "endtime": "12:00 AM",
     "notify": true,
     "description": "This is a test task 2, blah, blah, blah, blah, blah",
     "image": null,

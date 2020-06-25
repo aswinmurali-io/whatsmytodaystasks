@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:intl/intl.dart';
 
 import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
@@ -23,6 +22,8 @@ class TaskView extends StatefulWidget {
 class _TaskViewState extends State<TaskView>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _tabController;
+  TextEditingController _textFieldTaskController;
+  TextEditingController _textFieldDescriptionController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
   final _totalTabs = 7;
@@ -61,77 +62,87 @@ class _TaskViewState extends State<TaskView>
         systemNavigationBarIconBrightness: Brightness.dark));
   }
 
-  void _tasksEditDialog({bool modifyWhat}) {
-    // reset the form details
-    title = null;
-    description = null;
-    week = null;
-    selectedTime = null;
+  void _tasksEditDialog(
+      {bool modifyWhat: false,
+      String title,
+      description,
+      week,
+      oldTitle,
+      dynamic selectedTime}) {
+    // reset the form details or fill the current card details for edit
+    if (!modifyWhat) {
+      title = null;
+      description = null;
+      week = null;
+      selectedTime = null;
+    } else {
+      title = title;
+      description = description;
+      week = week;
+      selectedTime = selectedTime;
+    }
+
+    _textFieldTaskController = TextEditingController(text: title);
+    _textFieldDescriptionController = TextEditingController(text: description);
 
     showDialog(
         context: context,
         child: CustomGradientDialogForm(
-          title: const Text(
-            "Edit Task",
-            style: TextStyle(color: Colors.white, fontSize: 25),
-          ),
+          title: Text((modifyWhat) ? "Edit Task" : "New Task",
+              style: TextStyle(color: Colors.white, fontSize: 25)),
           content: SizedBox(
-            height: 287,
+            height: 300,
             width: 90,
             child: Column(
               children: [
-                Text("What's the task ?"),
-                Expanded(
-                  child: TextField(
-                    autocorrect: true,
-                    cursorColor: Colors.red,
-                    maxLines: 1,
-                    autofocus: true,
-                    enableSuggestions: true,
-                    maxLength: 40,
-                    onChanged: (value) => title = value,
-                  ),
-                ),
-                Text("Something else to remember with it?"),
+                const Text("What's the task ?"),
                 Expanded(
                     child: TextField(
-                  autocorrect: true,
-                  cursorColor: Colors.red,
-                  maxLines: 1,
-                  autofocus: true,
-                  enableSuggestions: true,
-                  maxLength: 40,
-                  onChanged: (value) => description = value,
-                )),
+                        controller: _textFieldTaskController,
+                        autocorrect: true,
+                        cursorColor: Colors.red,
+                        maxLines: 1,
+                        autofocus: true,
+                        enableSuggestions: true,
+                        maxLength: 40,
+                        onChanged: (value) => title = value)),
+                const Text("Something else to remember with it?"),
+                Expanded(
+                    child: TextField(
+                        controller: _textFieldDescriptionController,
+                        autocorrect: true,
+                        cursorColor: Colors.red,
+                        maxLines: 1,
+                        autofocus: true,
+                        enableSuggestions: true,
+                        maxLength: 30,
+                        onChanged: (value) => description = value)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Pick a day"),
+                    const Text("Pick a day"),
                     DropdownButton(
-                      value: weeks[0],
-                      items: weeks
-                          .map((value) => DropdownMenuItem<String>(
-                              value: value, child: Text(value)))
-                          .toList(),
-                      onChanged: (value) => setState(() => week = value),
-                    ),
+                        value: weeks[0],
+                        items: weeks
+                            .map((value) => DropdownMenuItem<String>(
+                                value: value, child: Text(value)))
+                            .toList(),
+                        onChanged: (value) => setState(() => week = value)),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Set the time"),
+                    const Text("Set the time"),
                     GradientButton(
                         shadowColor: Colors.black26,
                         elevation: 6.0,
                         shapeRadius: BorderRadius.circular(10),
                         gradient: Gradients.blush,
                         increaseWidthBy: 20,
-                        child: Text("Choose Time"),
-                        callback: () {
-                          selectedTime = showTimePicker(
-                              context: context, initialTime: TimeOfDay.now());
-                        }),
+                        child: const Text("Choose Time"),
+                        callback: () => selectedTime = showTimePicker(
+                            context: context, initialTime: TimeOfDay.now())),
                   ],
                 ),
                 Padding(
@@ -145,27 +156,51 @@ class _TaskViewState extends State<TaskView>
                           shapeRadius: BorderRadius.circular(10),
                           gradient: Gradients.coldLinear,
                           increaseWidthBy: 20,
-                          child: Text("Save",
+                          child: const Text("Save",
                               style: TextStyle(color: Colors.white)),
                           callback: () async {
-                            TimeOfDay _awaitedTime = (await selectedTime);
-
-                            if (modifyWhat == null)
-                              setState(() => userTasks.addAll({
-                                    title: {
-                                      "time": (_awaitedTime != null)
-                                          ? "${_awaitedTime.hour}:${_awaitedTime.minute}${_awaitedTime.periodOffset}"
-                                          : "Any Time",
-                                      "endtime": "12:00AM",
-                                      "notify": true,
-                                      "description": description,
-                                      "image": null,
-                                      "importance": 0,
-                                      "done": false,
-                                      "week": weeks.indexOf(week)
-                                    },
-                                  }));
-                            Navigator.of(context).pop();
+                            if (week != null &&
+                                _textFieldTaskController.text
+                                        .replaceAll(RegExp(r'\s'), '')
+                                        .length !=
+                                    0 &&
+                                _textFieldDescriptionController.text
+                                        .replaceAll(RegExp(r'\s'), '')
+                                        .length !=
+                                    0) {
+                              TimeOfDay _awaitedTime;
+                              if (selectedTime is String) {
+                                DateTime dateTimeFromString =
+                                    DateFormat.jm().parse(selectedTime);
+                                selectedTime = TimeOfDay(
+                                    hour: dateTimeFromString.hour,
+                                    minute: dateTimeFromString.minute);
+                                _awaitedTime = selectedTime;
+                              } else {
+                                _awaitedTime = (await selectedTime);
+                              }
+                              // if modifiying then first check if key present else make one
+                              setState(() {
+                                if (modifyWhat &&
+                                    userTasks.containsKey(oldTitle))
+                                  userTasks.remove(oldTitle);
+                                userTasks.addAll({
+                                  title: {
+                                    "time": (_awaitedTime != null)
+                                        ? "${(_awaitedTime.hour > 12) ? _awaitedTime.hour - 12 : _awaitedTime.hour}:${(_awaitedTime.minute < 10) ? '0${_awaitedTime.minute}' : _awaitedTime.minute} ${(_awaitedTime.period.index == 1) ? 'PM' : 'AM'}"
+                                        : "Any Time",
+                                    "endtime": "Any Time",
+                                    "notify": true,
+                                    "description": description,
+                                    "image": null,
+                                    "importance": 0,
+                                    "done": false,
+                                    "week": weeks.indexOf(week)
+                                  },
+                                });
+                              });
+                              Navigator.of(context).pop();
+                            }
                           }),
                     ],
                   ),
@@ -175,29 +210,8 @@ class _TaskViewState extends State<TaskView>
           ),
           titleBackground: Colors.red,
           contentBackground: Colors.white,
-          icon: const Icon(
-            Icons.edit,
-            color: Colors.white,
-            size: 25,
-          ),
+          icon: const Icon(Icons.edit, color: Colors.white, size: 25),
         ));
-  }
-
-  void _addPlanCallback() {
-    print("Hi");
-    __offset = 100;
-    setState(() => userTasks.addAll({
-          "Test ${Random().nextInt(324)}": {
-            "time": "9:00AM",
-            "endtime": "11:00AM",
-            "notify": true,
-            "description": "This is a test task, blah, blah, blah, blah, blah",
-            "image": null,
-            "importance": 0,
-            "done": false,
-            "week": 2
-          },
-        }));
   }
 
   @override
@@ -208,61 +222,61 @@ class _TaskViewState extends State<TaskView>
       length: _totalTabs,
       child: Scaffold(
           appBar: AppBar(
-            titleSpacing: 20,
-            brightness: Brightness.light,
-            bottom: TabBar(
-              physics: const BouncingScrollPhysics(),
-              isScrollable: true,
-              indicatorColor: Colors.transparent,
-              indicatorWeight: 0.1,
-              indicatorSize: TabBarIndicatorSize.label,
-              controller: _tabController,
-              tabs: <Widget>[
-                for (String text in weeks)
-                  Tab(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.fastOutSlowIn,
-                        width: (text == _currentWeek)
-                            ? _currentWeekTabSize + 70
-                            : _currentWeekTabSize + 60,
-                        height: (text == _currentWeek)
-                            ? _currentWeekTabSize
-                            : _currentWeekTabSize - 30,
-                        child: GradientButton(
-                          gradient: (text == _currentWeek)
-                              ? Gradients.cosmicFusion
-                              : Gradients.taitanum,
-                          shadowColor: Colors.transparent,
-                          increaseWidthBy: _currentWeekTabSize + 10,
-                          child: Text(text,
-                              style: TextStyle(
-                                  fontSize: (text == _currentWeek) ? 20 : 15)),
-                          callback: null,
+              titleSpacing: 20,
+              brightness: Brightness.light,
+              bottom: TabBar(
+                physics: const BouncingScrollPhysics(),
+                isScrollable: true,
+                indicatorColor: Colors.transparent,
+                indicatorWeight: 0.1,
+                indicatorSize: TabBarIndicatorSize.label,
+                controller: _tabController,
+                tabs: [
+                  for (String text in weeks)
+                    Tab(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.fastOutSlowIn,
+                          width: (text == _currentWeek)
+                              ? _currentWeekTabSize + 70
+                              : _currentWeekTabSize + 60,
+                          height: (text == _currentWeek)
+                              ? _currentWeekTabSize
+                              : _currentWeekTabSize - 30,
+                          child: GradientButton(
+                            gradient: (text == _currentWeek)
+                                ? Gradients.cosmicFusion
+                                : Gradients.taitanum,
+                            shadowColor: Colors.transparent,
+                            increaseWidthBy: _currentWeekTabSize + 10,
+                            child: Text(text,
+                                style: TextStyle(
+                                    fontSize:
+                                        (text == _currentWeek) ? 20 : 15)),
+                            callback: null,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                ],
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
+                  child: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      child: IconButton(
+                          icon: const Icon(Icons.account_circle),
+                          color: Colors.white,
+                          onPressed: () => ExtendedNavigator.of(context)
+                              .pushNamed(Routes.accountSettingsView))),
+                )
               ],
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-                child: CircleAvatar(
-                    backgroundColor: Colors.red,
-                    child: IconButton(
-                        icon: const Icon(Icons.account_circle),
-                        color: Colors.white,
-                        onPressed: () => ExtendedNavigator.of(context)
-                            .pushNamed(Routes.accountSettingsView))),
-              )
-            ],
-            title: const Text("What's my today's tasks ?"),
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-          ),
+              title: const Text("What's my today's tasks ?"),
+              elevation: 0,
+              backgroundColor: Colors.transparent),
           body: TabBarView(
               controller: _tabController,
               physics: const BouncingScrollPhysics(),
@@ -288,9 +302,8 @@ class _TaskViewState extends State<TaskView>
                                       decoration: BoxDecoration(
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.blueGrey[200],
-                                            blurRadius: 10.0,
-                                          )
+                                              color: Colors.blueGrey[200],
+                                              blurRadius: 10.0)
                                         ],
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
@@ -344,7 +357,17 @@ class _TaskViewState extends State<TaskView>
                                           isThreeLine: true,
                                           trailing: IconButton(
                                             icon: const Icon(Icons.edit),
-                                            onPressed: _tasksEditDialog,
+                                            onPressed: () => _tasksEditDialog(
+                                              modifyWhat: true,
+                                              title: task,
+                                              oldTitle: task,
+                                              description: userTasks[task]
+                                                  ["description"],
+                                              week: weeks[userTasks[task]
+                                                  ["week"]],
+                                              selectedTime: userTasks[task]
+                                                  ["time"],
+                                            ),
                                           ),
                                           onTap: () => null,
                                         ),
@@ -352,15 +375,14 @@ class _TaskViewState extends State<TaskView>
                                     ),
                                   ),
                                 ),
-                          Divider(
-                            thickness: 1.0,
-                            color: Colors.blueGrey[100],
-                          ),
                           // Task that are already done will be grey with strike text
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
                               if (userTasks[task]["done"])
                                 BounceIn(
+                                  preferences: AnimationPreferences(
+                                      offset: Duration(
+                                          milliseconds: __offset += 10)),
                                   child: Padding(
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 5, 0, 10),
@@ -439,41 +461,25 @@ class _TaskViewState extends State<TaskView>
                                     ),
                                   ),
                                 ),
+                          // To give space for showing the last card's edit button
+                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 73))
                         ],
                       ),
                     ),
                   )
               ]),
-          floatingActionButton:
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            FloatingActionButton(
-              heroTag: "btn3",
-              focusElevation: 80,
-              onPressed: () => null,
-              tooltip: 'Edit Plan View',
-              child: CircularGradientButton(
-                child: const Icon(Icons.calendar_today),
-                callback: () => ExtendedNavigator.of(context)
-                    .pushNamed(Routes.weekendPlanView),
-                gradient: Gradients.blush,
-                elevation: 0,
-              ),
+          floatingActionButton: FloatingActionButton(
+            heroTag: "Add Task",
+            focusElevation: 80,
+            onPressed: () => null,
+            tooltip: "Add a task",
+            child: CircularGradientButton(
+              child: const Icon(Icons.add),
+              callback: () => _tasksEditDialog(),
+              gradient: Gradients.hotLinear,
+              elevation: 0,
             ),
-            Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child: FloatingActionButton(
-                  heroTag: "btn4",
-                  focusElevation: 80,
-                  onPressed: () => null,
-                  tooltip: 'Add a task',
-                  child: CircularGradientButton(
-                    child: const Icon(Icons.add),
-                    callback: _addPlanCallback,
-                    gradient: Gradients.hotLinear,
-                    elevation: 0,
-                  ),
-                ))
-          ])),
+          )),
     );
   }
 }
