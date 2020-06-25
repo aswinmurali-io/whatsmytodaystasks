@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -30,6 +29,7 @@ class _TaskViewState extends State<TaskView>
   int _uniqueColorIndex;
   int __offset;
 
+  // for details
   String title, description, week;
   Future<TimeOfDay> selectedTime;
 
@@ -61,7 +61,13 @@ class _TaskViewState extends State<TaskView>
         systemNavigationBarIconBrightness: Brightness.dark));
   }
 
-  void _editTaskCard() {
+  void _tasksEditDialog({bool modifyWhat}) {
+    // reset the form details
+    title = null;
+    description = null;
+    week = null;
+    selectedTime = null;
+
     showDialog(
         context: context,
         child: CustomGradientDialogForm(
@@ -142,7 +148,23 @@ class _TaskViewState extends State<TaskView>
                           child: Text("Save",
                               style: TextStyle(color: Colors.white)),
                           callback: () async {
-                            print("$title\n$description\n${await selectedTime}\n$week");
+                            TimeOfDay _awaitedTime = (await selectedTime);
+
+                            if (modifyWhat == null)
+                              setState(() => userTasks.addAll({
+                                    title: {
+                                      "time": (_awaitedTime != null)
+                                          ? "${_awaitedTime.hour}:${_awaitedTime.minute}${_awaitedTime.periodOffset}"
+                                          : "Any Time",
+                                      "endtime": "12:00AM",
+                                      "notify": true,
+                                      "description": description,
+                                      "image": null,
+                                      "importance": 0,
+                                      "done": false,
+                                      "week": weeks.indexOf(week)
+                                    },
+                                  }));
                             Navigator.of(context).pop();
                           }),
                     ],
@@ -254,79 +276,169 @@ class _TaskViewState extends State<TaskView>
                         children: [
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
-                              BounceIn(
-                                preferences: AnimationPreferences(
-                                    offset:
-                                        Duration(milliseconds: __offset += 50)),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 5, 0, 10),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.blueGrey[200],
-                                          blurRadius: 10.0,
-                                        )
-                                      ],
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: autoGenerateColorCard[
-                                            _uniqueColorIndex++],
-                                      ),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(15)),
-                                    ),
-                                    child: ListTileTheme(
-                                      iconColor: Colors.white,
-                                      textColor: Colors.white,
-                                      child: ListTile(
-                                        title: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              0, 10, 0, 0),
-                                          child: Text(task),
+                              if (!userTasks[task]["done"])
+                                BounceIn(
+                                  preferences: AnimationPreferences(
+                                      offset: Duration(
+                                          milliseconds: __offset += 50)),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.blueGrey[200],
+                                            blurRadius: 10.0,
+                                          )
+                                        ],
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: autoGenerateColorCard[
+                                              _uniqueColorIndex++],
                                         ),
-                                        subtitle: Row(
-                                          verticalDirection:
-                                              VerticalDirection.up,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                                child: Text(userTasks[task]
-                                                    ['description'])),
-                                            Card(
-                                              elevation: 0,
-                                              color: Colors.black12,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(5.0),
-                                                child: Text(
-                                                  "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
-                                                  style: TextStyle(
-                                                      color: Colors.white),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(15)),
+                                      ),
+                                      child: ListTileTheme(
+                                        iconColor: Colors.white,
+                                        textColor: Colors.white,
+                                        child: ListTile(
+                                          title: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 10, 0, 0),
+                                            child: Text(task),
+                                          ),
+                                          subtitle: Row(
+                                            verticalDirection:
+                                                VerticalDirection.up,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(
+                                                  child: Text(userTasks[task]
+                                                      ['description'])),
+                                              Card(
+                                                elevation: 0,
+                                                color: Colors.black12,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Text(
+                                                    "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            Checkbox(
-                                                value: userTasks[task]['done'],
-                                                onChanged: (value) => setState(
-                                                    () => userTasks[task]
-                                                        ['done'] = value))
-                                          ],
+                                              Checkbox(
+                                                  value: userTasks[task]
+                                                      ['done'],
+                                                  onChanged: (value) =>
+                                                      setState(() =>
+                                                          userTasks[task]
+                                                              ['done'] = value))
+                                            ],
+                                          ),
+                                          isThreeLine: true,
+                                          trailing: IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            onPressed: _tasksEditDialog,
+                                          ),
+                                          onTap: () => null,
                                         ),
-                                        isThreeLine: true,
-                                        trailing: IconButton(
-                                          icon: const Icon(Icons.edit),
-                                          onPressed: _editTaskCard,
-                                        ),
-                                        onTap: () => null,
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
+                          Divider(
+                            thickness: 1.0,
+                            color: Colors.blueGrey[100],
+                          ),
+                          // Task that are already done will be grey with strike text
+                          for (String task in userTasks.keys)
+                            if (userTasks[task]["week"] == _tabController.index)
+                              if (userTasks[task]["done"])
+                                BounceIn(
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.blueGrey[200],
+                                            blurRadius: 10.0,
+                                          )
+                                        ],
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: GradientColors.grey,
+                                        ),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(15)),
+                                      ),
+                                      child: ListTileTheme(
+                                        iconColor: Colors.white,
+                                        textColor: Colors.grey,
+                                        child: ListTile(
+                                          title: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                0, 10, 0, 0),
+                                            child: Text(task,
+                                                style: TextStyle(
+                                                    decoration: TextDecoration
+                                                        .lineThrough)),
+                                          ),
+                                          subtitle: Row(
+                                            verticalDirection:
+                                                VerticalDirection.up,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(
+                                                  child: Text(
+                                                      userTasks[task]
+                                                          ['description'],
+                                                      style: TextStyle(
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .lineThrough))),
+                                              Card(
+                                                elevation: 0,
+                                                color: Colors.black12,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(5.0),
+                                                  child: Text(
+                                                    "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                              Checkbox(
+                                                  value: userTasks[task]
+                                                      ['done'],
+                                                  onChanged: (value) =>
+                                                      setState(() =>
+                                                          userTasks[task]
+                                                              ['done'] = value))
+                                            ],
+                                          ),
+                                          isThreeLine: true,
+                                          trailing: IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            onPressed: _tasksEditDialog,
+                                          ),
+                                          onTap: () => null,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                         ],
                       ),
                     ),

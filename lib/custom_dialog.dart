@@ -3,7 +3,7 @@ import 'package:gradient_widgets/gradient_widgets.dart';
 
 class CustomGradientDialogForm extends StatefulWidget {
   CustomGradientDialogForm(
-      {this.titleBackground = Colors.blueAccent,
+      {this.titleBackground,
       this.icon,
       this.title,
       this.description,
