@@ -64,7 +64,7 @@ class _TaskViewState extends State<TaskView>
 
   void _tasksEditDialog(
       {bool modifyWhat: false,
-      bool done: true,
+      bool done: false,
       String title,
       dynamic endtime,
       description,
@@ -223,7 +223,7 @@ class _TaskViewState extends State<TaskView>
                                     "description": description,
                                     "image": null,
                                     "importance": 0,
-                                    "done": (!modifyWhat) ? true : done,
+                                    "done": (!modifyWhat) ? false : done,
                                     "week": weeks.indexOf(week)
                                   },
                                 });
@@ -231,6 +231,20 @@ class _TaskViewState extends State<TaskView>
                               Navigator.of(context).pop();
                             }
                           }),
+                      if (modifyWhat)
+                        GradientButton(
+                          shadowColor: Colors.black26,
+                          elevation: 6.0,
+                          shapeRadius: BorderRadius.circular(10),
+                          gradient: Gradients.aliHussien,
+                          increaseWidthBy: 20,
+                          child: const Text("Delete",
+                              style: TextStyle(color: Colors.white)),
+                          callback: () {
+                            setState(() => userTasks.remove(title));
+                            Navigator.of(context).pop();
+                          },
+                        )
                     ],
                   ),
                 )
