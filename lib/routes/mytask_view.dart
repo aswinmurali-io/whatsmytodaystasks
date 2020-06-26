@@ -64,8 +64,9 @@ class _TaskViewState extends State<TaskView>
 
   void _tasksEditDialog(
       {bool modifyWhat: false,
-      bool done,
+      bool done: true,
       String title,
+      dynamic endtime,
       description,
       week2,
       oldTitle,
@@ -76,6 +77,7 @@ class _TaskViewState extends State<TaskView>
       description = null;
       week = null;
       selectedTime = null;
+      endtime = null;
     }
 
     _textFieldTaskController = TextEditingController(text: title);
@@ -129,15 +131,30 @@ class _TaskViewState extends State<TaskView>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Set the time"),
+                    const Text("Set the start time"),
                     GradientButton(
                         shadowColor: Colors.black26,
                         elevation: 6.0,
                         shapeRadius: BorderRadius.circular(10),
                         gradient: Gradients.blush,
-                        increaseWidthBy: 20,
-                        child: const Text("Choose Time"),
+                        increaseWidthBy: 40,
+                        child: const Text("Choose Start Time"),
                         callback: () => selectedTime = showTimePicker(
+                            context: context, initialTime: TimeOfDay.now())),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Set the end time"),
+                    GradientButton(
+                        shadowColor: Colors.black26,
+                        elevation: 6.0,
+                        shapeRadius: BorderRadius.circular(10),
+                        gradient: Gradients.blush,
+                        increaseWidthBy: 40,
+                        child: const Text("Choose End Time"),
+                        callback: () => endtime = showTimePicker(
                             context: context, initialTime: TimeOfDay.now())),
                   ],
                 ),
@@ -164,8 +181,9 @@ class _TaskViewState extends State<TaskView>
                                         .replaceAll(RegExp(r'\s'), '')
                                         .length !=
                                     0) {
-                              TimeOfDay _awaitedTime;
-                              if (selectedTime is String && selectedTime != "Any Time") {
+                              TimeOfDay _awaitedTime, _awaitedTime2;
+                              if (selectedTime is String &&
+                                  selectedTime != "Any Time") {
                                 DateTime dateTimeFromString =
                                     DateFormat.jm().parse(selectedTime);
                                 selectedTime = TimeOfDay(
@@ -174,6 +192,17 @@ class _TaskViewState extends State<TaskView>
                                 _awaitedTime = selectedTime;
                               } else if (selectedTime is Future<TimeOfDay>) {
                                 _awaitedTime = (await selectedTime);
+                              }
+
+                              if (endtime is String && endtime != "Any Time") {
+                                DateTime dateTimeFromString =
+                                    DateFormat.jm().parse(endtime);
+                                endtime = TimeOfDay(
+                                    hour: dateTimeFromString.hour,
+                                    minute: dateTimeFromString.minute);
+                                _awaitedTime2 = endtime;
+                              } else if (endtime is Future<TimeOfDay>) {
+                                _awaitedTime2 = (await endtime);
                               }
                               // if modifiying then first check if key present else make one
                               setState(() {
@@ -185,12 +214,14 @@ class _TaskViewState extends State<TaskView>
                                     "time": (_awaitedTime != null)
                                         ? "${(_awaitedTime.hour > 12) ? _awaitedTime.hour - 12 : _awaitedTime.hour}:${(_awaitedTime.minute < 10) ? '0${_awaitedTime.minute}' : _awaitedTime.minute} ${(_awaitedTime.period.index == 1) ? 'PM' : 'AM'}"
                                         : "Any Time",
-                                    "endtime": "Any Time",
+                                    "endtime": (_awaitedTime2 != null)
+                                        ? "${(_awaitedTime2.hour > 12) ? _awaitedTime2.hour - 12 : _awaitedTime2.hour}:${(_awaitedTime2.minute < 10) ? '0${_awaitedTime2.minute}' : _awaitedTime2.minute} ${(_awaitedTime2.period.index == 1) ? 'PM' : 'AM'}"
+                                        : "Any Time",
                                     "notify": true,
                                     "description": description,
                                     "image": null,
                                     "importance": 0,
-                                    "done": done,
+                                    "done": (!modifyWhat) ? true : done,
                                     "week": weeks.indexOf(week)
                                   },
                                 });
@@ -335,7 +366,11 @@ class _TaskViewState extends State<TaskView>
                                                   padding:
                                                       const EdgeInsets.all(5.0),
                                                   child: Text(
-                                                    "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                    (userTasks[task]['time'] ==
+                                                            userTasks[task]
+                                                                ['endtime'])
+                                                        ? "${userTasks[task]['time']}"
+                                                        : "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
@@ -354,17 +389,18 @@ class _TaskViewState extends State<TaskView>
                                           trailing: IconButton(
                                             icon: const Icon(Icons.edit),
                                             onPressed: () => _tasksEditDialog(
-                                              modifyWhat: true,
-                                              title: task,
-                                              oldTitle: task,
-                                              description: userTasks[task]
-                                                  ["description"],
-                                              week2: weeks[userTasks[task]
-                                                  ["week"]],
-                                              selectedTime: userTasks[task]
-                                                  ["time"],
-                                                  done:  userTasks[task]["done"]
-                                            ),
+                                                modifyWhat: true,
+                                                title: task,
+                                                oldTitle: task,
+                                                description: userTasks[task]
+                                                    ["description"],
+                                                week2: weeks[userTasks[task]
+                                                    ["week"]],
+                                                selectedTime: userTasks[task]
+                                                    ["time"],
+                                                done: userTasks[task]["done"],
+                                                endtime: userTasks[task]
+                                                    ["endtime"]),
                                           ),
                                           onTap: () => null,
                                         ),
@@ -451,17 +487,18 @@ class _TaskViewState extends State<TaskView>
                                           trailing: IconButton(
                                             icon: const Icon(Icons.edit),
                                             onPressed: () => _tasksEditDialog(
-                                              modifyWhat: true,
-                                              title: task,
-                                              oldTitle: task,
-                                              description: userTasks[task]
-                                                  ["description"],
-                                              week2: weeks[userTasks[task]
-                                                  ["week"]],
-                                              selectedTime: userTasks[task]
-                                                  ["time"],
-                                                  done:  userTasks[task]["done"],
-                                            ),
+                                                modifyWhat: true,
+                                                title: task,
+                                                oldTitle: task,
+                                                description: userTasks[task]
+                                                    ["description"],
+                                                week2: weeks[userTasks[task]
+                                                    ["week"]],
+                                                selectedTime: userTasks[task]
+                                                    ["time"],
+                                                done: userTasks[task]["done"],
+                                                endtime: userTasks[task]
+                                                    ["endtime"]),
                                           ),
                                           onTap: () => null,
                                         ),
