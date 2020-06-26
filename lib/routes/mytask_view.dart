@@ -89,7 +89,7 @@ class _TaskViewState extends State<TaskView>
           title: Text((modifyWhat) ? "Edit Task" : "New Task",
               style: TextStyle(color: Colors.white, fontSize: 25)),
           content: SizedBox(
-            height: 300,
+            height: 370,
             width: 90,
             child: Column(
               children: [
@@ -128,6 +128,8 @@ class _TaskViewState extends State<TaskView>
                         onChanged: (value) => setState(() => week = value)),
                   ],
                 ),
+                const Text(
+                    "if you already set the time and want to remove it. Open the time selector and just press cancel"),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -468,7 +470,11 @@ class _TaskViewState extends State<TaskView>
                                                   padding:
                                                       const EdgeInsets.all(5.0),
                                                   child: Text(
-                                                    "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                    (userTasks[task]['time'] ==
+                                                            userTasks[task]
+                                                                ['endtime'])
+                                                        ? "${userTasks[task]['time']}"
+                                                        : "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
