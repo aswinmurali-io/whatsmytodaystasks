@@ -3,5 +3,8 @@
 /.metadata
 /.packages
 /.vscode
+
 /build
+
 routes.gr.dart
+generated_plugin_registrant.dart

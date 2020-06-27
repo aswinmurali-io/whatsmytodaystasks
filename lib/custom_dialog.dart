@@ -22,7 +22,8 @@ class CustomGradientDialogForm extends StatefulWidget {
   final Duration animationDuration;
 
   @override
-  _CustomGradientDialogFormState createState() => _CustomGradientDialogFormState();
+  _CustomGradientDialogFormState createState() =>
+      _CustomGradientDialogFormState();
 }
 
 class _CustomGradientDialogFormState extends State<CustomGradientDialogForm> {
@@ -53,10 +54,7 @@ class _CustomGradientDialogFormState extends State<CustomGradientDialogForm> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       if (widget.icon != null) widget.icon,
-                      if (widget.icon != null)
-                        SizedBox(
-                          width: 16,
-                        ),
+                      if (widget.icon != null) SizedBox(width: 16),
                       if (widget.title != null) widget.title,
                     ],
                   ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +11,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../custom_dialog.dart';
 import '../globals.dart';
@@ -26,9 +29,10 @@ class _TaskViewState extends State<TaskView>
   TextEditingController _textFieldDescriptionController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
-  final _totalTabs = 7;
+  final _totalTabs = 9;
   int _uniqueColorIndex;
   int __offset;
+  SharedPreferences _storage;
 
   // for details
   String title, description, week = "Monday";
@@ -44,6 +48,19 @@ class _TaskViewState extends State<TaskView>
     _tabController.index = weeks.indexOf(_currentWeek);
     _tabController.addListener(
         () => setState(() => _currentWeek = weeks[_tabController.index]));
+    initAsyncStorage();
+  }
+
+  void initAsyncStorage() async {
+    _storage = await SharedPreferences.getInstance();
+    String data = _storage.get('data');
+    if (data != null) {
+      // get the map and then convert it into a nested map (value is a map too)!
+      Map<String, dynamic> __userTasks;
+      __userTasks = jsonDecode(data);
+      __userTasks.forEach((key, value) => userTasks.addAll({key: value}));
+    } else
+      _storage.setString("data", jsonEncode(userTasks));
   }
 
   @override
@@ -89,7 +106,7 @@ class _TaskViewState extends State<TaskView>
           title: Text((modifyWhat) ? "Edit Task" : "New Task",
               style: TextStyle(color: Colors.white, fontSize: 25)),
           content: SizedBox(
-            height: 370,
+            height: 400,
             width: 90,
             child: Column(
               children: [
@@ -140,7 +157,9 @@ class _TaskViewState extends State<TaskView>
                         shapeRadius: BorderRadius.circular(10),
                         gradient: Gradients.blush,
                         increaseWidthBy: 40,
-                        child: const Text("Choose Start Time"),
+                        child: Text((selectedTime == null)
+                            ? "Choose Start Time"
+                            : selectedTime),
                         callback: () => selectedTime = showTimePicker(
                             context: context, initialTime: TimeOfDay.now())),
                   ],
@@ -155,7 +174,8 @@ class _TaskViewState extends State<TaskView>
                         shapeRadius: BorderRadius.circular(10),
                         gradient: Gradients.blush,
                         increaseWidthBy: 40,
-                        child: const Text("Choose End Time"),
+                        child: Text(
+                            (endtime == null) ? "Choose End Time" : endtime),
                         callback: () => endtime = showTimePicker(
                             context: context, initialTime: TimeOfDay.now())),
                   ],
@@ -228,6 +248,7 @@ class _TaskViewState extends State<TaskView>
                                   },
                                 });
                               });
+                              _storage.setString("data", jsonEncode(userTasks));
                               Navigator.of(context).pop();
                             }
                           }),
@@ -242,6 +263,7 @@ class _TaskViewState extends State<TaskView>
                               style: TextStyle(color: Colors.white)),
                           callback: () {
                             setState(() => userTasks.remove(title));
+                            _storage.setString("data", jsonEncode(userTasks));
                             Navigator.of(context).pop();
                           },
                         )
@@ -268,7 +290,7 @@ class _TaskViewState extends State<TaskView>
               titleSpacing: 20,
               brightness: Brightness.light,
               bottom: TabBar(
-                physics: const BouncingScrollPhysics(),
+                // physics: const BouncingScrollPhysics(),
                 isScrollable: true,
                 indicatorColor: Colors.transparent,
                 indicatorWeight: 0.1,
@@ -331,6 +353,23 @@ class _TaskViewState extends State<TaskView>
                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                       child: Column(
                         children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: Row(children: [
+                              Text("Pending",
+                                  style: TextStyle(
+                                      foreground: Paint()
+                                        ..shader = textGradientShader,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
+                              Expanded(
+                                  child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 0, 0),
+                                      child:
+                                          Divider(color: Colors.deepOrange))),
+                            ]),
+                          ),
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
                               if (!userTasks[task]["done"])
@@ -386,7 +425,7 @@ class _TaskViewState extends State<TaskView>
                                                             userTasks[task]
                                                                 ['endtime'])
                                                         ? "${userTasks[task]['time']}"
-                                                        : "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                        : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
@@ -395,10 +434,13 @@ class _TaskViewState extends State<TaskView>
                                               Checkbox(
                                                   value: userTasks[task]
                                                       ['done'],
-                                                  onChanged: (value) =>
-                                                      setState(() =>
-                                                          userTasks[task]
-                                                              ['done'] = value))
+                                                  onChanged: (value) {
+                                                    setState(() =>
+                                                        userTasks[task]
+                                                            ['done'] = value);
+                                                    _storage.setString("data",
+                                                        jsonEncode(userTasks));
+                                                  })
                                             ],
                                           ),
                                           isThreeLine: true,
@@ -424,6 +466,150 @@ class _TaskViewState extends State<TaskView>
                                     ),
                                   ),
                                 ),
+                          if (_tabController.index != 7 &&
+                              _tabController.index != 8)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                              child: Row(children: [
+                                Text(
+                                  "All Days & Any days",
+                                  style: TextStyle(
+                                      foreground: Paint()
+                                        ..shader = textGradientShader,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                                Expanded(
+                                    child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 0, 0),
+                                        child:
+                                            Divider(color: Colors.deepOrange))),
+                              ]),
+                            ),
+                          // All day and any day tasks
+                          if (_tabController.index != 7 &&
+                              _tabController.index != 8)
+                            for (String task in userTasks.keys)
+                              if (userTasks[task]["week"] == 7)
+                                if (!userTasks[task]["done"])
+                                  BounceIn(
+                                    preferences: AnimationPreferences(
+                                        offset: Duration(
+                                            milliseconds: __offset += 50)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 5, 0, 10),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.blueGrey[200],
+                                                blurRadius: 10.0)
+                                          ],
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: GradientColors.aqua,
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(15)),
+                                        ),
+                                        child: ListTileTheme(
+                                          iconColor: Colors.white,
+                                          textColor: Colors.white,
+                                          child: ListTile(
+                                            title: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 10, 0, 0),
+                                              child: Text(task),
+                                            ),
+                                            subtitle: Row(
+                                              verticalDirection:
+                                                  VerticalDirection.up,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Flexible(
+                                                    child: Text(userTasks[task]
+                                                        ['description'])),
+                                                Card(
+                                                  elevation: 0,
+                                                  color: Colors.black12,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            5.0),
+                                                    child: Text(
+                                                      (userTasks[task]
+                                                                  ['time'] ==
+                                                              userTasks[task]
+                                                                  ['endtime'])
+                                                          ? "${userTasks[task]['time']}"
+                                                          : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
+                                                      style: TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Checkbox(
+                                                    value: userTasks[task]
+                                                        ['done'],
+                                                    onChanged: (value) {
+                                                      setState(() =>
+                                                          userTasks[task]
+                                                              ['done'] = value);
+                                                      _storage.setString(
+                                                          "data",
+                                                          jsonEncode(
+                                                              userTasks));
+                                                    })
+                                              ],
+                                            ),
+                                            isThreeLine: true,
+                                            trailing: IconButton(
+                                              icon: const Icon(Icons.edit),
+                                              onPressed: () => _tasksEditDialog(
+                                                  modifyWhat: true,
+                                                  title: task,
+                                                  oldTitle: task,
+                                                  description: userTasks[task]
+                                                      ["description"],
+                                                  week2: weeks[userTasks[task]
+                                                      ["week"]],
+                                                  selectedTime: userTasks[task]
+                                                      ["time"],
+                                                  done: userTasks[task]["done"],
+                                                  endtime: userTasks[task]
+                                                      ["endtime"]),
+                                            ),
+                                            onTap: () => null,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: Row(children: [
+                              Text(
+                                "Completed",
+                                style: TextStyle(
+                                    foreground: Paint()
+                                      ..shader = textGradientShader,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20),
+                              ),
+                              const Expanded(
+                                  child: const Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 0, 0),
+                                      child:
+                                          Divider(color: Colors.deepOrange))),
+                            ]),
+                          ),
                           // Task that are already done will be grey with strike text
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
@@ -488,7 +674,7 @@ class _TaskViewState extends State<TaskView>
                                                             userTasks[task]
                                                                 ['endtime'])
                                                         ? "${userTasks[task]['time']}"
-                                                        : "${userTasks[task]['time']} - ${userTasks[task]['endtime']}",
+                                                        : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
                                                     style: TextStyle(
                                                         color: Colors.white),
                                                   ),
@@ -497,10 +683,13 @@ class _TaskViewState extends State<TaskView>
                                               Checkbox(
                                                   value: userTasks[task]
                                                       ['done'],
-                                                  onChanged: (value) =>
-                                                      setState(() =>
-                                                          userTasks[task]
-                                                              ['done'] = value))
+                                                  onChanged: (value) {
+                                                    setState(() =>
+                                                        userTasks[task]
+                                                            ['done'] = value);
+                                                    _storage.setString("data",
+                                                        jsonEncode(userTasks));
+                                                  })
                                             ],
                                           ),
                                           isThreeLine: true,
@@ -527,7 +716,8 @@ class _TaskViewState extends State<TaskView>
                                   ),
                                 ),
                           // To give space for showing the last card's edit button
-                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 73))
+                          const Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 73))
                         ],
                       ),
                     ),
