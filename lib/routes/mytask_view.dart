@@ -33,7 +33,7 @@ class _TaskViewState extends State<TaskView>
   int _uniqueColorIndex;
   int __offset;
   SharedPreferences _storage;
-  String dropdown;
+  String dropdown = "Any Day";
 
   // for details
   String title, description, week = "Monday";
@@ -82,11 +82,11 @@ class _TaskViewState extends State<TaskView>
       {bool modifyWhat: false,
       bool done: false,
       String title,
-      dynamic endtime,
       description,
       week2,
       oldTitle,
-      dynamic selectedTime}) {
+      dynamic endtime,
+      selectedTime}) {
     // reset the form details or fill the current card details for edit
     if (!modifyWhat) {
       title = null;
@@ -94,7 +94,9 @@ class _TaskViewState extends State<TaskView>
       week = null;
       selectedTime = null;
       endtime = null;
-    }
+      dropdown = "Any Day";
+    } else
+      dropdown = week2;
 
     _textFieldTaskController = TextEditingController(text: title);
     _textFieldDescriptionController = TextEditingController(text: description);
@@ -102,7 +104,7 @@ class _TaskViewState extends State<TaskView>
     showDialog(
         context: context,
         builder: (context) => StatefulBuilder(
-            builder: (context, setState) => CustomGradientDialogForm(
+            builder: (context, setState2) => CustomGradientDialogForm(
                   title: Text((modifyWhat) ? "Edit Task" : "New Task",
                       style: TextStyle(color: Colors.white, fontSize: 25)),
                   content: SizedBox(
@@ -144,7 +146,7 @@ class _TaskViewState extends State<TaskView>
                                     .toList(),
                                 onChanged: (value) {
                                   week = value;
-                                  setState(() => dropdown = value);
+                                  setState2(() => dropdown = value);
                                 }),
                           ],
                         ),
