@@ -1,4 +1,5 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --release --tree-shake-icons
+// flutter build web --release --tree-shake-icons
 // https://logomakr.com/3p5e1d
 
 import 'package:flutter/material.dart';
