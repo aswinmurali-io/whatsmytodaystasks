@@ -21,7 +21,6 @@ class WhatsMyTodaysTasks extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       color: Colors.blueGrey,
       home: TaskView(),
-      //builder: ExtendedNavigator<Router>(router: Router()),
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.transparent),

@@ -370,20 +370,25 @@ class _TaskViewState extends State<TaskView>
                         children: [
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                            child: Row(children: [
-                              Text("Pending",
-                                  style: TextStyle(
-                                      foreground: Paint()
-                                        ..shader = textGradientShader,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20)),
-                              Expanded(
-                                  child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 0, 0, 0),
-                                      child:
-                                          Divider(color: Colors.deepOrange))),
-                            ]),
+                            child: FadeInLeft(
+                              preferences: AnimationPreferences(
+                                  duration: const Duration(milliseconds: 300),
+                                  offset: const Duration(milliseconds: 500)),
+                              child: Row(children: [
+                                Text("Pending",
+                                    style: TextStyle(
+                                        foreground: Paint()
+                                          ..shader = textGradientShader,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20)),
+                                Expanded(
+                                    child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 0, 0),
+                                        child:
+                                            Divider(color: Colors.deepOrange))),
+                              ]),
+                            ),
                           ),
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
@@ -485,22 +490,27 @@ class _TaskViewState extends State<TaskView>
                               _tabController.index != 8)
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                              child: Row(children: [
-                                Text(
-                                  "All Days & Any days",
-                                  style: TextStyle(
-                                      foreground: Paint()
-                                        ..shader = textGradientShader,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20),
-                                ),
-                                Expanded(
-                                    child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            10, 0, 0, 0),
-                                        child:
-                                            Divider(color: Colors.deepOrange))),
-                              ]),
+                              child: FadeInLeft(
+                                preferences: AnimationPreferences(
+                                    duration: const Duration(milliseconds: 300),
+                                    offset: const Duration(milliseconds: 500)),
+                                child: Row(children: [
+                                  Text(
+                                    "All Days & Any days",
+                                    style: TextStyle(
+                                        foreground: Paint()
+                                          ..shader = textGradientShader,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  ),
+                                  Expanded(
+                                      child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 0, 0),
+                                          child: Divider(
+                                              color: Colors.deepOrange))),
+                                ]),
+                              ),
                             ),
                           // All day and any day tasks
                           if (_tabController.index != 7 &&
@@ -608,22 +618,27 @@ class _TaskViewState extends State<TaskView>
                                   ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                            child: Row(children: [
-                              Text(
-                                "Completed",
-                                style: TextStyle(
-                                    foreground: Paint()
-                                      ..shader = textGradientShader,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
-                              ),
-                              const Expanded(
-                                  child: const Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 0, 0, 0),
-                                      child:
-                                          Divider(color: Colors.deepOrange))),
-                            ]),
+                            child: FadeInLeft(
+                              preferences: AnimationPreferences(
+                                  offset: const Duration(milliseconds: 500),
+                                  duration: const Duration(milliseconds: 300)),
+                              child: Row(children: [
+                                Text(
+                                  "Completed",
+                                  style: TextStyle(
+                                      foreground: Paint()
+                                        ..shader = textGradientShader,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                                const Expanded(
+                                    child: const Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            10, 0, 0, 0),
+                                        child:
+                                            Divider(color: Colors.deepOrange))),
+                              ]),
+                            ),
                           ),
                           // Task that are already done will be grey with strike text
                           for (String task in userTasks.keys)
