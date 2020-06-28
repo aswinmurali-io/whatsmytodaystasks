@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 
 class CustomGradientDialogForm extends StatefulWidget {
+  final Color titleBackground;
+  final Icon icon;
+  final Widget title;
+  final Widget description;
+  final Color contentBackground;
+  final EdgeInsetsGeometry contentPadding;
+  final Widget content;
+  final Duration animationDuration;
+
   CustomGradientDialogForm(
       {this.titleBackground,
       this.icon,
@@ -11,15 +20,6 @@ class CustomGradientDialogForm extends StatefulWidget {
       this.contentPadding,
       this.content,
       this.animationDuration});
-
-  final Color titleBackground;
-  final Icon icon;
-  final Widget title;
-  final Widget description;
-  final Color contentBackground;
-  final EdgeInsetsGeometry contentPadding;
-  final Widget content;
-  final Duration animationDuration;
 
   @override
   _CustomGradientDialogFormState createState() =>
