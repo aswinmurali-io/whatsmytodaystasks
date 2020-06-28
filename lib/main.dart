@@ -1,10 +1,8 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --release --tree-shake-icons
+// https://logomakr.com/3p5e1d
 
 import 'package:flutter/material.dart';
-
-//import 'package:auto_route/auto_route.dart';
 import 'package:flutter/services.dart';
-//import 'routes/routes.gr.dart';
 
 import 'mytask_view.dart';
 

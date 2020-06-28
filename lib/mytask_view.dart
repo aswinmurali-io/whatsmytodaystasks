@@ -311,7 +311,8 @@ class _TaskViewState extends State<TaskView>
                       Tab(
                         child: ZoomIn(
                           preferences: AnimationPreferences(
-                              duration: const Duration(milliseconds: 100)),
+                              duration: const Duration(milliseconds: 100),
+                              offset: const Duration(milliseconds: 500)),
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                             child: AnimatedContainer(
@@ -739,7 +740,8 @@ class _TaskViewState extends State<TaskView>
               ]),
           floatingActionButton: RotateIn(
             preferences: AnimationPreferences(
-                duration: const Duration(milliseconds: 300)),
+                duration: const Duration(milliseconds: 300),
+                offset: const Duration(milliseconds: 500)),
             child: FloatingActionButton(
               heroTag: "Add Task",
               focusElevation: 80,
