@@ -4,19 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
-import 'package:intl/intl.dart';
 
+
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
-//import 'package:auto_route/auto_route.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 
 import 'custom_dialog.dart';
 import 'globals.dart';
-//import 'routes/routes.gr.dart';
-
 class TaskView extends StatefulWidget {
   @override
   _TaskViewState createState() => _TaskViewState();
