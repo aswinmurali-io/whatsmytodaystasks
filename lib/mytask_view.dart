@@ -15,6 +15,7 @@ import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 
 import 'custom_dialog.dart';
 import 'globals.dart';
+
 class TaskView extends StatefulWidget {
   @override
   _TaskViewState createState() => _TaskViewState();
