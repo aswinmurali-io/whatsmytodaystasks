@@ -8,14 +8,14 @@ import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:intl/intl.dart';
 
 import 'package:jiffy/jiffy.dart';
-import 'package:auto_route/auto_route.dart';
+//import 'package:auto_route/auto_route.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../custom_dialog.dart';
-import '../globals.dart';
-import '../routes/routes.gr.dart';
+import 'custom_dialog.dart';
+import 'globals.dart';
+//import 'routes/routes.gr.dart';
 
 class TaskView extends StatefulWidget {
   @override
@@ -299,7 +299,7 @@ class _TaskViewState extends State<TaskView>
               titleSpacing: 20,
               brightness: Brightness.light,
               bottom: TabBar(
-                // physics: const BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 isScrollable: true,
                 indicatorColor: Colors.transparent,
                 indicatorWeight: 0.1,
@@ -307,37 +307,42 @@ class _TaskViewState extends State<TaskView>
                 controller: _tabController,
                 tabs: [
                   for (String text in weeks)
-                    Tab(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.fastOutSlowIn,
-                          width: (text == _currentWeek)
-                              ? _currentWeekTabSize + 70
-                              : _currentWeekTabSize + 60,
-                          height: (text == _currentWeek)
-                              ? _currentWeekTabSize
-                              : _currentWeekTabSize - 30,
-                          child: GradientButton(
-                            gradient: (text == _currentWeek)
-                                ? Gradients.cosmicFusion
-                                : Gradients.taitanum,
-                            shadowColor: Colors.transparent,
-                            increaseWidthBy: _currentWeekTabSize + 10,
-                            child: Text(text,
-                                style: TextStyle(
-                                    fontSize:
-                                        (text == _currentWeek) ? 20 : 15)),
-                            callback: null,
+                    if (_tabController.index == weeks.indexOf(_currentWeek))
+                      Tab(
+                        child: ZoomIn(
+                          preferences: AnimationPreferences(
+                              duration: const Duration(milliseconds: 100)),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.fastOutSlowIn,
+                              width: (text == _currentWeek)
+                                  ? _currentWeekTabSize + 70
+                                  : _currentWeekTabSize + 60,
+                              height: (text == _currentWeek)
+                                  ? _currentWeekTabSize
+                                  : _currentWeekTabSize - 30,
+                              child: GradientButton(
+                                gradient: (text == _currentWeek)
+                                    ? Gradients.cosmicFusion
+                                    : Gradients.taitanum,
+                                shadowColor: Colors.transparent,
+                                increaseWidthBy: _currentWeekTabSize + 10,
+                                child: Text(text,
+                                    style: TextStyle(
+                                        fontSize:
+                                            (text == _currentWeek) ? 20 : 15)),
+                                callback: null,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
                 ],
               ),
               actions: [
-                Padding(
+                /*Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
                   child: CircleAvatar(
                       backgroundColor: Colors.red,
@@ -346,7 +351,7 @@ class _TaskViewState extends State<TaskView>
                           color: Colors.white,
                           onPressed: () => ExtendedNavigator.of(context)
                               .pushNamed(Routes.accountSettingsView))),
-                )
+                )*/
               ],
               title: const Text("What's my today's tasks ?"),
               elevation: 0,
@@ -732,16 +737,20 @@ class _TaskViewState extends State<TaskView>
                     ),
                   )
               ]),
-          floatingActionButton: FloatingActionButton(
-            heroTag: "Add Task",
-            focusElevation: 80,
-            onPressed: () => null,
-            tooltip: "Add a task",
-            child: CircularGradientButton(
-              child: const Icon(Icons.add),
-              callback: () => _tasksEditDialog(),
-              gradient: Gradients.hotLinear,
-              elevation: 0,
+          floatingActionButton: RotateIn(
+            preferences: AnimationPreferences(
+                duration: const Duration(milliseconds: 300)),
+            child: FloatingActionButton(
+              heroTag: "Add Task",
+              focusElevation: 80,
+              onPressed: () => null,
+              tooltip: "Add a task",
+              child: CircularGradientButton(
+                child: const Icon(Icons.add),
+                callback: () => _tasksEditDialog(),
+                gradient: Gradients.hotLinear,
+                elevation: 0,
+              ),
             ),
           )),
     );

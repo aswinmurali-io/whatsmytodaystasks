@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:auto_route/auto_route.dart';
+//import 'package:auto_route/auto_route.dart';
 import 'package:flutter/services.dart';
-import 'routes/routes.gr.dart';
+//import 'routes/routes.gr.dart';
+
+import 'mytask_view.dart';
 
 void main() => runApp(WhatsMyTodaysTasks());
 
@@ -20,7 +22,8 @@ class WhatsMyTodaysTasks extends StatelessWidget {
       title: "What's my today's task",
       debugShowCheckedModeBanner: false,
       color: Colors.blueGrey,
-      builder: ExtendedNavigator<Router>(router: Router()),
+      home: TaskView(),
+      //builder: ExtendedNavigator<Router>(router: Router()),
       theme: ThemeData(
           floatingActionButtonTheme: FloatingActionButtonThemeData(
               backgroundColor: Colors.transparent),
