@@ -1,6 +1,6 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --release --tree-shake-icons
 // flutter build ios --split-debug-info build/debug --tree-shake-icons --obfuscate --release
-// flutter build web --tree-shake-icons --release 
+// flutter build web --tree-shake-icons --release
 
 // https://logomakr.com/3p5e1d
 
