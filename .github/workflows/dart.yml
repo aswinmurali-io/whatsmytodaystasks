@@ -27,9 +27,6 @@ jobs:
     
     # Get flutter dependencies.
     - run: flutter pub get
-    
-    # Check for any formatting issues in the code.
-    - run: flutter format --set-exit-if-changed .
 
     # Get the secrets
     - run: echo $GOOGLE_SERVICES | base64 --decode > android/app/google-services.json
