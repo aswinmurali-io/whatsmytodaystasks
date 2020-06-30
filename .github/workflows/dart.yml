@@ -42,6 +42,8 @@ jobs:
     
     # Build web.
     - run: flutter build web --release --tree-shake-icons
+
+    # Publish web to firebase
     - run: firebase deploy --token "$FIREBASE_TOKEN"
     
     # Upload generated apk to the artifacts.
