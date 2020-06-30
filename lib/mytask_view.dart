@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 
 import 'custom_dialog.dart';
@@ -30,8 +28,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   final _totalTabs = 9;
   int _uniqueColorIndex;
   int __offset;
-  SharedPreferences _storage;
-  String dropdown = "Any Day";
+  String dropdown = "Choose Day";
 
   // for details
   String title, description, week = "Monday";
@@ -49,15 +46,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   void initAsync() async {
-    _storage = await SharedPreferences.getInstance();
-    String data = _storage.get('data');
-    if (data != null)
-      // get the map and then convert it into a nested map (value is a map too)!
-      jsonDecode(data).forEach((key, value) => userTasks.addAll({key: value}));
-    else
-      _storage.setString("data", jsonEncode(userTasks));
-    Database.auth("jeenamurali100tab@gmail.com", "36333612");
-    print(Database.uid);
+    await Database.auth("jeenakakkan100tab@gmail.com", "36333612");
+    userTasks = await Database.download();
+    setState(() => userTasks = userTasks);
   }
 
   @override
@@ -234,7 +225,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                           },
                                         });
                                       });
-                                      _storage.setString("data", jsonEncode(userTasks));
+                                      // save locally & also cloud
+                                      //_storage.setString("data", jsonEncode(userTasks));
+                                      Database.upload(userTasks);
+
                                       Navigator.of(context).pop();
                                     }
                                   }),
@@ -248,7 +242,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   child: const Text("Delete", style: TextStyle(color: Colors.white)),
                                   callback: () {
                                     setState(() => userTasks.remove(title));
-                                    _storage.setString("data", jsonEncode(userTasks));
+                                    //_storage.setString("data", jsonEncode(userTasks));
+                                    Database.upload(userTasks);
                                     Navigator.of(context).pop();
                                   },
                                 )
@@ -396,7 +391,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                               value: userTasks[task]['done'],
                                               onChanged: (value) {
                                                 setState(() => userTasks[task]['done'] = value);
-                                                _storage.setString("data", jsonEncode(userTasks));
+                                                //_storage.setString("data", jsonEncode(userTasks));
+                                                Database.upload(userTasks);
                                               })
                                         ],
                                       ),
@@ -489,7 +485,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                 value: userTasks[task]['done'],
                                                 onChanged: (value) {
                                                   setState(() => userTasks[task]['done'] = value);
-                                                  _storage.setString("data", jsonEncode(userTasks));
+                                                  // _storage.setString("data", jsonEncode(userTasks));
+                                                  Database.upload(userTasks);
                                                 })
                                           ],
                                         ),
@@ -587,7 +584,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                               value: userTasks[task]['done'],
                                               onChanged: (value) {
                                                 setState(() => userTasks[task]['done'] = value);
-                                                _storage.setString("data", jsonEncode(userTasks));
+                                                // _storage.setString("data", jsonEncode(userTasks));
+                                                Database.upload(userTasks);
                                               })
                                         ],
                                       ),
