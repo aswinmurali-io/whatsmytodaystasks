@@ -17,7 +17,7 @@ jobs:
     # Setup the flutter environment.
     - uses: subosito/flutter-action@v1
       with:
-        channel: 'dev' # 'dev', 'alpha', default to: 'stable'
+        channel: 'master' # 'dev', 'alpha', default to: 'stable'
     
     # Get flutter dependencies.
     - name: Flutter dependencies
@@ -35,7 +35,13 @@ jobs:
     # Build apk.
     - name: Build Android APK
       run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --tree-shake-icons
-    
+
+    # Upload generated apk to the artifacts.
+    - uses: actions/upload-artifact@v1
+      with:
+        name: release-apk
+        path: build/app/outputs/apk/release/app-release.apk
+
     # Build web.
     - name: Build Web
       run: flutter build web --release --tree-shake-icons
@@ -45,9 +51,3 @@ jobs:
       run: firebase deploy --token "$FIREBASE_TOKEN"
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-    
-    # Upload generated apk to the artifacts.
-    - uses: actions/upload-artifact@v1
-      with:
-        name: release-apk
-        path: build/app/outputs/apk/release/app-release.apk
