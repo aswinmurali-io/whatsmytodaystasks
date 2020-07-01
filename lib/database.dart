@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// autoconnect() function must be called first before doing anything
+// autoconnect() function must be called first before doing anything, then auth()
 class Database {
   static String _uid;
   static SharedPreferences _storage;
