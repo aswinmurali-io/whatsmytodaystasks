@@ -8,6 +8,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'custom_dialog.dart';
 import 'database.dart';
@@ -72,7 +73,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         systemNavigationBarIconBrightness: Brightness.dark));
   }
 
-  void _accountDialog() {
+  void _accountConnectDialog() {
     String _email, _password, _status;
     // TODO: add a loading thing when auth
     showDialog(
@@ -82,7 +83,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
                   icon: Icon(Icons.account_box, color: Colors.white),
                   content: Container(
-                    height: 150,
+                    height: 200,
                     child: Column(
                       children: [
                         Expanded(
@@ -98,7 +99,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         )),
                         Text(_status ?? '', style: TextStyle(color: Colors.red)),
                         GradientButton(
-                          child: Text("Connect"),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [Icon(Icons.account_circle), Text("Connect")]),
+                          increaseWidthBy: 20,
                           callback: () async {
                             if (_email != null && _password != null) {
                               // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
@@ -112,7 +116,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 setState2(() => _status = "Password should be atleast 8 characters long.");
                                 return;
                               }
-
                               await Database.auth(_email, _password);
                               Navigator.of(context).pop();
                             } else
@@ -123,6 +126,39 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     ),
                   ),
                 )));
+  }
+
+  void _accountInfoDialog() async {
+    String _email = (await SharedPreferences.getInstance()).getString("email");
+    showDialog(
+        context: context,
+        builder: (context) => StatefulBuilder(
+            builder: (context, setState2) => CustomGradientDialogForm(
+                title: Text("Account Details", style: TextStyle(fontSize: 20, color: Colors.white)),
+                icon: Icon(Icons.account_box, color: Colors.white),
+                content: SizedBox(
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Text("Email\n$_email"),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          GradientButton(
+                            child: Text("Signout"),
+                            callback: () {
+                              Database.signOut();
+                            },
+                          ),
+                          GradientButton(
+                            child: Text("Delete Account"),
+                            increaseWidthBy: 40,
+                          ),
+                        ]),
+                      )
+                    ],
+                  ),
+                ))));
   }
 
   void _tasksEditDialog(
@@ -369,7 +405,12 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                       child: IconButton(
                           icon: const Icon(Icons.account_circle),
                           color: Colors.white,
-                          onPressed: () => _accountDialog()),
+                          onPressed: () async {
+                            if ((await SharedPreferences.getInstance()).getString("email") == null)
+                              _accountConnectDialog();
+                            else
+                              _accountInfoDialog();
+                          }),
                     ))
               ],
               title: const Text("What's my today's tasks ?"),

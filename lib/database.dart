@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// autoconnect() function must be called first before doing anything
 class Database {
   static String _uid;
   static SharedPreferences _storage;
@@ -34,6 +35,17 @@ class Database {
       return true;
     }
     return false;
+  }
+
+  static void signOut() async {
+    _storage.clear();
+    await FirebaseAuth.instance.signOut();
+  }
+
+  static void deleteAccount() async {
+    _storage.clear();
+    await Firestore.instance.document(_uid).delete();
+    FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
   static void upload(Map<String, Map<String, dynamic>> data) async {
