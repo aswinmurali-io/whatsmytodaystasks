@@ -3,8 +3,6 @@ name: Flutter CI
 # This workflow is triggered on pushes to the repository.
 on: push
 
-# on: push    # Default will running for every branch.
-    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,27 +21,27 @@ jobs:
     
     # Get flutter dependencies.
     - name: Flutter dependencies
-    - run: flutter pub get
+      run: flutter pub get
 
     # Get the secrets
     - name: Inject Secrets
-    - run: echo $GOOGLE_SERVICES | base64 --decode > android/app/google-services.json
+      run: echo $GOOGLE_SERVICES | base64 --decode > android/app/google-services.json
     
     # Statically analyze the Dart code for any errors.
     - name: Analyze Code
-    - run: flutter analyze .
+      run: flutter analyze .
     
     # Build apk.
     - name: Build Android APK
-    - run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --tree-shake-icons
+      run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --split-per-abi --obfuscate --split-debug-info build/debug --shrink --tree-shake-icons
     
     # Build web.
     - name: Build Web
-    - run: flutter build web --release --tree-shake-icons
+      run: flutter build web --release --tree-shake-icons
 
     # Publish web to firebase
     - name: Deploy Web
-    - run: firebase deploy --token "$FIREBASE_TOKEN"
+      run: firebase deploy --token "$FIREBASE_TOKEN"
     
     # Upload generated apk to the artifacts.
     - uses: actions/upload-artifact@v1
