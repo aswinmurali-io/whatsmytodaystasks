@@ -51,7 +51,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   void initAsync() async {
-    await Database.auth("jeenakakkan100tab@gmail.com", "36333612");
+    await Database.autoconnect();
     userTasks = await Database.download();
     setState(() => userTasks = userTasks);
   }
@@ -70,6 +70,59 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: Colors.white30,
         systemNavigationBarIconBrightness: Brightness.dark));
+  }
+
+  void _accountDialog() {
+    String _email, _password, _status;
+    // TODO: add a loading thing when auth
+    showDialog(
+        context: context,
+        builder: (context) => StatefulBuilder(
+            builder: (context, setState2) => CustomGradientDialogForm(
+                  title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
+                  icon: Icon(Icons.account_box, color: Colors.white),
+                  content: Container(
+                    height: 150,
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: TextField(
+                                keyboardType: TextInputType.emailAddress,
+                                onChanged: (value) => _email = value,
+                                decoration: const InputDecoration(hintText: 'Enter your email'))),
+                        Expanded(
+                            child: TextField(
+                          obscureText: true,
+                          onChanged: (value) => _password = value,
+                          decoration: InputDecoration(hintText: 'Enter password'),
+                        )),
+                        Text(_status ?? '', style: TextStyle(color: Colors.red)),
+                        GradientButton(
+                          child: Text("Connect"),
+                          callback: () async {
+                            if (_email != null && _password != null) {
+                              // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
+                              RegExp __regexEmail = RegExp(
+                                  r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
+                              if (!__regexEmail.hasMatch(_email)) {
+                                setState2(() => _status = "Enter a valid email address.");
+                                return;
+                              }
+                              if (_password.length < 8) {
+                                setState2(() => _status = "Password should be atleast 8 characters long.");
+                                return;
+                              }
+
+                              await Database.auth(_email, _password);
+                              Navigator.of(context).pop();
+                            } else
+                              setState2(() => _status = "Make sure to fill both, email and password");
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                )));
   }
 
   void _tasksEditDialog(
@@ -309,16 +362,15 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 ],
               ),
               actions: [
-                /*Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-                  child: CircleAvatar(
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    child: CircleAvatar(
                       backgroundColor: Colors.red,
                       child: IconButton(
                           icon: const Icon(Icons.account_circle),
                           color: Colors.white,
-                          onPressed: () => ExtendedNavigator.of(context)
-                              .pushNamed(Routes.accountSettingsView))),
-                )*/
+                          onPressed: () => _accountDialog()),
+                    ))
               ],
               title: const Text("What's my today's tasks ?"),
               elevation: 0,

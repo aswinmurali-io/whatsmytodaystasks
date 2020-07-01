@@ -12,23 +12,39 @@ class Database {
   static Future<void> auth(String email, String password) async {
     try {
       _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
+      _storage.setString("email", email);
+      _storage.setString("password", password);
     } on PlatformException catch (exception) {
       print(exception);
       switch (exception.code) {
         case 'ERROR_EMAIL_ALREADY_IN_USE':
           _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
+          _storage.setString("email", email);
+          _storage.setString("password", password);
       }
     }
   }
 
+  static Future<bool> autoconnect() async {
+    if (_storage == null) _storage = await SharedPreferences.getInstance();
+    String _email = _storage.getString("email");
+    if (_email != null) {
+      String _password = _storage.getString("password");
+      auth(_email, _password);
+      return true;
+    }
+    return false;
+  }
+
   static void upload(Map<String, Map<String, dynamic>> data) async {
     _storage.setString("data", jsonEncode(data));
-    await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
+    if (_uid != null)
+      await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
   }
 
   static Future<Map<String, Map<String, Object>>> download() async {
     Map<String, Map<String, Object>> obj = {};
-    if (_storage == null) _storage = await SharedPreferences.getInstance();
+
     String data = _storage.get('data');
     if (data != null)
       // get the map and then convert it into a nested map (value is a map too)!
