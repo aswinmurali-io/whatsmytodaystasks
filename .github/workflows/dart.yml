@@ -25,8 +25,9 @@ jobs:
 
     # Get the secrets
     - name: Inject Secrets
-      run: gpg --quiet --batch --yes --decrypt --passphrase=$GOOGLE_SERVICES --output android/app/google-services.json google-services.json.gpg
-    
+      run: gpg --quiet --batch --yes --decrypt --passphrase="$GOOGLE_SERVICES" --output android/app/google-services.json android/app/google-services.json.gpg
+      env:
+        GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
     # Statically analyze the Dart code for any errors.
     - name: Analyze Code
       run: flutter analyze .
@@ -42,6 +43,8 @@ jobs:
     # Publish web to firebase
     - name: Deploy Web
       run: firebase deploy --token "$FIREBASE_TOKEN"
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
     
     # Upload generated apk to the artifacts.
     - uses: actions/upload-artifact@v1
