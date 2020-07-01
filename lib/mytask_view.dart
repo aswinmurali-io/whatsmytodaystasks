@@ -146,12 +146,20 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                           GradientButton(
                             child: Text("Signout"),
-                            callback: () => Database.signOut(),
+                            callback: () {
+                              Database.signOut();
+                              // update it in UI, not handled by database
+                              setState2(() => userTasks = {});
+                            },
                           ),
                           GradientButton(
                             child: Text("Delete Account"),
                             increaseWidthBy: 40,
-                            callback: () => Database.deleteAccount(),
+                            callback: () {
+                              Database.deleteAccount();
+                              // update it in UI, not handled by database
+                              setState2(() => userTasks = {});
+                            },
                           ),
                         ]),
                       )
