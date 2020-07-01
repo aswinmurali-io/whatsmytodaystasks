@@ -7,4 +7,7 @@
 
 /build
 
+.flutter-plugins
+.flutter-plugins-dependencies
+
 generated_plugin_registrant.dart
