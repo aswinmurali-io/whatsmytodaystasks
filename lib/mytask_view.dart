@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -33,6 +32,12 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   // for details
   String title, description, week = "Monday";
   Future<TimeOfDay> selectedTime;
+
+  // setState() called after dispose()
+  @override
+  void setState(fn) {
+    if (mounted) super.setState(fn);
+  }
 
   @override
   void initState() {
