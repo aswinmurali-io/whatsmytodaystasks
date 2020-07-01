@@ -32,6 +32,7 @@ jobs:
       run: gpg --quiet --batch --yes --decrypt --passphrase="$GOOGLE_SERVICES" --output android/app/google-services.json android/app/google-services.json.gpg
       env:
         GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+
     # Statically analyze the Dart code for any errors.
     - name: Analyze Code
       run: flutter analyze .
@@ -44,7 +45,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: release-apk
-        path: build/app/outputs/apk/release/app-release.apk
+        path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
     # Build web.
     - name: Build Web
