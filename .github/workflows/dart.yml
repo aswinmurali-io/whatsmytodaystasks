@@ -49,7 +49,7 @@ jobs:
 
     # Enable Web Support
     - name: Enable Web Support
-    - run: flutter config --enable-web
+      run: flutter config --enable-web
 
     # Build web.
     - name: Build Web
