@@ -13,7 +13,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
-    
+  
     # Setup the flutter environment. 
     - name: Flutter action
       uses: subosito/flutter-action@v1.3.2
@@ -57,6 +57,8 @@ jobs:
 
     # Publish web to firebase
     - name: Deploy Web
-      run: firebase deploy --token "$FIREBASE_TOKEN"
+      uses: w9jds/firebase-action@v1.5.0
+      with:
+          args: deploy --token "$FIREBASE_TOKEN"
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
