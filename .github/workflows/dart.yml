@@ -25,7 +25,7 @@ jobs:
 
     # Get the secrets
     - name: Inject Secrets
-      run: gpg --quiet --batch --yes --decrypt --passphrase="$GOOGLE_SERVICES" --output android/app/google-services.json google-services.json.gpg
+      run: gpg --quiet --batch --yes --decrypt --passphrase=$GOOGLE_SERVICES --output android/app/google-services.json google-services.json.gpg
     
     # Statically analyze the Dart code for any errors.
     - name: Analyze Code
