@@ -47,6 +47,10 @@ jobs:
         name: release-apk
         path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
+    # Enable Web Support
+    - name: Enable Web Support
+    - run: flutter config --enable-web
+
     # Build web.
     - name: Build Web
       run: flutter build web --release --tree-shake-icons
