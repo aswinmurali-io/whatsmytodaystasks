@@ -146,19 +146,22 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                           GradientButton(
                             child: Text("Signout"),
-                            callback: () {
-                              Database.signOut();
+                            callback: () async {
+                              await Database.signOut();
                               // update it in UI, not handled by database
                               setState2(() => userTasks = {});
+                              Navigator.of(context).pop();
+
                             },
                           ),
                           GradientButton(
                             child: Text("Delete Account"),
                             increaseWidthBy: 40,
-                            callback: () {
-                              Database.deleteAccount();
+                            callback: () async {
+                              await Database.deleteAccount();
                               // update it in UI, not handled by database
                               setState2(() => userTasks = {});
+                              Navigator.of(context).pop();
                             },
                           ),
                         ]),
@@ -406,6 +409,19 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
               ),
               actions: [
                 Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: CircleAvatar(
+                      radius: 16.0,
+                      backgroundColor: Colors.red,
+                      child: IconButton(
+                          icon: const Icon(Icons.sync, size: 17.0),
+                          color: Colors.white,
+                          onPressed: () async {
+                            userTasks = await Database.download();
+                            setState(() => userTasks = userTasks);
+                          }),
+                    )),
+                Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
                     child: CircleAvatar(
                       backgroundColor: Colors.red,
@@ -418,7 +434,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             else
                               _accountInfoDialog();
                           }),
-                    ))
+                    )),
               ],
               title: const Text("What's my today's tasks ?"),
               elevation: 0,

@@ -1,0 +1,8 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{uid}/tasks {
+      allow read: if uid == request.auth.uid;
+      allow write: if uid == request.auth.uid;
+    }
+  }
+}

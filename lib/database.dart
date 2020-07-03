@@ -1,5 +1,4 @@
 // should handle local and firebase storage
-
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -39,14 +38,15 @@ class Database {
     return false;
   }
 
-  static void signOut() async {
+  static Future<void> signOut() async {
     _storage.clear();
     await FirebaseAuth.instance.signOut();
   }
 
-  static void deleteAccount() async {
+  static Future<void> deleteAccount() async {
     _storage.clear();
-    await Firestore.instance.document(_uid).delete();
+    // await Firestore.instance.document(_uid).delete();
+    await Firestore.instance.collection(_uid).document('tasks').delete();
     FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
@@ -79,7 +79,11 @@ class Database {
         print("User just registered but no data in user. Will upload dummy data first, error > $exception");
         await Firestore.instance.collection(_uid).document('tasks').setData({}).catchError((error) => print(error));
         _storage.setString("data", jsonEncode({}));
-      }
+      } on PlatformException catch (exception) {
+        // PlatformException(Error performing get, PERMISSION_DENIED: Missing or insufficient permissions., null)
+        // can happen if  sync button pressed after delete account/ sign out
+        print(exception);
+      } 
     }
     return obj;
   }
