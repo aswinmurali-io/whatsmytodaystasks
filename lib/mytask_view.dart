@@ -560,7 +560,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                       // All day and any day tasks
                       if (_tabController.index != 7 && _tabController.index != 8)
                         for (String task in userTasks.keys)
-                          if (userTasks[task]["week"] == 7)
+                          if (userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
                             if (!userTasks[task]["done"])
                               BounceIn(
                                 preferences: AnimationPreferences(offset: Duration(milliseconds: __offset += 50)),
