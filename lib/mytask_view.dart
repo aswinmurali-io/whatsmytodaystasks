@@ -151,7 +151,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               // update it in UI, not handled by database
                               setState2(() => userTasks = {});
                               Navigator.of(context).pop();
-
                             },
                           ),
                           GradientButton(
@@ -174,6 +173,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   void _tasksEditDialog(
       {bool modifyWhat: false,
       bool done: false,
+      int importance,
       String title,
       description,
       week2,
@@ -193,6 +193,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
     _textFieldTaskController = TextEditingController(text: title);
     _textFieldDescriptionController = TextEditingController(text: description);
+
+    int _importance = importance ?? 0;
 
     showDialog(
         context: context,
@@ -240,6 +242,14 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   week = value;
                                   setState2(() => dropdown = value);
                                 }),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Text("Is this task very important ? "),
+                            Checkbox(
+                                value: (_importance == 0) ? false : true,
+                                onChanged: (bool value) => setState2(() => _importance = (value) ? 1 : 0))
                           ],
                         ),
                         const Text(
@@ -323,7 +333,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                             "notify": true,
                                             "description": description,
                                             "image": null,
-                                            "importance": 0,
+                                            "importance": _importance,
                                             "done": (!modifyWhat) ? false : done,
                                             "week": weeks.indexOf(week)
                                           },
@@ -465,9 +475,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           ]),
                         ),
                       ),
+                      // Important Cards first
                       for (String task in userTasks.keys)
                         if (userTasks[task]["week"] == _tabController.index)
-                          if (!userTasks[task]["done"])
+                          if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
                             BounceIn(
                               preferences: AnimationPreferences(offset: Duration(milliseconds: __offset += 50)),
                               child: Padding(
@@ -524,6 +535,81 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                             modifyWhat: true,
                                             title: task,
                                             oldTitle: task,
+                                            importance: userTasks[task]["importance"],
+                                            description: userTasks[task]["description"],
+                                            week2: weeks[userTasks[task]["week"]],
+                                            selectedTime: userTasks[task]["time"],
+                                            done: userTasks[task]["done"],
+                                            endtime: userTasks[task]["endtime"]),
+                                      ),
+                                      onTap: () => null,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                      Divider(color: Colors.black),
+                      // Then other tasks
+                      for (String task in userTasks.keys)
+                        if (userTasks[task]["week"] == _tabController.index)
+                          if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
+                            BounceIn(
+                              preferences: AnimationPreferences(offset: Duration(milliseconds: __offset += 50)),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: [BoxShadow(color: Colors.blueGrey[200], blurRadius: 10.0)],
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: autoGenerateColorCard[_uniqueColorIndex++],
+                                    ),
+                                    borderRadius: const BorderRadius.all(Radius.circular(15)),
+                                  ),
+                                  child: ListTileTheme(
+                                    iconColor: Colors.white,
+                                    textColor: Colors.white,
+                                    child: ListTile(
+                                      title: Padding(
+                                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                        child: Text(task),
+                                      ),
+                                      subtitle: Row(
+                                        verticalDirection: VerticalDirection.up,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(child: Text(userTasks[task]['description'])),
+                                          Card(
+                                            elevation: 0,
+                                            color: Colors.black12,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(5.0),
+                                              child: Text(
+                                                (userTasks[task]['time'] == userTasks[task]['endtime'])
+                                                    ? "${userTasks[task]['time']}"
+                                                    : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
+                                                style: TextStyle(color: Colors.white),
+                                              ),
+                                            ),
+                                          ),
+                                          Checkbox(
+                                              value: userTasks[task]['done'],
+                                              onChanged: (value) {
+                                                setState(() => userTasks[task]['done'] = value);
+                                                //_storage.setString("data", jsonEncode(userTasks));
+                                                Database.upload(userTasks);
+                                              })
+                                        ],
+                                      ),
+                                      isThreeLine: true,
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () => _tasksEditDialog(
+                                            modifyWhat: true,
+                                            title: task,
+                                            oldTitle: task,
+                                            importance: userTasks[task]["importance"],
                                             description: userTasks[task]["description"],
                                             week2: weeks[userTasks[task]["week"]],
                                             selectedTime: userTasks[task]["time"],
@@ -618,6 +704,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                               modifyWhat: true,
                                               title: task,
                                               oldTitle: task,
+                                              importance: userTasks[task]["importance"],
                                               description: userTasks[task]["description"],
                                               week2: weeks[userTasks[task]["week"]],
                                               selectedTime: userTasks[task]["time"],
@@ -717,6 +804,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                             modifyWhat: true,
                                             title: task,
                                             oldTitle: task,
+                                            importance: userTasks[task]["importance"],
                                             description: userTasks[task]["description"],
                                             week2: weeks[userTasks[task]["week"]],
                                             selectedTime: userTasks[task]["time"],
