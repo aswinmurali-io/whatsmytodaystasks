@@ -567,7 +567,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 ),
                               ),
                             ),
-                      // Divider(color: Colors.black), Removed temp
                       // Then other tasks
                       for (String task in userTasks.keys)
                         if (userTasks[task]["week"] == _tabController.index)
@@ -750,7 +749,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                       ),
                       // Task that are already done will be grey with strike text
                       for (String task in userTasks.keys)
-                        if (userTasks[task]["week"] == _tabController.index)
+                        if (userTasks[task]["week"] == _tabController.index || userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
                           if (userTasks[task]["done"])
                             BounceIn(
                               preferences: AnimationPreferences(offset: Duration(milliseconds: __offset += 10)),
