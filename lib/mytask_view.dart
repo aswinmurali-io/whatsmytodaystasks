@@ -379,6 +379,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 )));
   }
 
+  bool _resetOffset() {
+    __offset = 0;
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     __offset = 200;
@@ -465,6 +470,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
           body: TabBarView(controller: _tabController, physics: const BouncingScrollPhysics(), children: [
             for (int i = 1; i <= _totalTabs; i++)
               CupertinoScrollbar(
+                isAlwaysShown: _resetOffset(),
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(15, 15, 10, 0),

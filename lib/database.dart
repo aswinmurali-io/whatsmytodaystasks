@@ -32,7 +32,7 @@ class Database {
     String _email = _storage.getString("email");
     if (_email != null) {
       String _password = _storage.getString("password");
-      auth(_email, _password);
+      await auth(_email, _password);
       return true;
     }
     return false;
