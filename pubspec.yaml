@@ -15,10 +15,10 @@ dependencies:
   flutter_animator: ^2.0.9
   intl: ^0.16.1
   shared_preferences: 0.5.7+3
-  firebase_core: ^0.4.0+9
   firebase_analytics: ^5.0.2
   firebase_auth: ^0.14.0+5
   cloud_firestore: ^0.12.9+5
+  progress_dialog: ^1.2.4
 
 dev_dependencies:
   flutter_test:

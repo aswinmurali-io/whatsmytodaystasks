@@ -8,6 +8,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'custom_dialog.dart';
@@ -29,6 +30,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   int _uniqueColorIndex;
   int __offset;
   String dropdown = "Choose Day";
+  ProgressDialog pr;
 
   // for details
   String title, description, week = "Monday";
@@ -116,8 +118,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 setState2(() => _status = "Password should be atleast 8 characters long.");
                                 return;
                               }
+                              await pr.show();
                               await Database.auth(_email, _password);
                               Navigator.of(context).pop();
+                              await pr.hide();
                             } else
                               setState2(() => _status = "Make sure to fill both, email and password");
                           },
@@ -147,20 +151,24 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           GradientButton(
                             child: Text("Signout"),
                             callback: () async {
+                              await pr.show();
                               await Database.signOut();
                               // update it in UI, not handled by database
                               setState2(() => userTasks = {});
                               Navigator.of(context).pop();
+                              await pr.hide();
                             },
                           ),
                           GradientButton(
                             child: Text("Delete Account"),
                             increaseWidthBy: 40,
                             callback: () async {
+                              await pr.show();
                               await Database.deleteAccount();
                               // update it in UI, not handled by database
                               setState2(() => userTasks = {});
                               Navigator.of(context).pop();
+                              await pr.hide();
                             },
                           ),
                         ]),
@@ -184,10 +192,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     if (!modifyWhat) {
       title = null;
       description = null;
-      week = null;
       selectedTime = null;
       endtime = null;
-      dropdown = "Any Day";
+      week = _currentWeek;
+      dropdown = _currentWeek;
     } else
       dropdown = week2;
 
@@ -235,9 +243,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             const Text("Pick a day"),
                             DropdownButton(
                                 value: dropdown,
-                                items: weeks
+                                items: (weeks + ["Tomorrow"])
                                     .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
-                                    .toList(),
+                                    .toList() + [],
                                 onChanged: (value) {
                                   week = value;
                                   setState2(() => dropdown = value);
@@ -298,9 +306,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   child: const Text("Save", style: TextStyle(color: Colors.white)),
                                   callback: () async {
                                     if (week != null &&
-                                        _textFieldTaskController.text.replaceAll(RegExp(r'\s'), '').length != 0 &&
-                                        _textFieldDescriptionController.text.replaceAll(RegExp(r'\s'), '').length !=
-                                            0) {
+                                        _textFieldTaskController.text.replaceAll(RegExp(r'\s'), '').length != 0) {
                                       TimeOfDay _awaitedTime, _awaitedTime2;
                                       if (selectedTime is String && selectedTime != "Any Time") {
                                         DateTime dateTimeFromString = DateFormat.jm().parse(selectedTime);
@@ -331,11 +337,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                 ? "${(_awaitedTime2.hour > 12) ? _awaitedTime2.hour - 12 : _awaitedTime2.hour}:${(_awaitedTime2.minute < 10) ? '0${_awaitedTime2.minute}' : _awaitedTime2.minute} ${(_awaitedTime2.period.index == 1) ? 'PM' : 'AM'}"
                                                 : "Any Time",
                                             "notify": true,
-                                            "description": description,
+                                            "description": description ?? '',
                                             "image": null,
                                             "importance": _importance,
                                             "done": (!modifyWhat) ? false : done,
-                                            "week": weeks.indexOf(week)
+                                            "week": (dropdown == "Tomorrow") ? ((_currentWeek == "Sunday") ? 0 : weeks.indexOf(_currentWeek) + 1) : weeks.indexOf(week)
                                           },
                                         });
                                       });
@@ -377,6 +383,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     __offset = 200;
     _uniqueColorIndex = 0;
+    pr = ProgressDialog(context);
     return DefaultTabController(
       length: _totalTabs,
       child: Scaffold(
@@ -420,22 +427,28 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
               actions: [
                 Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    // sync button
                     child: CircleAvatar(
                       radius: 16.0,
                       backgroundColor: Colors.red,
                       child: IconButton(
+                          tooltip: 'Sync',
                           icon: const Icon(Icons.sync, size: 17.0),
                           color: Colors.white,
                           onPressed: () async {
+                            await pr.show();
                             userTasks = await Database.download();
                             setState(() => userTasks = userTasks);
+                            await pr.hide();
                           }),
                     )),
                 Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
+                    // profile button
                     child: CircleAvatar(
                       backgroundColor: Colors.red,
                       child: IconButton(
+                          tooltip: "Profile",
                           icon: const Icon(Icons.account_circle),
                           color: Colors.white,
                           onPressed: () async {
@@ -454,7 +467,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
               CupertinoScrollbar(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  padding: const EdgeInsets.fromLTRB(15, 15, 10, 0),
                   child: Column(
                     children: [
                       Padding(
@@ -624,7 +637,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             ),
                       if (_tabController.index != 7 && _tabController.index != 8)
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          padding: const EdgeInsets.fromLTRB(0, 13, 0, 10),
                           child: FadeInLeft(
                             preferences: AnimationPreferences(
                                 duration: const Duration(milliseconds: 300), offset: const Duration(milliseconds: 500)),
@@ -633,7 +646,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 "All Days & Any days",
                                 style: TextStyle(
                                     foreground: Paint()..shader = textGradientShader,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w400,
                                     fontSize: 20),
                               ),
                               Expanded(
@@ -727,7 +740,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               "Completed",
                               style: TextStyle(
                                   foreground: Paint()..shader = textGradientShader,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w400,
                                   fontSize: 20),
                             ),
                             const Expanded(
