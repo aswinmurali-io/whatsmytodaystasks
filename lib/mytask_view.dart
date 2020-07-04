@@ -244,8 +244,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             DropdownButton(
                                 value: dropdown,
                                 items: (weeks + ["Tomorrow"])
-                                    .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
-                                    .toList() + [],
+                                        .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                                        .toList() +
+                                    [],
                                 onChanged: (value) {
                                   week = value;
                                   setState2(() => dropdown = value);
@@ -341,7 +342,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                             "image": null,
                                             "importance": _importance,
                                             "done": (!modifyWhat) ? false : done,
-                                            "week": (dropdown == "Tomorrow") ? ((_currentWeek == "Sunday") ? 0 : weeks.indexOf(_currentWeek) + 1) : weeks.indexOf(week)
+                                            "week": (dropdown == "Tomorrow")
+                                                ? ((_currentWeek == "Sunday") ? 0 : weeks.indexOf(_currentWeek) + 1)
+                                                : weeks.indexOf(week)
                                           },
                                         });
                                       });
@@ -518,7 +521,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     child: ListTile(
                                       title: Padding(
                                         padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                        child: Text(task),
+                                        child: Text(task, style: TextStyle(fontSize: 20)),
                                       ),
                                       subtitle: Row(
                                         verticalDirection: VerticalDirection.up,
@@ -548,20 +551,17 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                         ],
                                       ),
                                       isThreeLine: true,
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _tasksEditDialog(
-                                            modifyWhat: true,
-                                            title: task,
-                                            oldTitle: task,
-                                            importance: userTasks[task]["importance"],
-                                            description: userTasks[task]["description"],
-                                            week2: weeks[userTasks[task]["week"]],
-                                            selectedTime: userTasks[task]["time"],
-                                            done: userTasks[task]["done"],
-                                            endtime: userTasks[task]["endtime"]),
+                                      onTap: () => _tasksEditDialog(
+                                        modifyWhat: true,
+                                        title: task,
+                                        oldTitle: task,
+                                        importance: userTasks[task]["importance"],
+                                        description: userTasks[task]["description"],
+                                        week2: weeks[userTasks[task]["week"]],
+                                        selectedTime: userTasks[task]["time"],
+                                        done: userTasks[task]["done"],
+                                        endtime: userTasks[task]["endtime"],
                                       ),
-                                      onTap: () => null,
                                     ),
                                   ),
                                 ),
@@ -592,7 +592,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     child: ListTile(
                                       title: Padding(
                                         padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                        child: Text(task),
+                                        child: Text(task, style: TextStyle(fontSize: 20)),
                                       ),
                                       subtitle: Row(
                                         verticalDirection: VerticalDirection.up,
@@ -622,20 +622,16 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                         ],
                                       ),
                                       isThreeLine: true,
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _tasksEditDialog(
-                                            modifyWhat: true,
-                                            title: task,
-                                            oldTitle: task,
-                                            importance: userTasks[task]["importance"],
-                                            description: userTasks[task]["description"],
-                                            week2: weeks[userTasks[task]["week"]],
-                                            selectedTime: userTasks[task]["time"],
-                                            done: userTasks[task]["done"],
-                                            endtime: userTasks[task]["endtime"]),
-                                      ),
-                                      onTap: () => null,
+                                      onTap: () => _tasksEditDialog(
+                                          modifyWhat: true,
+                                          title: task,
+                                          oldTitle: task,
+                                          importance: userTasks[task]["importance"],
+                                          description: userTasks[task]["description"],
+                                          week2: weeks[userTasks[task]["week"]],
+                                          selectedTime: userTasks[task]["time"],
+                                          done: userTasks[task]["done"],
+                                          endtime: userTasks[task]["endtime"]),
                                     ),
                                   ),
                                 ),
@@ -687,7 +683,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                       child: ListTile(
                                         title: Padding(
                                           padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                          child: Text(task),
+                                          child: Text(task, style: TextStyle(fontSize: 20)),
                                         ),
                                         subtitle: Row(
                                           verticalDirection: VerticalDirection.up,
@@ -717,20 +713,16 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                           ],
                                         ),
                                         isThreeLine: true,
-                                        trailing: IconButton(
-                                          icon: const Icon(Icons.edit),
-                                          onPressed: () => _tasksEditDialog(
-                                              modifyWhat: true,
-                                              title: task,
-                                              oldTitle: task,
-                                              importance: userTasks[task]["importance"],
-                                              description: userTasks[task]["description"],
-                                              week2: weeks[userTasks[task]["week"]],
-                                              selectedTime: userTasks[task]["time"],
-                                              done: userTasks[task]["done"],
-                                              endtime: userTasks[task]["endtime"]),
-                                        ),
-                                        onTap: () => null,
+                                        onTap: () => _tasksEditDialog(
+                                            modifyWhat: true,
+                                            title: task,
+                                            oldTitle: task,
+                                            importance: userTasks[task]["importance"],
+                                            description: userTasks[task]["description"],
+                                            week2: weeks[userTasks[task]["week"]],
+                                            selectedTime: userTasks[task]["time"],
+                                            done: userTasks[task]["done"],
+                                            endtime: userTasks[task]["endtime"]),
                                       ),
                                     ),
                                   ),
@@ -784,9 +776,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     textColor: Colors.grey,
                                     child: ListTile(
                                       title: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                        child: Text(task, style: TextStyle(decoration: TextDecoration.lineThrough)),
-                                      ),
+                                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                          child: Text(task,
+                                              style: TextStyle(fontSize: 20, decoration: TextDecoration.lineThrough))),
                                       subtitle: Row(
                                         verticalDirection: VerticalDirection.up,
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -817,20 +809,16 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                         ],
                                       ),
                                       isThreeLine: true,
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        onPressed: () => _tasksEditDialog(
-                                            modifyWhat: true,
-                                            title: task,
-                                            oldTitle: task,
-                                            importance: userTasks[task]["importance"],
-                                            description: userTasks[task]["description"],
-                                            week2: weeks[userTasks[task]["week"]],
-                                            selectedTime: userTasks[task]["time"],
-                                            done: userTasks[task]["done"],
-                                            endtime: userTasks[task]["endtime"]),
-                                      ),
-                                      onTap: () => null,
+                                      onTap: () => _tasksEditDialog(
+                                          modifyWhat: true,
+                                          title: task,
+                                          oldTitle: task,
+                                          importance: userTasks[task]["importance"],
+                                          description: userTasks[task]["description"],
+                                          week2: weeks[userTasks[task]["week"]],
+                                          selectedTime: userTasks[task]["time"],
+                                          done: userTasks[task]["done"],
+                                          endtime: userTasks[task]["endtime"]),
                                     ),
                                   ),
                                 ),
