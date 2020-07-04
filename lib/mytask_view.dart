@@ -548,7 +548,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 ),
                               ),
                             ),
-                      Divider(color: Colors.black),
+                      // Divider(color: Colors.black), Removed temp
                       // Then other tasks
                       for (String task in userTasks.keys)
                         if (userTasks[task]["week"] == _tabController.index)
