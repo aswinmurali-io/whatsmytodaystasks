@@ -64,6 +64,19 @@ jobs:
     # Build web.
     - name: Build Web
       run: flutter build web --release --tree-shake-icons
+    
+    # Cache
+    - name: Cache
+      uses: actions/cache@v2.0.0
+      with:
+        # A list of files, directories, and wildcard patterns to cache and restore
+        path: |
+          ~/cache
+          ~/development/flutter/.pub-cache
+          ~/.gradle
+          **/node_modules
+          build/
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
     # Publish web to firebase
     - name: Deploy Web
