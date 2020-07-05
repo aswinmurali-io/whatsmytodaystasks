@@ -8,21 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    # Cache
-    - name: Cache
-      uses: actions/cache@v2.0.0
-      id: cache
-      with:
-        # A list of files, directories, and wildcard patterns to cache and restore
-        path: |
-          ~/cache
-          ~/development/flutter/.pub-cache
-          ~/.gradle
-          **/node_modules
-          build/
-          /opt/hostedtoolcache/flutter/1.20.0-2.0.pre-dev/x64
-          /opt/hostedtoolcache/jdk/12.0.2/x64
-        key: key2
+
 
     - uses: actions/checkout@v1
 
