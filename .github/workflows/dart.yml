@@ -7,8 +7,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
     - uses: actions/checkout@v1
+
+    - name: Cache
+      uses: actions/cache@v2.0.0
+      id: cache
+      with:
+        path: |
+          **/cache
+          **/development/flutter/.pub-cache
+          **/.gradle
+          **/node_modules
+          **/build/
+          **/opt/hostedtoolcache/flutter/1.20.0-2.0.pre-dev/x64
+          **/opt/hostedtoolcache/jdk/12.0.2/x64
+        key: key4
 
     # Setup Java environment in order to build the Android app.
     - name: Java
@@ -48,6 +61,7 @@ jobs:
     # Upload generated apk to the artifacts.
     - uses: actions/upload-artifact@v1
       with:
+        name: Android APK
         path: build/app/outputs/flutter-apk/*.apk
 
     # Enable Web Support
