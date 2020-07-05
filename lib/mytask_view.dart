@@ -212,6 +212,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     int _importance = importance ?? 0;
 
     showDialog(
+        barrierDismissible: true,
         context: context,
         builder: (context) => StatefulBuilder(
             builder: (context, setState2) => CupertinoScrollbar(
