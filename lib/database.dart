@@ -1,7 +1,6 @@
 // should handle local and firebase storage
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,20 +12,6 @@ class Database {
   static SharedPreferences _storage;
 
   static Future<void> auth(String email, String password) async {
-    // try {
-    //   _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
-    //   _storage.setString("email", email);
-    //   _storage.setString("password", password);
-    // } on PlatformException catch (exception) {
-    //   print(exception);
-    //   switch (exception.code) {
-    //     case 'ERROR_EMAIL_ALREADY_IN_USE':
-    //       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
-    //       _storage.setString("email", email);
-    //       _storage.setString("password", password);
-    //   }
-    // }
-
     try {
       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
       if (_storage.getString("email") == null) {
@@ -131,7 +116,6 @@ class Database {
         timestamp = isItNull["timestamp"];
       }
       int localtimestamp = _storage.getInt("timestamp") ?? timestamp;
-      print(timestamp);
       if (timestamp != localtimestamp) {
         obj.clear();
         // if data in cloud thn remove local use directly from cloud
