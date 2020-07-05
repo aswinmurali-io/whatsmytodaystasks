@@ -19,6 +19,7 @@ dependencies:
   firebase_auth: ^0.14.0+5
   cloud_firestore: ^0.12.9+5
   progress_dialog: ^1.2.4
+  pull_to_refresh: ^1.6.0
 
 dev_dependencies:
   flutter_test:
