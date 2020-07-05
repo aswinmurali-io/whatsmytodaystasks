@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'mytask_view.dart';
- 
+
 void main() => runApp(WhatsMyTodaysTasks());
 
 class WhatsMyTodaysTasks extends StatelessWidget {
