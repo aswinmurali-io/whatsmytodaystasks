@@ -7,6 +7,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+
+    # Cache
+    - name: Cache
+      uses: actions/cache@v2.0.0
+      with:
+        # A list of files, directories, and wildcard patterns to cache and restore
+        path: |
+          ~/cache
+          ~/development/flutter/.pub-cache
+          ~/.gradle
+          **/node_modules
+          build/
+          /opt/hostedtoolcache/flutter/1.20.0-2.0.pre-dev/x64
+          /opt/hostedtoolcache/jdk/12.0.2/x64
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
     
     # Setup Java environment in order to build the Android app.
     - uses: actions/checkout@v1
@@ -64,20 +79,7 @@ jobs:
     # Build web.
     - name: Build Web
       run: flutter build web --release --tree-shake-icons
-    
-    # Cache
-    - name: Cache
-      uses: actions/cache@v2.0.0
-      with:
-        # A list of files, directories, and wildcard patterns to cache and restore
-        path: |
-          ~/cache
-          ~/development/flutter/.pub-cache
-          ~/.gradle
-          **/node_modules
-          build/
-        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
-
+  
     # Publish web to firebase
     - name: Deploy Web
       uses: w9jds/firebase-action@v1.5.0
