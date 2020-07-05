@@ -50,8 +50,8 @@ class Database {
 
   static Future<void> deleteAccount() async {
     _storage.clear();
-    // await Firestore.instance.document(_uid).delete();
     await Firestore.instance.collection(_uid).document('tasks').delete();
+    await Firestore.instance.collection(_uid).document('info').delete();
     FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
@@ -83,12 +83,6 @@ class Database {
     _storage.setString("data", jsonEncode(data));
     if (_uid != null) {
       await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
-      // int timestamp = DateTime.now().millisecondsSinceEpoch;
-      // _storage.setInt("timestamp", timestamp);
-      // await Firestore.instance
-      //     .collection(_uid)
-      //     .document('info')
-      //     .setData({"timestamp": timestamp}).catchError((error) => print(error));
     }
   }
 
