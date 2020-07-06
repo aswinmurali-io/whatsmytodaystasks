@@ -84,7 +84,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   void _accountConnectDialog() {
     String _email, _password, _status;
-    // TODO: add a loading thing when auth
     showDialog(
         context: context,
         builder: (context) => StatefulBuilder(
