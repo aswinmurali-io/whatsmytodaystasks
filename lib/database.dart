@@ -11,24 +11,13 @@ class Database {
   static String _uid;
   static SharedPreferences _storage;
 
-  static Future<void> auth(String email, String password) async {
+  static Future auth(String email, String password) async {
+    _storage.setString("email", email);
+    _storage.setString("password", password);
     try {
       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
-      if (_storage.getString("email") == null) {
-        _storage.setString("email", email);
-        _storage.setString("password", password);
-      }
     } catch (exception) {
-      print(exception);
-      switch (exception.code) {
-        case 'ERROR_USER_NOT_FOUND':
-          _uid =
-              (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
-          if (_storage.getString("email") == null) {
-            _storage.setString("email", email);
-            _storage.setString("password", password);
-          }
-      }
+      _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
     }
   }
 
@@ -43,29 +32,21 @@ class Database {
     return false;
   }
 
-  static Future<void> signOut() async {
+  static Future signOut() async {
     _storage.clear();
     await FirebaseAuth.instance.signOut();
   }
 
-  static Future<void> deleteAccount() async {
+  static Future deleteAccount() async {
     _storage.clear();
-    await Firestore.instance.collection(_uid).document('tasks').delete();
-    await Firestore.instance.collection(_uid).document('info').delete();
-    FirebaseAuth.instance.currentUser().then((user) => user.delete());
+    await Firestore.instance.collection(_uid).document("tasks").delete();
+    await FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
   static void upload(Map<String, Map<String, dynamic>> data) async {
     _storage.setString("data", jsonEncode(data));
-    if (_uid != null) {
+    if (_uid != null)
       await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
-      int timestamp = DateTime.now().millisecondsSinceEpoch;
-      _storage.setInt("timestamp", timestamp);
-      await Firestore.instance
-          .collection(_uid)
-          .document('info')
-          .setData({"timestamp": timestamp}).catchError((error) => print(error));
-    }
   }
 
   static Future<void> resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
@@ -88,46 +69,21 @@ class Database {
 
   static Future<Map<String, Map<String, Object>>> download() async {
     Map<String, Map<String, Object>> obj = {};
-    String data = _storage.get('data');
-    if (data != null)
-      // get the map and then convert it into a nested map (value is a map too)!
-      jsonDecode(data).forEach((key, value) => obj.addAll({key: value}));
-    else
-      _storage.setString("data", jsonEncode(obj));
+    String data = _storage.get('data') ?? _storage.setString("data", jsonEncode(obj));
+    // get the map and then convert it into a nested map (value is a map too)!
+    if (data != null) jsonDecode(data).forEach((key, value) => obj.addAll({key: value}));
     if (_uid == null)
       print("UID not received, prolly no internet");
     else {
-      var isItNull = (await Firestore.instance.collection(_uid).document('info').get()).data;
-      int timestamp;
-      if (isItNull == null) {
-        timestamp = DateTime.now().millisecondsSinceEpoch;
-        _storage.setInt("timestamp", timestamp);
-        await Firestore.instance
-            .collection(_uid)
-            .document('info')
-            .setData({"timestamp": timestamp}).catchError((error) => print(error));
-      } else {
-        timestamp = isItNull["timestamp"];
-      }
-      int localtimestamp = _storage.getInt("timestamp") ?? timestamp;
-      if (timestamp != localtimestamp) {
-        obj.clear();
-        // if data in cloud thn remove local use directly from cloud
-        try {
-          (await Firestore.instance.collection(_uid).document('tasks').get().catchError((error) => print(error)))
-              .data
-              .forEach((key, value) => obj.addAll({key: Map<String, Object>.from(value)}));
-        } on NoSuchMethodError catch (exception) {
-          /* NoSuchMethodError: The method 'forEach' was called on null
-           Happens when a new user is registered but no data in database */
-          print("User just registered but no data in user. Will upload dummy data first, error > $exception");
-          await Firestore.instance.collection(_uid).document('tasks').setData({}).catchError((error) => print(error));
-          _storage.setString("data", jsonEncode({}));
-        } catch (exception) {
-          // PlatformException(Error performing get, PERMISSION_DENIED: Missing or insufficient permissions., null)
-          // can happen if  sync button pressed after delete account/ sign out
-          print(exception);
-        }
+      obj.clear(); // if data in cloud thn remove local use directly from cloud
+      try {
+        (await Firestore.instance.collection(_uid).document('tasks').get())
+            .data
+            .forEach((key, value) => obj.addAll({key: Map<String, Object>.from(value)}));
+      } catch (exception) {
+        // PlatformException(Error performing get, PERMISSION_DENIED: Missing or insufficient permissions., null)
+        // can happen if  sync button pressed after delete account/ sign out
+        print(exception);
       }
     }
     return obj;

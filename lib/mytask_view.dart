@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +20,59 @@ import 'globals.dart';
 class TaskView extends StatefulWidget {
   @override
   _TaskViewState createState() => _TaskViewState();
+}
+
+/// A widget to defeat the hard coded insets of the [Dialog] class which
+/// are [EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0)].
+///
+/// See also:
+///
+///  * [Dialog], for dialogs that have a message and some buttons.
+///  * [showDialog], which actually displays the dialog and returns its result.
+///  * <https://material.io/design/components/dialogs.html>
+///  * <https://stackoverflow.com/questions/53913192/flutter-change-the-width-of-an-alertdialog>
+class DialogInsetDefeat extends StatelessWidget {
+  final BuildContext context;
+  final Widget child;
+  final deInset = EdgeInsets.symmetric(horizontal: -40, vertical: -24);
+  final EdgeInsets edgeInsets;
+
+  DialogInsetDefeat({@required this.context, @required this.child, this.edgeInsets});
+
+  @override
+  Widget build(BuildContext context) {
+    var netEdgeInsets = deInset + (edgeInsets ?? EdgeInsets.zero);
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(viewInsets: netEdgeInsets),
+      child: child,
+    );
+  }
+}
+
+/// Displays a Material dialog using the above DialogInsetDefeat class.
+/// Meant to be a drop-in replacement for showDialog().
+///
+/// See also:
+///
+///  * [Dialog], on which [SimpleDialog] and [AlertDialog] are based.
+///  * [showDialog], which allows for customization of the dialog popup.
+///  * <https://material.io/design/components/dialogs.html>
+Future<T> showDialogWithInsets<T>({
+  @required BuildContext context,
+  bool barrierDismissible = true,
+  @required WidgetBuilder builder,
+  EdgeInsets edgeInsets,
+}) {
+  return showDialog(
+    context: context,
+    builder: (_) => DialogInsetDefeat(
+      context: context,
+      edgeInsets: edgeInsets,
+      child: Builder(builder: builder),
+    ),
+    // Edited! barrierDismissible: barrierDismissible = true,
+    barrierDismissible: barrierDismissible,
+  );
 }
 
 class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
@@ -84,64 +138,69 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   void _accountConnectDialog() {
     String _email, _password, _status;
-    showDialog(
+    showDialogWithInsets(
+        barrierDismissible: true,
         context: context,
-        builder: (context) => StatefulBuilder(
-            builder: (context, setState2) => CustomGradientDialogForm(
-                  title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
-                  icon: Icon(Icons.account_box, color: Colors.white),
-                  content: Container(
-                    height: 200,
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: TextField(
-                                keyboardType: TextInputType.emailAddress,
-                                onChanged: (value) => _email = value,
-                                decoration: const InputDecoration(hintText: 'Enter your email'))),
-                        Expanded(
-                            child: TextField(
-                          obscureText: true,
-                          onChanged: (value) => _password = value,
-                          decoration: InputDecoration(hintText: 'Enter password'),
-                        )),
-                        Text(_status ?? '', style: TextStyle(color: Colors.red)),
-                        GradientButton(
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [Icon(Icons.account_circle), Text("Connect")]),
-                          increaseWidthBy: 20,
-                          callback: () async {
-                            if (_email != null && _password != null) {
-                              // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
-                              RegExp __regexEmail = RegExp(
-                                  r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-                              if (!__regexEmail.hasMatch(_email)) {
-                                setState2(() => _status = "Enter a valid email address.");
-                                return;
-                              }
-                              if (_password.length < 8) {
-                                setState2(() => _status = "Password should be atleast 8 characters long.");
-                                return;
-                              }
-                              await pr.show();
-                              await Database.auth(_email, _password);
-                              Navigator.of(context).pop();
-                              await pr.hide();
-                            } else
-                              setState2(() => _status = "Make sure to fill both, email and password");
-                          },
-                        )
-                      ],
-                    ),
+        edgeInsets: EdgeInsets.symmetric(horizontal: (kIsWeb) ? 300 : 0),
+        builder: (context) => StatefulBuilder(builder: (context, setState2) {
+              return CustomGradientDialogForm(
+                title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
+                icon: Icon(Icons.account_box, color: Colors.white),
+                content: SizedBox(
+                  height: 200,
+                  child: Column(
+                    children: [
+                      Expanded(
+                          child: TextField(
+                              keyboardType: TextInputType.emailAddress,
+                              onChanged: (value) => _email = value,
+                              decoration: const InputDecoration(hintText: 'Enter your email'))),
+                      Expanded(
+                          child: TextField(
+                        obscureText: true,
+                        onChanged: (value) => _password = value,
+                        decoration: InputDecoration(hintText: 'Enter password'),
+                      )),
+                      Text(_status ?? '', style: TextStyle(color: Colors.red)),
+                      GradientButton(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [Icon(Icons.account_circle), Text("Connect")]),
+                        increaseWidthBy: 20,
+                        callback: () async {
+                          if (_email != null && _password != null) {
+                            // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
+                            RegExp __regexEmail = RegExp(
+                                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
+                            if (!__regexEmail.hasMatch(_email)) {
+                              setState2(() => _status = "Enter a valid email address.");
+                              return;
+                            }
+                            if (_password.length < 8) {
+                              setState2(() => _status = "Password should be atleast 8 characters long.");
+                              return;
+                            }
+                            await pr.show();
+                            await Database.auth(_email, _password);
+                            Navigator.of(context).pop();
+                            await pr.hide();
+                            _refreshController.requestRefresh();
+                          } else
+                            setState2(() => _status = "Make sure to fill both, email and password");
+                        },
+                      )
+                    ],
                   ),
-                )));
+                ),
+              );
+            }));
   }
 
   void _accountInfoDialog() async {
     String _email = (await SharedPreferences.getInstance()).getString("email");
-    showDialog(
+    showDialogWithInsets(
         context: context,
+        edgeInsets: EdgeInsets.symmetric(horizontal: (kIsWeb) ? 300 : 0),
         builder: (context) => StatefulBuilder(
             builder: (context, setState2) => CustomGradientDialogForm(
                 title: Text("Account Details", style: TextStyle(fontSize: 20, color: Colors.white)),

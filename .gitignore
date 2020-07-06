@@ -9,5 +9,6 @@
 
 .flutter-plugins
 .flutter-plugins-dependencies
+codesnippets.txt
 
 generated_plugin_registrant.dart
