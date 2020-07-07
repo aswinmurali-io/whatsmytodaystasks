@@ -1,9 +1,19 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'mytask_view.dart';
 
-void main() => runApp(WhatsMyTodaysTasks());
+FirebaseAnalytics analytics = FirebaseAnalytics();
+
+void main() {
+  Crashlytics.instance.enableInDevMode = true;
+  // Pass all uncaught errors from the framework to Crashlytics.
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
+  runApp(WhatsMyTodaysTasks());
+}
 
 class WhatsMyTodaysTasks extends StatelessWidget {
   @override
@@ -17,14 +27,13 @@ class WhatsMyTodaysTasks extends StatelessWidget {
       title: "What's my today's task",
       debugShowCheckedModeBanner: false,
       color: Colors.blueGrey,
+      navigatorObservers: [FirebaseAnalyticsObserver(analytics: analytics)],
       home: TaskView(),
       theme: ThemeData(
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: Colors.transparent),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Colors.transparent),
           brightness: Brightness.light,
           primarySwatch: Colors.blueGrey,
-          primaryIconTheme:
-              const IconThemeData.fallback().copyWith(color: Colors.red[600]),
+          primaryIconTheme: const IconThemeData.fallback().copyWith(color: Colors.red[600]),
           primaryTextTheme: TextTheme(
               headline6: TextStyle(
             color: Colors.blueGrey[200],
