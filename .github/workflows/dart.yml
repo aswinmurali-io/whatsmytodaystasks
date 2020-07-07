@@ -8,18 +8,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Cache
-      uses: actions/cache@v2.0.0
-      id: cache
-      with:
-        path: |
-          **/cache
-          **/development/flutter/.pub-cache
-          **/.gradle
-          **/node_modules
-          **/build/
-        key: key5
-
     # Setup Java environment in order to build the Android app.
     - name: Java
       uses: actions/setup-java@v1
@@ -49,7 +37,6 @@ jobs:
     - name: Analyze Code
       run: flutter analyze .
 
-    
     # Enable Web Support
     - name: Enable Web Support
       run: flutter config --enable-web
