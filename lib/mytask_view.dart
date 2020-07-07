@@ -161,32 +161,70 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         decoration: InputDecoration(hintText: 'Enter password'),
                       )),
                       Text(_status ?? '', style: TextStyle(color: Colors.red)),
-                      GradientButton(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [Icon(Icons.account_circle), Text("Connect")]),
-                        increaseWidthBy: 20,
-                        callback: () async {
-                          if (_email != null && _password != null) {
-                            // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
-                            RegExp __regexEmail = RegExp(
-                                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-                            if (!__regexEmail.hasMatch(_email)) {
-                              setState2(() => _status = "Enter a valid email address.");
-                              return;
-                            }
-                            if (_password.length < 8) {
-                              setState2(() => _status = "Password should be atleast 8 characters long.");
-                              return;
-                            }
-                            await pr.show();
-                            await Database.auth(_email, _password, userTasks);
-                            Navigator.of(context).pop();
-                            await pr.hide();
-                            _refreshController.requestRefresh();
-                          } else
-                            setState2(() => _status = "Make sure to fill both, email and password");
-                        },
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        child: GradientButton(
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [Icon(Icons.account_circle), Text("Connect")]),
+                          increaseWidthBy: 20,
+                          callback: () async {
+                            if (_email != null && _password != null) {
+                              // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
+                              RegExp __regexEmail = RegExp(
+                                  r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
+                              if (!__regexEmail.hasMatch(_email)) {
+                                setState2(() => _status = "Enter a valid email address.");
+                                return;
+                              }
+                              if (_password.length < 8) {
+                                setState2(() => _status = "Password should be atleast 8 characters long.");
+                                return;
+                              }
+                              await pr.show();
+                              String errorStatus = await Database.auth(_email, _password, userTasks);
+                              setState2(() => _status = "");
+                              switch (errorStatus) {
+                                case "ERROR_WRONG_PASSWORD":
+                                  await pr.hide();
+                                  setState2(() => _status = "Wrong Password, Try again!");
+                                  return;
+                                case "ERROR_TOO_MANY_REQUESTS":
+                                  await pr.hide();
+                                  setState2(() => _status = "Too many requests!");
+                                  return;
+                                case "ERROR_USER_NOT_FOUND":
+                                  await pr.hide();
+                                  showDialog(
+                                      context: context,
+                                      child: AlertDialog(
+                                        content: Text("Account not found. Do you want to create account instead ?"),
+                                        actions: [
+                                          GradientButton(
+                                              child: const Text("Yes"),
+                                              callback: () async {
+                                                await pr.show();
+                                                String error = await Database.register(_email, _password);
+                                                print(error);
+                                                for (int i = 0; i < 3; i++) Navigator.of(context).pop();
+                                                await pr.show();
+                                              }),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                            child: GradientButton(
+                                                child: const Text("No"), callback: () => Navigator.of(context).pop()),
+                                          )
+                                        ],
+                                      ));
+                                  return;
+                              }
+                              Navigator.of(context).pop();
+                              await pr.hide();
+                              _refreshController.requestRefresh();
+                            } else
+                              setState2(() => _status = "Make sure to fill both, email and password");
+                          },
+                        ),
                       )
                     ],
                   ),

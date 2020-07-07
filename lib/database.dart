@@ -11,19 +11,36 @@ class Database {
   static String _uid;
   static SharedPreferences _storage;
 
-  static Future auth(String email, String password, Map<String, Map<String, dynamic>> userTasks) async {
+  /*
+  ERROR_WRONG_PASSWORD
+  ERROR_EMAIL_ALREADY_IN_USE
+  ERROR_TOO_MANY_REQUESTS
+  ERROR_USER_NOT_FOUND
+  */
+
+  static Future register(String email, password) async {
+    _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
+    _storage.setString("email", email);
+    _storage.setString("password", password);
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
+    } catch (error) {
+      print("$error @register()");
+      return error;
+    }
+  }
+
+  static Future<String> auth(String email, String password, Map<String, Map<String, dynamic>> userTasks) async {
     _storage.setString("email", email);
     _storage.setString("password", password);
     try {
       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
-    } catch (exception) {
-      _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
-      try {
-        await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
-      } catch (error) {
-        print("$error @auth()");
-      }
+    } catch (firebaseError) {
+      print(firebaseError);
+      _storage.setString("email", null);
+      return firebaseError.code;
     }
+    return null;
   }
 
   static Future autoconnect(userTasks) async {
