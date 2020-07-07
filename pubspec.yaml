@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_gradient_colors: ^1.0.0
-  gradient_widgets: ^0.5.1
+  gradient_widgets: ^0.5.2
   jiffy: ^3.0.1
   flutter_animator: ^2.0.9
   intl: ^0.16.1
