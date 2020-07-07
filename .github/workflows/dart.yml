@@ -49,17 +49,7 @@ jobs:
     - name: Analyze Code
       run: flutter analyze .
 
-    # Build apk.
-    - name: Build Android APK
-      run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info build/debug --shrink --tree-shake-icons
-
-    # Upload generated apk to the artifacts.
-    - uses: actions/upload-artifact@v2
-      with:
-        name: Android APK
-        path: |
-          build/app/outputs/flutter-apk/
-
+    
     # Enable Web Support
     - name: Enable Web Support
       run: flutter config --enable-web
@@ -75,3 +65,14 @@ jobs:
           args: deploy --token "$FIREBASE_TOKEN"
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+    # Build apk.
+    - name: Build Android APK
+      run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info build/debug --shrink --tree-shake-icons
+
+    # Upload generated apk to the artifacts.
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Android APK
+        path: |
+          build/app/outputs/flutter-apk/
