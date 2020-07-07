@@ -6,50 +6,55 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsmytodaystasks/globals.dart';
 
-// autoconnect() function must be called first before doing anything, then auth()
+// autoconnect() function must be called first before doing anything
 class Database {
   static String _uid;
   static SharedPreferences _storage;
 
-  static Future auth(String email, String password) async {
+  static Future auth(String email, String password, Map<String, Map<String, dynamic>> userTasks) async {
     _storage.setString("email", email);
     _storage.setString("password", password);
     try {
       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
     } catch (exception) {
       _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
+      try {
+        await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
+      } catch (error) {
+        print("$error @auth()");
+      }
     }
   }
 
-  static Future<bool> autoconnect() async {
-    if (_storage == null) _storage = await SharedPreferences.getInstance();
+  static Future autoconnect(userTasks) async {
+    _storage = _storage ?? await SharedPreferences.getInstance();
     String _email = _storage.getString("email");
-    if (_email != null) {
-      String _password = _storage.getString("password");
-      await auth(_email, _password);
-      return true;
-    }
-    return false;
+    if (_email != null) await auth(_email, _storage.getString("password"), userTasks);
   }
 
   static Future signOut() async {
-    _storage.clear();
+    _storage.setString("email", null);
+    _uid = null;
     await FirebaseAuth.instance.signOut();
   }
 
   static Future deleteAccount() async {
-    _storage.clear();
+    _storage.setString("email", null);
     await Firestore.instance.collection(_uid).document("tasks").delete();
+    _uid = null;
     await FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
   static void upload(Map<String, Map<String, dynamic>> data) async {
     _storage.setString("data", jsonEncode(data));
-    if (_uid != null)
-      await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+    } catch (error) {
+      print("$error @upload()");
+    }
   }
 
-  static Future<void> resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
+  static Future resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
     bool reset = _storage.getBool("reset");
     if (reset == null)
       _storage.setBool("reset", false);
@@ -62,29 +67,29 @@ class Database {
       }
     }
     _storage.setString("data", jsonEncode(data));
-    if (_uid != null) {
-      await Firestore.instance.collection(_uid).document('tasks').setData(data).catchError((error) => print(error));
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+    } catch (error) {
+      print("$error @resetTasks()");
     }
   }
 
   static Future<Map<String, Map<String, Object>>> download() async {
+    /*
+      PlatformException(Error performing get, PERMISSION_DENIED: Missing or insufficient permissions., null)
+      can happen if  sync button pressed after delete account/sign out
+    */
     Map<String, Map<String, Object>> obj = {};
-    String data = _storage.get('data') ?? _storage.setString("data", jsonEncode(obj));
+    String data = _storage.getString('data') ?? _storage.setString("data", jsonEncode(obj));
     // get the map and then convert it into a nested map (value is a map too)!
     if (data != null) jsonDecode(data).forEach((key, value) => obj.addAll({key: value}));
-    if (_uid == null)
-      print("UID not received, prolly no internet");
-    else {
-      obj.clear(); // if data in cloud thn remove local use directly from cloud
-      try {
-        (await Firestore.instance.collection(_uid).document('tasks').get())
-            .data
-            .forEach((key, value) => obj.addAll({key: Map<String, Object>.from(value)}));
-      } catch (exception) {
-        // PlatformException(Error performing get, PERMISSION_DENIED: Missing or insufficient permissions., null)
-        // can happen if  sync button pressed after delete account/ sign out
-        print(exception);
-      }
+    try {
+      if (_uid != null) obj.clear(); // if data in cloud thn remove local, use directly from cloud
+      (await Firestore.instance.collection(_uid).document('tasks').get())
+          .data
+          .forEach((key, value) => obj.addAll({key: Map<String, Object>.from(value)}));
+    } catch (error) {
+      print("$error @download()");
     }
     return obj;
   }

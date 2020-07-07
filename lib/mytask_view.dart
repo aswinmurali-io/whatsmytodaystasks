@@ -113,7 +113,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   Future initAsync() async {
-    await Database.autoconnect();
+    await Database.autoconnect(userTasks);
     userTasks = await Database.download();
     await Database.resetTasks(userTasks, _currentWeek);
     setState(() => userTasks = userTasks);
@@ -138,10 +138,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   void _accountConnectDialog() {
     String _email, _password, _status;
-    showDialogWithInsets(
+    showDialog(
         barrierDismissible: true,
         context: context,
-        edgeInsets: EdgeInsets.symmetric(horizontal: (kIsWeb) ? 300 : 0),
         builder: (context) => StatefulBuilder(builder: (context, setState2) {
               return CustomGradientDialogForm(
                 title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
@@ -181,7 +180,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               return;
                             }
                             await pr.show();
-                            await Database.auth(_email, _password);
+                            await Database.auth(_email, _password, userTasks);
                             Navigator.of(context).pop();
                             await pr.hide();
                             _refreshController.requestRefresh();
@@ -218,8 +217,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             callback: () async {
                               await pr.show();
                               await Database.signOut();
-                              // update it in UI, not handled by database
-                              setState2(() => userTasks = {});
                               Navigator.of(context).pop();
                               await pr.hide();
                             },
@@ -230,8 +227,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             callback: () async {
                               await pr.show();
                               await Database.deleteAccount();
-                              // update it in UI, not handled by database
-                              setState2(() => userTasks = {});
                               Navigator.of(context).pop();
                               await pr.hide();
                             },
@@ -561,7 +556,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   header: WaterDropHeader(waterDropColor: Colors.red),
                   controller: _refreshController,
                   onRefresh: () async {
-                    await initAsync();
+                    try {
+                      await initAsync();
+                    } catch (error) {
+                      print(error);
+                    }
                     _refreshController.refreshCompleted();
                     setState(() => _showDividers = true);
                   },
