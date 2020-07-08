@@ -233,9 +233,9 @@ class _TaskDialogState extends State<TaskDialog> {
                       increaseWidthBy: 20,
                       child: const Text("Delete", style: TextStyle(color: Colors.white)),
                       callback: () {
-                        setState(() => userTasks.remove(title));
                         Database.upload(userTasks);
                         Navigator.of(context).pop();
+                        setState2(() => userTasks.remove(title));
                       },
                     )
                 ],
