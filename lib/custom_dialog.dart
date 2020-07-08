@@ -1,5 +1,5 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:gradient_widgets/gradient_widgets.dart';
 
 class CustomGradientDialogForm extends StatefulWidget {
   final Color titleBackground;
@@ -28,14 +28,12 @@ class CustomGradientDialogForm extends StatefulWidget {
 class _CustomGradientDialogFormState extends State<CustomGradientDialogForm> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: AnimatedContainer(
-        duration: widget.animationDuration ?? Duration(seconds: 1),
-        curve: Curves.fastLinearToSlowEaseIn,
-        child: GradientCard(
-          margin: EdgeInsets.all(0),
-          elevation: 20,
-          shadowColor: Colors.black87,
+    return Material(
+      color: Colors.black54,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +65,7 @@ class _CustomGradientDialogFormState extends State<CustomGradientDialogForm> {
                 padding: widget.contentPadding ?? EdgeInsets.all(30),
                 decoration: BoxDecoration(
                   color: widget.contentBackground ?? Colors.grey[300],
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  borderRadius: BorderRadius.all(Radius.circular(40)),
                 ),
                 child: widget.content,
               )
