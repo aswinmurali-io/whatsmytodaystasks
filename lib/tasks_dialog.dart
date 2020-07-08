@@ -17,7 +17,7 @@ import 'globals.dart';
  */
 
 class TaskDialog extends StatefulWidget {
-  final setState2;
+  final setState2, taskViewScaffoldKey;
 
   final bool modifyWhat, done, repeat;
   final int importance;
@@ -25,11 +25,11 @@ class TaskDialog extends StatefulWidget {
   final dynamic endtime, selectedTime;
 
   TaskDialog(this.setState2, this.modifyWhat, this.done, this.importance, this.title, this.description, this.week2,
-      this.oldTitle, this.endtime, this.selectedTime, this.repeat);
+      this.oldTitle, this.endtime, this.selectedTime, this.repeat, this.taskViewScaffoldKey);
 
   @override
-  createState() => _TaskDialogState(
-      setState2, modifyWhat, done, importance, title, description, week2, oldTitle, endtime, selectedTime, repeat);
+  createState() => _TaskDialogState(setState2, modifyWhat, done, importance, title, description, week2, oldTitle,
+      endtime, selectedTime, repeat, taskViewScaffoldKey);
 }
 
 class _TaskDialogState extends State<TaskDialog> {
@@ -37,17 +37,19 @@ class _TaskDialogState extends State<TaskDialog> {
   TextEditingController _textFieldTaskController;
   TextEditingController _textFieldDescriptionController;
 
-  final setState2;
+  final setState2, taskViewScaffoldKey;
 
   bool modifyWhat, done, repeat;
   int importance;
   String title, description, week2, oldTitle;
   dynamic endtime, selectedTime;
 
+  Map _undo = {};
+
   String _currentWeek, dropdown, week;
 
   _TaskDialogState(this.setState2, this.modifyWhat, this.done, this.importance, this.title, this.description,
-      this.week2, this.oldTitle, this.endtime, this.selectedTime, this.repeat);
+      this.week2, this.oldTitle, this.endtime, this.selectedTime, this.repeat, this.taskViewScaffoldKey);
 
   @override
   initState() {
@@ -118,9 +120,23 @@ class _TaskDialogState extends State<TaskDialog> {
   }
 
   delete() {
+    _undo = userTasks[title];
+    setState2(() => userTasks.remove(title));
     Database.upload(userTasks);
     Navigator.of(context).pop();
-    setState2(() => userTasks.remove(title));
+    taskViewScaffoldKey.currentState.showSnackBar(SnackBar(
+      duration: const Duration(seconds: 4),
+      content: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        const Text("Deleted task"),
+        OutlineButton(
+            child: const Text("Undo"),
+            onPressed: () {
+              userTasks.addAll({title: _undo});
+              setState2(() => userTasks);
+              Database.upload(userTasks);
+            })
+      ]),
+    ));
   }
 
   @override

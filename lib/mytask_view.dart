@@ -39,6 +39,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   RefreshController _refreshController;
 
+  final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
+
   // setState() called after dispose()
   @override
   void setState(fn) {
@@ -279,7 +281,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) => TaskDialog(setState, modifyWhat, done, importance, title,
-            description, week2, oldTitle, endtime, selectedTime, repeat)));
+            description, week2, oldTitle, endtime, selectedTime, repeat, taskViewScaffoldKey)));
   }
 
   bool _resetOffset(int i) {
@@ -298,6 +300,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         value: SystemUiOverlayStyle(
             systemNavigationBarColor: Colors.white, systemNavigationBarIconBrightness: Brightness.dark),
         child: Scaffold(
+            key: taskViewScaffoldKey,
             appBar: AppBar(
                 titleSpacing: 20,
                 brightness: Brightness.light,
