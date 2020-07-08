@@ -12,7 +12,7 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'custom_dialog.dart';
+import 'custom_dialog.dart' show CustomGradientDialogForm;
 import 'database.dart' show Database;
 import 'globals.dart';
 import 'tasks_dialog.dart' show TaskDialog;

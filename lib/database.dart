@@ -62,7 +62,7 @@ class Database {
     await FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
-  static void upload(Map<String, Map<String, dynamic>> data) async {
+  static upload(Map<String, Map<String, dynamic>> data) async {
     _storage.setString("data", jsonEncode(data));
     try {
       await Firestore.instance.collection(_uid).document('tasks').setData(data);

@@ -10,4 +10,6 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 
+*.log
+
 generated_plugin_registrant.dart
