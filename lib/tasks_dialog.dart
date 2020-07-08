@@ -19,17 +19,17 @@ import 'globals.dart';
 class TaskDialog extends StatefulWidget {
   final setState2;
 
-  final bool modifyWhat, done;
+  final bool modifyWhat, done, repeat;
   final int importance;
   final String title, description, week2, oldTitle;
   final dynamic endtime, selectedTime;
 
   TaskDialog(this.setState2, this.modifyWhat, this.done, this.importance, this.title, this.description, this.week2,
-      this.oldTitle, this.endtime, this.selectedTime);
+      this.oldTitle, this.endtime, this.selectedTime, this.repeat);
 
   @override
   createState() => _TaskDialogState(
-      setState2, modifyWhat, done, importance, title, description, week2, oldTitle, endtime, selectedTime);
+      setState2, modifyWhat, done, importance, title, description, week2, oldTitle, endtime, selectedTime, repeat);
 }
 
 class _TaskDialogState extends State<TaskDialog> {
@@ -39,7 +39,7 @@ class _TaskDialogState extends State<TaskDialog> {
 
   final setState2;
 
-  final bool modifyWhat, done;
+  bool modifyWhat, done, repeat;
   int importance;
   String title, description, week2, oldTitle;
   dynamic endtime, selectedTime;
@@ -47,7 +47,7 @@ class _TaskDialogState extends State<TaskDialog> {
   String _currentWeek, dropdown, week;
 
   _TaskDialogState(this.setState2, this.modifyWhat, this.done, this.importance, this.title, this.description,
-      this.week2, this.oldTitle, this.endtime, this.selectedTime);
+      this.week2, this.oldTitle, this.endtime, this.selectedTime, this.repeat);
 
   @override
   initState() {
@@ -57,8 +57,10 @@ class _TaskDialogState extends State<TaskDialog> {
     _importance = importance ?? 0;
     if (modifyWhat)
       _currentWeek = dropdown = week = week2;
-    else
+    else {
       _currentWeek = dropdown = week = Jiffy(DateTime.now()).EEEE;
+      repeat = false;
+    }
   }
 
   @override
@@ -101,7 +103,7 @@ class _TaskDialogState extends State<TaskDialog> {
             "description": description ?? '',
             "image": null,
             "importance": _importance,
-            "repeat": false,
+            "repeat": repeat,
             "done": (!modifyWhat) ? false : done,
             "week": (dropdown == "Tomorrow")
                 ? ((_currentWeek == "Sunday") ? 0 : weeks.indexOf(_currentWeek) + 1)
@@ -174,14 +176,16 @@ class _TaskDialogState extends State<TaskDialog> {
                     }),
               ],
             ),
-            Row(
-              children: [
-                const Text("Is this task very important ? "),
-                Checkbox(
-                    value: (_importance == 0) ? false : true,
-                    onChanged: (bool value) => setState(() => _importance = (value) ? 1 : 0))
-              ],
-            ),
+            Row(children: [
+              const Text("Important task"),
+              Checkbox(
+                  value: (_importance == 0) ? false : true,
+                  onChanged: (bool value) => setState(() => _importance = (value) ? 1 : 0))
+            ]),
+            Row(children: [
+              const Text("Repeat task every week"),
+              Checkbox(value: repeat, onChanged: (value) => setState(() => repeat = value))
+            ]),
             ExpansionTile(
               title: Text("Time"),
               children: [

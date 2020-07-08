@@ -248,6 +248,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   void _tasksEditDialog(
       {bool modifyWhat: false,
       done: false,
+      repeat,
       int importance,
       String title,
       description,
@@ -264,6 +265,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     } else
       dropdown = week2;
 
+    //TODO: remoev hes
     modifyWhat = modifyWhat;
     done = done;
     importance = importance;
@@ -276,8 +278,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
-        pageBuilder: (BuildContext context, _, __) => TaskDialog(
-            setState, modifyWhat, done, importance, title, description, week2, oldTitle, endtime, selectedTime)));
+        pageBuilder: (BuildContext context, _, __) => TaskDialog(setState, modifyWhat, done, importance, title,
+            description, week2, oldTitle, endtime, selectedTime, repeat)));
   }
 
   bool _resetOffset(int i) {
@@ -472,6 +474,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                               modifyWhat: true,
                                               title: task,
                                               oldTitle: task,
+                                              repeat: userTasks[task]["repeat"],
                                               importance: userTasks[task]["importance"],
                                               description: userTasks[task]["description"],
                                               week2: weeks[userTasks[task]["week"]],
@@ -535,7 +538,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                     value: userTasks[task]['done'],
                                                     onChanged: (value) {
                                                       setState(() => userTasks[task]['done'] = value);
-                                                      //_storage.setString("data", jsonEncode(userTasks));
                                                       Database.upload(userTasks);
                                                     })
                                               ],
@@ -545,6 +547,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                 modifyWhat: true,
                                                 title: task,
                                                 oldTitle: task,
+                                                repeat: userTasks[task]["repeat"],
                                                 importance: userTasks[task]["importance"],
                                                 description: userTasks[task]["description"],
                                                 week2: weeks[userTasks[task]["week"]],
@@ -640,6 +643,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                   modifyWhat: true,
                                                   title: task,
                                                   oldTitle: task,
+                                                  repeat: userTasks[task]["repeat"],
                                                   importance: userTasks[task]["importance"],
                                                   description: userTasks[task]["description"],
                                                   week2: weeks[userTasks[task]["week"]],
@@ -743,6 +747,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                 modifyWhat: true,
                                                 title: task,
                                                 oldTitle: task,
+                                                repeat: userTasks[task]["repeat"],
                                                 importance: userTasks[task]["importance"],
                                                 description: userTasks[task]["description"],
                                                 week2: weeks[userTasks[task]["week"]],
