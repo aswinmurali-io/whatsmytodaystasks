@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:flutter_animator/flutter_animator.dart';
@@ -14,8 +13,9 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'custom_dialog.dart';
-import 'database.dart';
+import 'database.dart' show Database;
 import 'globals.dart';
+import 'tasks_dialog.dart' show TaskDialog;
 
 class TaskView extends StatefulWidget {
   @override
@@ -24,8 +24,8 @@ class TaskView extends StatefulWidget {
 
 class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _tabController;
-  TextEditingController _textFieldTaskController;
-  TextEditingController _textFieldDescriptionController;
+  // TextEditingController _textFieldTaskController;
+  // TextEditingController _textFieldDescriptionController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
   final _totalTabs = 9;
@@ -48,7 +48,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setState(() => _currentWeekTabSize += 30); // trigger the scale transition for the tab
@@ -67,7 +67,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   @override
-  void dispose() {
+  dispose() {
     _tabController.dispose();
     _refreshController.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -75,7 +75,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  didChangeAppLifecycleState(AppLifecycleState state) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
         statusBarColor: Colors.white30,
         statusBarIconBrightness: Brightness.dark,
@@ -83,7 +83,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         systemNavigationBarIconBrightness: Brightness.dark));
   }
 
-  void _accountConnectDialog() {
+  _accountConnectDialog() {
     String _email, _password, _status;
     showDialog(
         barrierDismissible: true,
@@ -98,6 +98,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     children: [
                       Expanded(
                           child: TextField(
+                              autofillHints: [AutofillHints.email],
                               keyboardType: TextInputType.emailAddress,
                               onChanged: (value) => _email = value,
                               decoration: const InputDecoration(hintText: 'Enter your email'))),
@@ -131,6 +132,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               }
                               await pr.show();
                               String errorStatus = await Database.auth(_email, _password, userTasks);
+                              print("$errorStatus 32348923478978934789234879432897432897243879342879234");
                               setState2(() => _status = "");
                               switch (errorStatus) {
                                 case "ERROR_WRONG_PASSWORD":
@@ -184,7 +186,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
             }));
   }
 
-  void _accountInfoDialog() async {
+  _accountInfoDialog() async {
     String _email = (await SharedPreferences.getInstance()).getString("email");
     showDialog(
         context: context,
@@ -230,7 +232,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   void _tasksEditDialog(
       {bool modifyWhat: false,
-      bool done: false,
+      done: false,
       int importance,
       String title,
       description,
@@ -244,206 +246,23 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
       description = null;
       selectedTime = null;
       endtime = null;
-      week = _currentWeek;
-      dropdown = _currentWeek;
     } else
       dropdown = week2;
 
-    _textFieldTaskController = TextEditingController(text: title);
-    _textFieldDescriptionController = TextEditingController(text: description);
+    modifyWhat = modifyWhat;
+    done = done;
+    importance = importance;
+    title = title;
+    description = description;
+    week2 = week2;
+    oldTitle = oldTitle;
+    endtime = endtime;
+    selectedTime = selectedTime;
 
-    int _importance = importance ?? 0;
-
-    showDialog(
-        barrierDismissible: true,
-        context: context,
-        builder: (context) => StatefulBuilder(
-            builder: (context, setState2) => CustomGradientDialogForm(
-                  title: Text((modifyWhat) ? "Edit Task" : "New Task",
-                      style: TextStyle(color: Colors.white, fontSize: 25)),
-                  content: SizedBox(
-                    height: 400,
-                    child: Column(
-                      children: [
-                        const Text("What's the task ?"),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                          child: Expanded(
-                              child: TextField(
-                                  controller: _textFieldTaskController,
-                                  autocorrect: true,
-                                  cursorColor: Colors.red,
-                                  maxLines: 1,
-                                  enableSuggestions: true,
-                                  maxLength: 40,
-                                  onChanged: (value) => title = value)),
-                        ),
-                        const Text("Something else to remember with it?"),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                          child: Expanded(
-                              child: TextField(
-                                  controller: _textFieldDescriptionController,
-                                  autocorrect: true,
-                                  cursorColor: Colors.red,
-                                  maxLines: 1,
-                                  autofocus: true,
-                                  enableSuggestions: true,
-                                  maxLength: 30,
-                                  onChanged: (value) => description = value)),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text("Pick a day"),
-                            DropdownButton(
-                                value: dropdown,
-                                items: (weeks + ["Tomorrow"])
-                                        .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
-                                        .toList() +
-                                    [],
-                                onChanged: (value) {
-                                  week = value;
-                                  setState2(() => dropdown = value);
-                                }),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Text("Is this task very important ? "),
-                            Checkbox(
-                                value: (_importance == 0) ? false : true,
-                                onChanged: (bool value) => setState2(() => _importance = (value) ? 1 : 0))
-                          ],
-                        ),
-                        ExpansionTile(
-                          title: Text("Time"),
-                          children: [
-                            SingleChildScrollView(
-                              child: Wrap(children: [
-                                const Text(
-                                    "if you already set the time and want to remove it. Open the time selector and just press cancel"),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Set the start time"),
-                                    GradientButton(
-                                        shadowColor: Colors.black26,
-                                        elevation: (kIsWeb) ? 0.0 : 6.0,
-                                        shapeRadius: BorderRadius.circular(10),
-                                        gradient: Gradients.blush,
-                                        increaseWidthBy: 40,
-                                        child: Text("Choose Start Time"),
-                                        callback: () => selectedTime =
-                                            showTimePicker(context: context, initialTime: TimeOfDay.now())),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text("Set the end time"),
-                                    GradientButton(
-                                        shadowColor: Colors.black26,
-                                        elevation: (kIsWeb) ? 0.0 : 6.0,
-                                        shapeRadius: BorderRadius.circular(10),
-                                        gradient: Gradients.blush,
-                                        increaseWidthBy: 40,
-                                        child: Text("Choose End Time"),
-                                        callback: () =>
-                                            endtime = showTimePicker(context: context, initialTime: TimeOfDay.now())),
-                                  ],
-                                ),
-                              ]),
-                            )
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GradientButton(
-                                  shadowColor: Colors.black26,
-                                  elevation: (kIsWeb) ? 0.0 : 6.0,
-                                  shapeRadius: BorderRadius.circular(10),
-                                  gradient: Gradients.coldLinear,
-                                  increaseWidthBy: 20,
-                                  child: const Text("Save", style: TextStyle(color: Colors.white)),
-                                  callback: () async {
-                                    if (week != null &&
-                                        _textFieldTaskController.text.replaceAll(RegExp(r'\s'), '').length != 0) {
-                                      TimeOfDay _awaitedTime, _awaitedTime2;
-                                      if (selectedTime is String && selectedTime != "Any Time") {
-                                        DateTime dateTimeFromString = DateFormat.jm().parse(selectedTime);
-                                        selectedTime =
-                                            TimeOfDay(hour: dateTimeFromString.hour, minute: dateTimeFromString.minute);
-                                        _awaitedTime = selectedTime;
-                                      } else if (selectedTime is Future<TimeOfDay>) {
-                                        _awaitedTime = (await selectedTime);
-                                      }
-
-                                      if (endtime is String && endtime != "Any Time") {
-                                        DateTime dateTimeFromString = DateFormat.jm().parse(endtime);
-                                        endtime =
-                                            TimeOfDay(hour: dateTimeFromString.hour, minute: dateTimeFromString.minute);
-                                        _awaitedTime2 = endtime;
-                                      } else if (endtime is Future<TimeOfDay>) {
-                                        _awaitedTime2 = (await endtime);
-                                      }
-                                      // if modifiying then first check if key present else make one
-                                      setState(() {
-                                        if (modifyWhat && userTasks.containsKey(oldTitle)) userTasks.remove(oldTitle);
-                                        userTasks.addAll({
-                                          title: {
-                                            "time": (_awaitedTime != null)
-                                                ? "${(_awaitedTime.hour > 12) ? _awaitedTime.hour - 12 : _awaitedTime.hour}:${(_awaitedTime.minute < 10) ? '0${_awaitedTime.minute}' : _awaitedTime.minute} ${(_awaitedTime.period.index == 1) ? 'PM' : 'AM'}"
-                                                : "Any Time",
-                                            "endtime": (_awaitedTime2 != null)
-                                                ? "${(_awaitedTime2.hour > 12) ? _awaitedTime2.hour - 12 : _awaitedTime2.hour}:${(_awaitedTime2.minute < 10) ? '0${_awaitedTime2.minute}' : _awaitedTime2.minute} ${(_awaitedTime2.period.index == 1) ? 'PM' : 'AM'}"
-                                                : "Any Time",
-                                            "notify": true,
-                                            "description": description ?? '',
-                                            "image": null,
-                                            "importance": _importance,
-                                            "repeat": false,
-                                            "done": (!modifyWhat) ? false : done,
-                                            "week": (dropdown == "Tomorrow")
-                                                ? ((_currentWeek == "Sunday") ? 0 : weeks.indexOf(_currentWeek) + 1)
-                                                : weeks.indexOf(week)
-                                          },
-                                        });
-                                      });
-                                      // save locally & also cloud
-                                      //_storage.setString("data", jsonEncode(userTasks));
-                                      Database.upload(userTasks);
-
-                                      Navigator.of(context).pop();
-                                    }
-                                  }),
-                              if (modifyWhat)
-                                GradientButton(
-                                  shadowColor: Colors.black26,
-                                  elevation: (kIsWeb) ? 0.0 : 6.0,
-                                  shapeRadius: BorderRadius.circular(10),
-                                  gradient: Gradients.aliHussien,
-                                  increaseWidthBy: 20,
-                                  child: const Text("Delete", style: TextStyle(color: Colors.white)),
-                                  callback: () {
-                                    setState(() => userTasks.remove(title));
-                                    Database.upload(userTasks);
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  titleBackground: Colors.red,
-                  contentBackground: Colors.white,
-                  icon: const Icon(Icons.edit, color: Colors.white, size: 25),
-                )));
+    Navigator.of(context).push(PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (BuildContext context, _, __) => TaskDialog(
+            setState, modifyWhat, done, importance, title, description, week2, oldTitle, endtime, selectedTime)));
   }
 
   bool _resetOffset(int i) {
@@ -463,7 +282,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
               titleSpacing: 20,
               brightness: Brightness.light,
               bottom: TabBar(
-                physics: const BouncingScrollPhysics(),
+                //physics: const BouncingScrollPhysics(),
                 isScrollable: true,
                 indicatorColor: Colors.transparent,
                 indicatorWeight: 0.1,
