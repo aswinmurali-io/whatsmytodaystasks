@@ -150,6 +150,7 @@ class _TaskDialogState extends State<TaskDialog> {
               userTasks.addAll({title: _undo});
               setState2(() => userTasks);
               Database.upload(userTasks);
+              taskViewScaffoldKey.currentState.hideCurrentSnackBar();
             })
       ]),
     ));

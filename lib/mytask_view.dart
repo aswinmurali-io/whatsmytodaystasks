@@ -51,7 +51,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    setState(() => _currentWeekTabSize += 30);  // trigger the scale transition for the tab
+    setState(() => _currentWeekTabSize += 30); // trigger the scale transition for the tab
     _tabController = TabController(length: _totalTabs, vsync: this);
     _tabController.index = weeks.indexOf(_currentWeek);
     _tabController.addListener(() => setState(() => _currentWeek = weeks[_tabController.index]));
@@ -781,8 +781,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 )
             ]),
             floatingActionButton: ZoomIn(
-              preferences: AnimationPreferences(
-                  duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
+              preferences:
+                  AnimationPreferences(duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
               child: FloatingActionButton(
                 heroTag: "Add Task",
                 focusElevation: 80,
