@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'mytask_view.dart';
 
-void main() {
+main() {
   if (!kIsWeb) {
     Crashlytics.instance.enableInDevMode = true;
     // Pass all uncaught errors from the framework to Crashlytics.

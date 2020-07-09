@@ -43,7 +43,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   // setState() called after dispose()
   @override
-  void setState(fn) {
+  setState(fn) {
     if (mounted) super.setState(fn);
   }
 
@@ -51,7 +51,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    setState(() => _currentWeekTabSize += 30); // trigger the scale transition for the tab
+    setState(() => _currentWeekTabSize += 30);  // trigger the scale transition for the tab
     _tabController = TabController(length: _totalTabs, vsync: this);
     _tabController.index = weeks.indexOf(_currentWeek);
     _tabController.addListener(() => setState(() => _currentWeek = weeks[_tabController.index]));
@@ -202,8 +202,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         builder: (context) => StatefulBuilder(
             builder: (context, setState2) => AnnotatedRegion<SystemUiOverlayStyle>(
                   value: SystemUiOverlayStyle(
-                      statusBarColor: Colors.transparent,
-                      statusBarIconBrightness: Brightness.light,
+                      statusBarColor: Colors.black54,
+                      statusBarIconBrightness: Brightness.dark,
                       systemNavigationBarColor: Colors.black54,
                       systemNavigationBarDividerColor: Colors.transparent,
                       systemNavigationBarIconBrightness: Brightness.light),
@@ -305,7 +305,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 titleSpacing: 20,
                 brightness: Brightness.light,
                 bottom: TabBar(
-                  //physics: const BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   isScrollable: true,
                   indicatorColor: Colors.transparent,
                   indicatorWeight: 0.1,
@@ -343,38 +343,49 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     Padding(
                         padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         // sync button
-                        child: CircleAvatar(
-                          radius: 16.0,
-                          backgroundColor: Colors.red,
-                          child: IconButton(
-                              tooltip: 'Sync',
-                              icon: const Icon(Icons.sync, size: 17.0),
-                              color: Colors.white,
-                              onPressed: () async {
-                                await _refreshController.requestRefresh();
-                              }),
+                        child: ZoomIn(
+                          preferences: AnimationPreferences(
+                              duration: const Duration(milliseconds: 400), offset: const Duration(seconds: 1)),
+                          child: CircleAvatar(
+                            radius: 16.0,
+                            backgroundColor: Colors.red,
+                            child: IconButton(
+                                tooltip: 'Sync',
+                                icon: const Icon(Icons.sync, size: 17.0),
+                                color: Colors.white,
+                                onPressed: () async {
+                                  await _refreshController.requestRefresh();
+                                }),
+                          ),
                         )),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
                       // profile button
-                      child: CircleAvatar(
-                        backgroundColor: Colors.red,
-                        child: IconButton(
-                            tooltip: "Profile",
-                            icon: const Icon(Icons.account_circle),
-                            color: Colors.white,
-                            onPressed: () async {
-                              if ((await SharedPreferences.getInstance()).getString("email") == null)
-                                _accountConnectDialog();
-                              else
-                                _accountInfoDialog();
-                            }),
+                      child: ZoomIn(
+                        preferences: AnimationPreferences(
+                            duration: const Duration(milliseconds: 400), offset: const Duration(seconds: 1)),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.red,
+                          child: IconButton(
+                              tooltip: "Profile",
+                              icon: const Icon(Icons.account_circle),
+                              color: Colors.white,
+                              onPressed: () async {
+                                if ((await SharedPreferences.getInstance()).getString("email") == null)
+                                  _accountConnectDialog();
+                                else
+                                  _accountInfoDialog();
+                              }),
+                        ),
                       )),
                 ],
-                title: const Text("What's my today's tasks ?"),
+                title: FadeInLeft(
+                    preferences: const AnimationPreferences(
+                        duration: const Duration(milliseconds: 400), offset: const Duration(seconds: 1)),
+                    child: const Text("What's my today's tasks ?")),
                 elevation: 0,
                 backgroundColor: Colors.transparent),
-            body: TabBarView(controller: _tabController, physics: const NeverScrollableScrollPhysics(), children: [
+            body: TabBarView(controller: _tabController, physics: const BouncingScrollPhysics(), children: [
               for (int i = 1; i <= _totalTabs; i++)
                 CupertinoScrollbar(
                   isAlwaysShown: _resetOffset(i),
@@ -404,8 +415,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                               child: FadeInLeft(
                                 preferences: AnimationPreferences(
-                                    duration: const Duration(milliseconds: 300),
-                                    offset: const Duration(milliseconds: 500)),
+                                    duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
                                 child: Row(children: [
                                   Text("Pending",
                                       style: TextStyle(
@@ -636,7 +646,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                                       value: userTasks[task]['done'],
                                                       onChanged: (value) {
                                                         setState(() => userTasks[task]['done'] = value);
-                                                        // _storage.setString("data", jsonEncode(userTasks));
                                                         Database.upload(userTasks);
                                                       })
                                                 ],
@@ -771,9 +780,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   ),
                 )
             ]),
-            floatingActionButton: RotateIn(
+            floatingActionButton: ZoomIn(
               preferences: AnimationPreferences(
-                  duration: const Duration(milliseconds: 300), offset: const Duration(milliseconds: 500)),
+                  duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
               child: FloatingActionButton(
                 heroTag: "Add Task",
                 focusElevation: 80,
