@@ -44,7 +44,7 @@ class _TaskDialogState extends State<TaskDialog> {
   int importance;
   String title, description, week2, oldTitle;
   dynamic endtime, selectedTime;
-  TimeOfDay _awaitedTime, _awaitedTime2;
+  TimeOfDay _awaitedTime, _awaitedTime2; // String, TimeOfDay
 
   Map _undo = {};
 
@@ -158,7 +158,6 @@ class _TaskDialogState extends State<TaskDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // String, TimeOfDay
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

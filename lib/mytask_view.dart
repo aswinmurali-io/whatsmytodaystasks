@@ -140,8 +140,9 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   }
                                   await pr.show();
                                   String errorStatus = await Database.auth(_email, _password, userTasks);
-                                  print("$errorStatus 32348923478978934789234879432897432897243879342879234");
+                                  //print("$errorStatus 32348923478978934789234879432897432897243879342879234");
                                   setState2(() => _status = "");
+                                  
                                   switch (errorStatus) {
                                     case "ERROR_WRONG_PASSWORD":
                                       await pr.hide();
