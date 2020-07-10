@@ -23,6 +23,7 @@ final weeks = [
   "Sunday",
   "All Days",
   "Any Day",
+  "All Tasks",
 ];
 
 // gradient text shader

@@ -26,7 +26,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   TabController _tabController;
   double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
-  final _totalTabs = 9;
+  final _totalTabs = 10;
   int _uniqueColorIndex;
   int __offset;
   String dropdown = "Choose Day";
@@ -40,6 +40,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   RefreshController _refreshController;
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
+  final _quickTaskController = TextEditingController();
 
   // setState() called after dispose()
   @override
@@ -140,10 +141,12 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   }
                                   await pr.show();
                                   String errorStatus = await Database.auth(_email, _password, userTasks);
-                                  //print("$errorStatus 32348923478978934789234879432897432897243879342879234");
                                   setState2(() => _status = "");
-                                  
                                   switch (errorStatus) {
+                                    case 'ERROR_NETWORK_REQUEST_FAILED':
+                                      await pr.hide();
+                                      setState2(() => _status = "Request Failed !");
+                                      return;
                                     case "ERROR_WRONG_PASSWORD":
                                       await pr.hide();
                                       setState2(() => _status = "Wrong Password, Try again!");
@@ -153,6 +156,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                       setState2(() => _status = "Too many requests!");
                                       return;
                                     case "ERROR_USER_NOT_FOUND":
+                                    case "auth/user-not-found":
                                       await pr.hide();
                                       showDialog(
                                           context: context,
@@ -291,7 +295,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   @override
-  Widget build(BuildContext context) {
+  build(BuildContext context) {
     __offset = 200;
     _uniqueColorIndex = 0;
     pr = ProgressDialog(context);
@@ -428,6 +432,81 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               ),
                             ),
                           ),
+
+                          // All Tasks
+                          for (String task in userTasks.keys)
+                            if (_tabController.index == 9 && !userTasks[task]["done"])
+                              SizedBox(
+                                width: (kIsWeb) ? 500 : double.infinity,
+                                child: BounceIn(
+                                  preferences: AnimationPreferences(offset: Duration(milliseconds: __offset += 50)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 5, 10, 10),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        boxShadow: [BoxShadow(color: Colors.blueGrey[200], blurRadius: 10.0)],
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: autoGenerateColorCard[_uniqueColorIndex++],
+                                        ),
+                                        borderRadius: const BorderRadius.all(Radius.circular(15)),
+                                      ),
+                                      child: ListTileTheme(
+                                        iconColor: Colors.white,
+                                        textColor: Colors.white,
+                                        child: ListTile(
+                                          title: Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                            child: Text(task, style: TextStyle(fontSize: 20)),
+                                          ),
+                                          subtitle: Row(
+                                            verticalDirection: VerticalDirection.up,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(child: Text(userTasks[task]['description'])),
+                                              Card(
+                                                elevation: 0,
+                                                color: Colors.black12,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(5.0),
+                                                  child: Text(
+                                                    (userTasks[task]['time'] == userTasks[task]['endtime'])
+                                                        ? "${userTasks[task]['time']}"
+                                                        : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
+                                                    style: TextStyle(color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                              Checkbox(
+                                                  value: userTasks[task]['done'],
+                                                  onChanged: (value) {
+                                                    setState(() => userTasks[task]['done'] = value);
+                                                    //_storage.setString("data", jsonEncode(userTasks));
+                                                    Database.upload(userTasks);
+                                                  })
+                                            ],
+                                          ),
+                                          isThreeLine: true,
+                                          onTap: () => _tasksEditDialog(
+                                            modifyWhat: true,
+                                            title: task,
+                                            oldTitle: task,
+                                            repeat: userTasks[task]["repeat"],
+                                            importance: userTasks[task]["importance"],
+                                            description: userTasks[task]["description"],
+                                            week2: weeks[userTasks[task]["week"]],
+                                            selectedTime: userTasks[task]["time"],
+                                            done: userTasks[task]["done"],
+                                            endtime: userTasks[task]["endtime"],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
                           // Important Cards first
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
@@ -502,6 +581,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     ),
                                   ),
                                 ),
+
                           // Then other tasks
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index)
@@ -574,7 +654,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     ),
                                   ),
                                 ),
-                          if (_tabController.index != 7 && _tabController.index != 8)
+                          if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
                             Visibility(
                               visible: _showDividers,
                               child: Padding(
@@ -596,6 +676,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 ),
                               ),
                             ),
+
                           // All day and any day tasks
                           if (_tabController.index != 7 && _tabController.index != 8)
                             for (String task in userTasks.keys)
@@ -690,6 +771,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               ),
                             ),
                           ),
+
                           // Task that are already done will be grey with strike text
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index ||
@@ -781,21 +863,75 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   ),
                 )
             ]),
-            floatingActionButton: ZoomIn(
-              preferences:
-                  AnimationPreferences(duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
-              child: FloatingActionButton(
-                heroTag: "Add Task",
-                focusElevation: 80,
-                onPressed: () => null,
-                tooltip: "Add a task",
-                child: CircularGradientButton(
-                  child: const Icon(Icons.add),
-                  callback: () => _tasksEditDialog(),
-                  gradient: Gradients.hotLinear,
-                  elevation: 0,
+            floatingActionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 0, 10, 0),
+                    child: Material(
+                      elevation: 20.0,
+                      shadowColor: Colors.blueGrey[400],
+                      borderRadius:  BorderRadius.circular(25.7),
+                      child: TextField(
+                        
+                        controller: _quickTaskController,
+                        onSubmitted: (value) => setState(() {
+                          userTasks.addAll({
+                            value: {
+                              "time": "Any Time",
+                              "endtime": "Any Time",
+                              "notify": true,
+                              "description": description ?? '',
+                              "image": null,
+                              "importance": 0,
+                              "repeat": false,
+                              "done": false,
+                              "week": (_tabController.index < 9)
+                                  ? _tabController.index
+                                  : week.indexOf(Jiffy(DateTime.now()).EEEE)
+                            },
+                          });
+                          _quickTaskController.clear();
+                        }),
+                        decoration: InputDecoration(
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                            child: Icon(Icons.list),
+                          ),
+                          hintText: 'Add Quick Task',
+                          filled: true,
+                          fillColor: Colors.white,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(25.7),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(25.7)
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                ZoomIn(
+                  preferences: AnimationPreferences(
+                      duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
+                  child: FloatingActionButton(
+                    heroTag: "Add Task",
+                    focusElevation: 80,
+                    onPressed: () => null,
+                    tooltip: "Add a task",
+                    child: CircularGradientButton(
+                      child: const Icon(Icons.add),
+                      callback: () => _tasksEditDialog(),
+                      gradient: Gradients.hotLinear,
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
             )),
       ),
     );
