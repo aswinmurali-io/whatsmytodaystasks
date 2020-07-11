@@ -70,8 +70,8 @@ class _TaskDialogState extends State<TaskDialog> {
     else {
       _currentWeek = dropdown = week = Jiffy(DateTime.now()).EEEE;
       repeat = false;
+      _taskFocusNode.requestFocus();
     }
-    _taskFocusNode.requestFocus();
   }
 
   static FocusNode _attachFocusNodeForAutoscroll(ScrollController scrollController, double offset) {
