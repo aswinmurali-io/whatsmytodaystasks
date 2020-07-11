@@ -375,18 +375,39 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                       child: ZoomIn(
                         preferences: AnimationPreferences(
                             duration: const Duration(milliseconds: 400), offset: const Duration(seconds: 1)),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.red,
-                          child: IconButton(
-                              tooltip: "Profile",
-                              icon: const Icon(Icons.account_circle),
-                              color: Colors.white,
-                              onPressed: () async {
-                                if ((await SharedPreferences.getInstance()).getString("email") == null)
-                                  _accountConnectDialog();
-                                else
-                                  _accountInfoDialog();
-                              }),
+                        child: PopupMenuButton<String>(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                          child: CircleAvatar(
+                              radius: 23,
+                              child: Icon(Icons.account_circle, color: Colors.white),
+                              backgroundColor: Colors.red),
+                          onSelected: (email) async {
+                            if (email == "Add Account")
+                              _accountConnectDialog();
+                            else {
+                              await pr.show();
+                              Database.signOut();
+                              userTasks.clear();
+                              await Database.auth(email, Database.getPassword(email), userTasks);
+                              userTasks = await Database.download();
+                              setState(() => userTasks = userTasks);
+                              await pr.hide();
+                            }
+                          },
+                          itemBuilder: (context) {
+                            return (["Add Account"] + Database.loadAccounts())
+                                .map((String choice) => PopupMenuItem<String>(
+                                    value: choice,
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                            child: Icon((choice == "Add Account") ? Icons.add : Icons.account_circle)),
+                                        Expanded(child: Text(choice))
+                                      ],
+                                    )))
+                                .toList();
+                          },
                         ),
                       )),
                 ],

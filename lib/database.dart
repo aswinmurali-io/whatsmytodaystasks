@@ -10,18 +10,23 @@ import 'package:whatsmytodaystasks/globals.dart';
 class Database {
   static String _uid;
   static SharedPreferences _storage;
+  static Map<String, String> _accounts = {};
 
   /*
-  ERROR_WRONG_PASSWORD
-  ERROR_EMAIL_ALREADY_IN_USE
-  ERROR_TOO_MANY_REQUESTS
-  ERROR_USER_NOT_FOUND
+  Error Codes :-
+    ERROR_NETWORK_REQUEST_FAILED
+    ERROR_WRONG_PASSWORD
+    ERROR_EMAIL_ALREADY_IN_USE
+    ERROR_TOO_MANY_REQUESTS
+    ERROR_USER_NOT_FOUND
+    auth/user-not-found
   */
 
   static Future register(String email, password) async {
     _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
     _storage.setString("email", email);
     _storage.setString("password", password);
+    addAccounts(email, password);
     try {
       await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
     } catch (error) {
@@ -35,6 +40,7 @@ class Database {
     _storage.setString("password", password);
     try {
       _uid = (await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password)).user.uid;
+      addAccounts(email, password);
     } catch (firebaseError) {
       print(firebaseError);
       _storage.setString("email", null);
@@ -109,5 +115,23 @@ class Database {
       print("$error @download()");
     }
     return obj;
+  }
+
+  static addAccounts(String email, password) {
+    if (!_accounts.containsKey(email)) {
+      _accounts.addAll({email: password});
+      _storage.setString("accounts", jsonEncode(_accounts));
+    }
+  }
+
+  static List<String> loadAccounts() {
+    List<String> emails = [];
+    for (String account in Map<String, String>.from(jsonDecode(_storage.getString("accounts") ?? '{}') ?? {}).keys)
+      emails.add(account);
+    return emails;
+  }
+
+  static String getPassword(email) {
+    return _accounts[email];
   }
 }
