@@ -897,8 +897,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
                     child: Material(
-                      elevation: 20.0,
-                      shadowColor: Colors.blueGrey[400],
+                      elevation: 5.0,
+                      shadowColor: Colors.blueGrey[100],
                       borderRadius: BorderRadius.circular(25.7),
                       child: TextField(
                         autofocus: false,
@@ -941,7 +941,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: PopupMenuButton<String>(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
-                    child: CircleAvatar(radius: 23, child: Icon(Icons.list), backgroundColor: Colors.white),
+                    child: Material(
+                        elevation: 5,
+                        shadowColor: Colors.blueGrey[100],
+                        borderRadius: BorderRadius.circular(25.7),
+                        child: CircleAvatar(radius: 23, child: Icon(Icons.list), backgroundColor: Colors.white)),
                     onSelected: (value) => _tabController.animateTo(weeks.indexOf(value)),
                     itemBuilder: (BuildContext context) {
                       return weeks.map((String choice) {
