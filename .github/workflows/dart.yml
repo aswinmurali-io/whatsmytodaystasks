@@ -61,16 +61,16 @@ jobs:
     - uses: actions/upload-artifact@v1
       with:
         name: app-armeabi-v7a-release.apk
-        path: build\app\outputs\flutter-apk\app-armeabi-v7a-release.apk
+        path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
     # Upload generated apk to the artifacts.
     - uses: actions/upload-artifact@v1
       with:
         name: app-arm64-v8a-release.apk
-        path: build\app\outputs\flutter-apk\app-arm64-v8a-release.apk
+        path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
     # Upload generated apk to the artifacts.
     - uses: actions/upload-artifact@v1
       with:
         name: app-x86_64-release.apk
-        path: build\app\outputs\flutter-apk\app-x86_64-release.apk
+        path: build/app/outputs/flutter-apk/app-x86_64-release.apk
