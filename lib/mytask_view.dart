@@ -82,6 +82,12 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         statusBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: Colors.white30,
         systemNavigationBarIconBrightness: Brightness.dark));
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _refreshController.requestRefresh();
+        break;
+      default:
+    }
   }
 
   _accountConnectDialog() {
@@ -868,13 +874,14 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 0, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
                     child: Material(
                       elevation: 20.0,
                       shadowColor: Colors.blueGrey[400],
-                      borderRadius:  BorderRadius.circular(25.7),
+                      borderRadius: BorderRadius.circular(25.7),
                       child: TextField(
-                        
+                        autofocus: false,
+                        enableSuggestions: true,
                         controller: _quickTaskController,
                         onSubmitted: (value) => setState(() {
                           userTasks.addAll({
@@ -895,11 +902,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           _quickTaskController.clear();
                         }),
                         decoration: InputDecoration(
-                          icon: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                            child: Icon(Icons.list),
-                          ),
-                          hintText: 'Add Quick Task',
+                          hintText: ' Add Quick Task',
                           filled: true,
                           fillColor: Colors.white,
                           focusedBorder: OutlineInputBorder(
@@ -907,27 +910,47 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                             borderRadius: BorderRadius.circular(25.7),
                           ),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(25.7)
-                          ),
+                              borderSide: BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(25.7)),
                         ),
                       ),
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  child: PopupMenuButton<String>(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                    child: CircleAvatar(radius: 23, child: Icon(Icons.list), backgroundColor: Colors.white),
+                    onSelected: (value) => _tabController.animateTo(weeks.indexOf(value)),
+                    itemBuilder: (BuildContext context) {
+                      return weeks.map((String choice) {
+                        return PopupMenuItem<String>(
+                            value: choice,
+                            height: 40,
+                            child: Text(
+                              choice,
+                              style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),
+                            ));
+                      }).toList();
+                    },
+                  ),
+                ),
                 ZoomIn(
                   preferences: AnimationPreferences(
                       duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
-                  child: FloatingActionButton(
-                    heroTag: "Add Task",
-                    focusElevation: 80,
-                    onPressed: () => null,
-                    tooltip: "Add a task",
-                    child: CircularGradientButton(
-                      child: const Icon(Icons.add),
-                      callback: () => _tasksEditDialog(),
-                      gradient: Gradients.hotLinear,
-                      elevation: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: FloatingActionButton(
+                      heroTag: "Add Task",
+                      focusElevation: 80,
+                      onPressed: () => null,
+                      tooltip: "Add a task",
+                      child: CircularGradientButton(
+                        child: const Icon(Icons.add),
+                        callback: () => _tasksEditDialog(),
+                        gradient: Gradients.hotLinear,
+                        elevation: 0,
+                      ),
                     ),
                   ),
                 ),
