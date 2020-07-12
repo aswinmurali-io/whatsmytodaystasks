@@ -384,9 +384,19 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           onSelected: (email) async {
                             if (email == "Add Account")
                               _accountConnectDialog();
-                            else {
+                            else if (email == "Delete Account") {
                               await pr.show();
-                              Database.signOut();
+                              await Database.deleteAccount();
+                              setState(() => userTasks = {});
+                              await pr.hide();
+                            } else if (email == "Signout Account") {
+                              await pr.show();
+                              await Database.signOut();
+                              setState(() => userTasks = {});
+                              await pr.hide();
+                            } else {
+                              await pr.show();
+                              await Database.deleteAccount();
                               userTasks.clear();
                               await Database.auth(email, Database.getPassword(email), userTasks);
                               userTasks = await Database.download();
@@ -402,7 +412,18 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                       children: [
                                         Padding(
                                             padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                            child: Icon((choice == "Add Account") ? Icons.add : Icons.account_circle)),
+                                            child: (() {
+                                              switch (choice) {
+                                                case "Add Account":
+                                                  return Icon(Icons.add);
+                                                case "Delete Account":
+                                                  return Icon(Icons.delete);
+                                                case "Signout Account":
+                                                  return Icon(Icons.close);
+                                                default:
+                                                  return Icon(Icons.account_circle);
+                                              }
+                                            }())),
                                         Expanded(child: Text(choice))
                                       ],
                                     )))

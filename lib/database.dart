@@ -58,10 +58,16 @@ class Database {
   static Future signOut() async {
     _storage.setString("email", null);
     _uid = null;
+    _storage.setString("data", "{}");
     await FirebaseAuth.instance.signOut();
   }
 
   static Future deleteAccount() async {
+    String email = _storage.getString("email");
+    if (_accounts.containsKey(email)) {
+      _accounts.remove(email);
+      _storage.setString("accounts", jsonEncode(_accounts));
+    }
     _storage.setString("email", null);
     await Firestore.instance.collection(_uid).document("tasks").delete();
     _uid = null;
@@ -128,6 +134,7 @@ class Database {
     List<String> emails = [];
     for (String account in Map<String, String>.from(jsonDecode(_storage.getString("accounts") ?? '{}') ?? {}).keys)
       emails.add(account);
+    if (emails.isNotEmpty) emails.insertAll(0, ["Delete Account", "Signout Account"]);
     return emails;
   }
 
