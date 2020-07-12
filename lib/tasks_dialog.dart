@@ -157,7 +157,7 @@ class _TaskDialogState extends State<TaskDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

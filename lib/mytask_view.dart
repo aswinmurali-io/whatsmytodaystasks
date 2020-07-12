@@ -205,58 +205,58 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 )));
   }
 
-  _accountInfoDialog() async {
-    String _email = (await SharedPreferences.getInstance()).getString("email");
-    showDialog(
-        context: context,
-        barrierColor: Colors.white.withOpacity(0.02),
-        builder: (context) => StatefulBuilder(
-            builder: (context, setState2) => AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: SystemUiOverlayStyle(
-                      statusBarColor: Colors.black54,
-                      statusBarIconBrightness: Brightness.dark,
-                      systemNavigationBarColor: Colors.black54,
-                      systemNavigationBarDividerColor: Colors.transparent,
-                      systemNavigationBarIconBrightness: Brightness.light),
-                  child: CustomGradientDialogForm(
-                      title: Text("Account Details", style: TextStyle(fontSize: 20, color: Colors.white)),
-                      icon: Icon(Icons.account_box, color: Colors.white),
-                      content: SizedBox(
-                        height: 100,
-                        child: Column(
-                          children: [
-                            Text("Email\n$_email"),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                GradientButton(
-                                  child: Text("Signout"),
-                                  elevation: (kIsWeb) ? 0.0 : 5.0,
-                                  callback: () async {
-                                    await pr.show();
-                                    await Database.signOut();
-                                    Navigator.of(context).pop();
-                                    await pr.hide();
-                                  },
-                                ),
-                                GradientButton(
-                                  child: Text("Delete Account"),
-                                  increaseWidthBy: 40,
-                                  elevation: (kIsWeb) ? 0.0 : 5.0,
-                                  callback: () async {
-                                    await pr.show();
-                                    await Database.deleteAccount();
-                                    Navigator.of(context).pop();
-                                    await pr.hide();
-                                  },
-                                ),
-                              ]),
-                            )
-                          ],
-                        ),
-                      )),
-                )));
-  }
+  // _accountInfoDialog() async {
+  //   String _email = (await SharedPreferences.getInstance()).getString("email");
+  //   showDialog(
+  //       context: context,
+  //       barrierColor: Colors.white.withOpacity(0.02),
+  //       builder: (context) => StatefulBuilder(
+  //           builder: (context, setState2) => AnnotatedRegion<SystemUiOverlayStyle>(
+  //                 value: SystemUiOverlayStyle(
+  //                     statusBarColor: Colors.black54,
+  //                     statusBarIconBrightness: Brightness.dark,
+  //                     systemNavigationBarColor: Colors.black54,
+  //                     systemNavigationBarDividerColor: Colors.transparent,
+  //                     systemNavigationBarIconBrightness: Brightness.light),
+  //                 child: CustomGradientDialogForm(
+  //                     title: Text("Account Details", style: TextStyle(fontSize: 20, color: Colors.white)),
+  //                     icon: Icon(Icons.account_box, color: Colors.white),
+  //                     content: SizedBox(
+  //                       height: 100,
+  //                       child: Column(
+  //                         children: [
+  //                           Text("Email\n$_email"),
+  //                           Padding(
+  //                             padding: const EdgeInsets.all(8.0),
+  //                             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+  //                               GradientButton(
+  //                                 child: Text("Signout"),
+  //                                 elevation: (kIsWeb) ? 0.0 : 5.0,
+  //                                 callback: () async {
+  //                                   await pr.show();
+  //                                   await Database.signOut();
+  //                                   Navigator.of(context).pop();
+  //                                   await pr.hide();
+  //                                 },
+  //                               ),
+  //                               GradientButton(
+  //                                 child: Text("Delete Account"),
+  //                                 increaseWidthBy: 40,
+  //                                 elevation: (kIsWeb) ? 0.0 : 5.0,
+  //                                 callback: () async {
+  //                                   await pr.show();
+  //                                   await Database.deleteAccount();
+  //                                   Navigator.of(context).pop();
+  //                                   await pr.hide();
+  //                                 },
+  //                               ),
+  //                             ]),
+  //                           )
+  //                         ],
+  //                       ),
+  //                     )),
+  //               )));
+  // }
 
   void _tasksEditDialog(
       {bool modifyWhat: false,
