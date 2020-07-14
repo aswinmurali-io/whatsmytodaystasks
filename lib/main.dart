@@ -3,9 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'mytask_view.dart';
 
-main() {
-  runApp(WhatsMyTodaysTasks());
-}
+main() => runApp(WhatsMyTodaysTasks());
 
 class WhatsMyTodaysTasks extends StatelessWidget {
   @override

@@ -19,6 +19,8 @@ dependencies:
   cloud_firestore: ^0.13.7
   progress_dialog: ^1.2.4
   pull_to_refresh: ^1.6.0
+  google_sign_in: ^4.5.1
+  flutter_signin_button: ^1.0.0
 
 dev_dependencies:
   flutter_test:

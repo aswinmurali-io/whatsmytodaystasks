@@ -65,13 +65,23 @@ class Database {
   static Future deleteAccount() async {
     String email = _storage.getString("email");
     if (_accounts.containsKey(email)) {
-      _accounts.remove(email);
-      _storage.setString("accounts", jsonEncode(_accounts));
+      if (!email.contains('@')) {
+        // google account delete
+        _storage.setString("email", null);
+        await Firestore.instance.collection(_uid).document("tasks").delete();
+        await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+        _uid = null;
+        googleSignIn.signOut();
+      } else {
+        // email account delete
+        _accounts.remove(email);
+        _storage.setString("accounts", jsonEncode(_accounts));
+        _storage.setString("email", null);
+        await Firestore.instance.collection(_uid).document("tasks").delete();
+        _uid = null;
+        await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+      }
     }
-    _storage.setString("email", null);
-    await Firestore.instance.collection(_uid).document("tasks").delete();
-    _uid = null;
-    await FirebaseAuth.instance.currentUser().then((user) => user.delete());
   }
 
   static upload(Map<String, Map<String, dynamic>> data) async {
@@ -81,6 +91,23 @@ class Database {
     } catch (error) {
       print("$error @upload()");
     }
+  }
+
+  static Future googleAuthAutoConnect() async {
+    final googleSignInAuthentication = await (await googleSignIn.signIn()).authentication;
+    final credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+    final googleUser = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+    _uid = googleUser.uid;
+    _storage.setString("email", null);
+    addAccounts(googleUser.displayName, googleUser.email);
+  }
+
+  static Future googleAuthDialog() async {
+    await googleSignIn.signOut();
+    await googleAuthAutoConnect();
   }
 
   static Future resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
@@ -123,6 +150,11 @@ class Database {
     return obj;
   }
 
+  static bool isGoogleAccount(String value) {
+    if (value.indexOf('@') < 0) return true;
+    return false;
+  }
+
   static addAccounts(String email, password) {
     if (!_accounts.containsKey(email)) {
       _accounts.addAll({email: password});
@@ -134,7 +166,12 @@ class Database {
     List<String> emails = [];
     for (String account in Map<String, String>.from(jsonDecode(_storage.getString("accounts") ?? '{}') ?? {}).keys)
       emails.add(account);
-    if (emails.isNotEmpty) emails.insertAll(0, ["Delete Account", "Signout Account"]);
+    if (emails.isNotEmpty) {
+      emails.insertAll(0, ["Delete Account", "Signout Account", "Switch Google Account"]);
+      for (int i = 3; i < emails.length; i++) {
+        if (!emails[i].contains('@')) emails.remove(emails[i]);
+      }
+    }
     return emails;
   }
 

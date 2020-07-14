@@ -11,6 +11,7 @@ import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 import 'custom_dialog.dart' show CustomGradientDialogForm;
 import 'database.dart' show Database;
@@ -93,8 +94,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   _accountConnectDialog() {
     String _email, _password, _status;
 
-    connect() async {}
-
     showDialog(
         barrierColor: Colors.white.withOpacity(0.02),
         barrierDismissible: true,
@@ -111,7 +110,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
                     icon: Icon(Icons.account_box, color: Colors.white),
                     content: SizedBox(
-                      height: 200,
+                      height: 240,
                       child: Column(
                         children: [
                           Expanded(
@@ -264,6 +263,19 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   setState2(() => _status = "Make sure to fill both, email and password");
                               },
                             ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Divider(thickness: 1),
+                          ),
+                          SignInButton(
+                            Buttons.Google,
+                            padding: EdgeInsets.fromLTRB(40, 0, 0, 0),
+                            onPressed: () async {
+                              await Database.googleAuthDialog();
+                              Navigator.of(context).pop();
+                              _refreshController.requestRefresh();
+                            },
                           )
                         ],
                       ),
@@ -461,9 +473,17 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               await Database.signOut();
                               setState(() => userTasks = {});
                               await pr.hide();
+                            } else if (email == "Switch Google Account") {
+                              await pr.show();
+                              await Database.signOut();
+                              userTasks.clear();
+                              await Database.googleAuthDialog();
+                              userTasks = await Database.download();
+                              setState(() => userTasks = userTasks);
+                              await pr.hide();
                             } else {
                               await pr.show();
-                              await Database.deleteAccount();
+                              await Database.signOut();
                               userTasks.clear();
                               await Database.auth(email, Database.getPassword(email), userTasks);
                               userTasks = await Database.download();
