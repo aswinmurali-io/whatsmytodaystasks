@@ -11,6 +11,7 @@ class Database {
   static String _uid;
   static SharedPreferences _storage;
   static Map<String, String> _accounts = {};
+  static bool isgoogle;
 
   /*
   Error Codes :-
@@ -51,36 +52,40 @@ class Database {
 
   static Future autoconnect(userTasks) async {
     _storage = _storage ?? await SharedPreferences.getInstance();
+    isgoogle = await googleSignIn.isSignedIn();
     String _email = _storage.getString("email");
+    print(_email);
     if (_email != null) await auth(_email, _storage.getString("password"), userTasks);
   }
 
   static Future signOut() async {
+    // _accounts.remove(_storage.getString("email"));
+    _storage.setString("accounts", jsonEncode(_accounts));
     _storage.setString("email", null);
     _uid = null;
     _storage.setString("data", "{}");
+    isgoogle = false;
     await FirebaseAuth.instance.signOut();
   }
 
   static Future deleteAccount() async {
     String email = _storage.getString("email");
     if (_accounts.containsKey(email)) {
-      if (!email.contains('@')) {
-        // google account delete
-        _storage.setString("email", null);
-        await Firestore.instance.collection(_uid).document("tasks").delete();
-        await FirebaseAuth.instance.currentUser().then((user) => user.delete());
-        _uid = null;
-        googleSignIn.signOut();
-      } else {
-        // email account delete
-        _accounts.remove(email);
-        _storage.setString("accounts", jsonEncode(_accounts));
-        _storage.setString("email", null);
-        await Firestore.instance.collection(_uid).document("tasks").delete();
-        _uid = null;
-        await FirebaseAuth.instance.currentUser().then((user) => user.delete());
-      }
+      // email account delete
+      _accounts.remove(email);
+      _storage.setString("accounts", jsonEncode(_accounts));
+      _storage.setString("email", null);
+      await Firestore.instance.collection(_uid).document("tasks").delete();
+      _uid = null;
+      await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+    } else {
+      // google account delete
+      _storage.setString("email", null);
+      await Firestore.instance.collection(_uid).document("tasks").delete();
+      await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+      _uid = null;
+      googleSignIn.signOut();
+      isgoogle = false;
     }
   }
 
@@ -101,8 +106,7 @@ class Database {
     );
     final googleUser = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
     _uid = googleUser.uid;
-    _storage.setString("email", null);
-    addAccounts(googleUser.displayName, googleUser.email);
+    if (_uid != null) _storage.setString("email", null);
   }
 
   static Future googleAuthDialog() async {
@@ -164,14 +168,13 @@ class Database {
 
   static List<String> loadAccounts() {
     List<String> emails = [];
+
     for (String account in Map<String, String>.from(jsonDecode(_storage.getString("accounts") ?? '{}') ?? {}).keys)
       emails.add(account);
-    if (emails.isNotEmpty) {
+
+    if (_storage.getString("email") != null || isgoogle)
       emails.insertAll(0, ["Delete Account", "Signout Account", "Switch Google Account"]);
-      for (int i = 3; i < emails.length; i++) {
-        if (!emails[i].contains('@')) emails.remove(emails[i]);
-      }
-    }
+    print(_accounts);
     return emails;
   }
 

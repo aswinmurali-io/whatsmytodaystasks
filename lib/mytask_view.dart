@@ -10,12 +10,12 @@ import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 import 'custom_dialog.dart' show CustomGradientDialogForm;
 import 'database.dart' show Database;
 import 'globals.dart';
+import 'model.dart';
 import 'tasks_dialog.dart' show TaskDialog;
 
 class TaskView extends StatefulWidget {
@@ -284,59 +284,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 )));
   }
 
-  // _accountInfoDialog() async {
-  //   String _email = (await SharedPreferences.getInstance()).getString("email");
-  //   showDialog(
-  //       context: context,
-  //       barrierColor: Colors.white.withOpacity(0.02),
-  //       builder: (context) => StatefulBuilder(
-  //           builder: (context, setState2) => AnnotatedRegion<SystemUiOverlayStyle>(
-  //                 value: SystemUiOverlayStyle(
-  //                     statusBarColor: Colors.black54,
-  //                     statusBarIconBrightness: Brightness.dark,
-  //                     systemNavigationBarColor: Colors.black54,
-  //                     systemNavigationBarDividerColor: Colors.transparent,
-  //                     systemNavigationBarIconBrightness: Brightness.light),
-  //                 child: CustomGradientDialogForm(
-  //                     title: Text("Account Details", style: TextStyle(fontSize: 20, color: Colors.white)),
-  //                     icon: Icon(Icons.account_box, color: Colors.white),
-  //                     content: SizedBox(
-  //                       height: 100,
-  //                       child: Column(
-  //                         children: [
-  //                           Text("Email\n$_email"),
-  //                           Padding(
-  //                             padding: const EdgeInsets.all(8.0),
-  //                             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-  //                               GradientButton(
-  //                                 child: Text("Signout"),
-  //                                 elevation: (kIsWeb) ? 0.0 : 5.0,
-  //                                 callback: () async {
-  //                                   await pr.show();
-  //                                   await Database.signOut();
-  //                                   Navigator.of(context).pop();
-  //                                   await pr.hide();
-  //                                 },
-  //                               ),
-  //                               GradientButton(
-  //                                 child: Text("Delete Account"),
-  //                                 increaseWidthBy: 40,
-  //                                 elevation: (kIsWeb) ? 0.0 : 5.0,
-  //                                 callback: () async {
-  //                                   await pr.show();
-  //                                   await Database.deleteAccount();
-  //                                   Navigator.of(context).pop();
-  //                                   await pr.hide();
-  //                                 },
-  //                               ),
-  //                             ]),
-  //                           )
-  //                         ],
-  //                       ),
-  //                     )),
-  //               )));
-  // }
-
   void _tasksEditDialog(
       {bool modifyWhat: false,
       done: false,
@@ -525,7 +472,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     child: const Text("What's my today's tasks ?")),
                 elevation: 0,
                 backgroundColor: Colors.transparent),
-            body: TabBarView(controller: _tabController, physics: const BouncingScrollPhysics(), children: [
+            body: TabBarView(controller: _tabController, physics: const NeverScrollableScrollPhysics(), children: [
               for (int i = 1; i <= _totalTabs; i++)
                 CupertinoScrollbar(
                   isAlwaysShown: _resetOffset(i),
@@ -1004,43 +951,53 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
-                    child: Material(
-                      elevation: 5.0,
-                      shadowColor: Colors.blueGrey[100],
-                      borderRadius: BorderRadius.circular(25.7),
-                      child: TextField(
-                        autofocus: false,
-                        enableSuggestions: true,
-                        controller: _quickTaskController,
-                        onSubmitted: (value) => setState(() {
-                          userTasks.addAll({
-                            value: {
-                              "time": "Any Time",
-                              "endtime": "Any Time",
-                              "notify": true,
-                              "description": description ?? '',
-                              "image": null,
-                              "importance": 0,
-                              "repeat": false,
-                              "done": false,
-                              "week": (_tabController.index < 9)
-                                  ? _tabController.index
-                                  : week.indexOf(Jiffy(DateTime.now()).EEEE)
-                            },
-                          });
-                          _quickTaskController.clear();
-                        }),
-                        decoration: InputDecoration(
-                          hintText: ' Add Quick Task',
-                          filled: true,
-                          fillColor: Colors.white,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(25.7),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(25.7)),
-                        ),
+                    child: InkWell(
+                      onTap: () => modalBottomSheetMenu(context),
+                      child: Material(
+                        color: Colors.white,
+                        elevation: 5.0,
+                        shadowColor: Colors.blueGrey[100],
+                        borderRadius: BorderRadius.circular(25.7),
+                        child: SizedBox(height: 40.0, child: Center(child: Text("Add / Search Tasks"))),
+                        // child: TextField(
+                        //   autofocus: false,
+                        //   enableSuggestions: true,
+                        //   controller: _quickTaskController,
+                        //   onTap: () {
+                        //     modalBottomSheetMenu(context);
+
+                        //   },
+                        //   onSubmitted: (value) => setState(() {
+                        //     userTasks.addAll({
+                        //       value: {
+                        //         "time": "Any Time",
+                        //         "endtime": "Any Time",
+                        //         "notify": true,
+                        //         "description": description ?? '',
+                        //         "image": null,
+                        //         "importance": 0,
+                        //         "repeat": false,
+                        //         "done": false,
+                        //         "week": (_tabController.index < 9)
+                        //             ? _tabController.index
+                        //             : week.indexOf(Jiffy(DateTime.now()).EEEE)
+                        //       },
+                        //     });
+                        //     _quickTaskController.clear();
+                        //     Database.upload(userTasks);
+                        //   }),
+                        //   decoration: InputDecoration(
+                        //     hintText: ' Add / Search Task',
+                        //     filled: true,
+                        //     fillColor: Colors.white,
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.white),
+                        //       borderRadius: BorderRadius.circular(25.7),
+                        //     ),
+                        //     enabledBorder: UnderlineInputBorder(
+                        //         borderSide: BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(25.7)),
+                        //   ),
+                        // ),
                       ),
                     ),
                   ),
