@@ -41,7 +41,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   RefreshController _refreshController;
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
-  final _quickTaskController = TextEditingController();
 
   // setState() called after dispose()
   @override
@@ -952,52 +951,13 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
                     child: InkWell(
-                      onTap: () => modalBottomSheetMenu(context),
+                      onTap: () => showQuickTaskUI(context, setState, week, _tabController),
                       child: Material(
                         color: Colors.white,
                         elevation: 5.0,
                         shadowColor: Colors.blueGrey[100],
                         borderRadius: BorderRadius.circular(25.7),
                         child: SizedBox(height: 40.0, child: Center(child: Text("Add / Search Tasks"))),
-                        // child: TextField(
-                        //   autofocus: false,
-                        //   enableSuggestions: true,
-                        //   controller: _quickTaskController,
-                        //   onTap: () {
-                        //     modalBottomSheetMenu(context);
-
-                        //   },
-                        //   onSubmitted: (value) => setState(() {
-                        //     userTasks.addAll({
-                        //       value: {
-                        //         "time": "Any Time",
-                        //         "endtime": "Any Time",
-                        //         "notify": true,
-                        //         "description": description ?? '',
-                        //         "image": null,
-                        //         "importance": 0,
-                        //         "repeat": false,
-                        //         "done": false,
-                        //         "week": (_tabController.index < 9)
-                        //             ? _tabController.index
-                        //             : week.indexOf(Jiffy(DateTime.now()).EEEE)
-                        //       },
-                        //     });
-                        //     _quickTaskController.clear();
-                        //     Database.upload(userTasks);
-                        //   }),
-                        //   decoration: InputDecoration(
-                        //     hintText: ' Add / Search Task',
-                        //     filled: true,
-                        //     fillColor: Colors.white,
-                        //     focusedBorder: OutlineInputBorder(
-                        //       borderSide: BorderSide(color: Colors.white),
-                        //       borderRadius: BorderRadius.circular(25.7),
-                        //     ),
-                        //     enabledBorder: UnderlineInputBorder(
-                        //         borderSide: BorderSide(color: Colors.white), borderRadius: BorderRadius.circular(25.7)),
-                        //   ),
-                        // ),
                       ),
                     ),
                   ),
