@@ -329,6 +329,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   build(BuildContext context) {
     __offset = 200;
     _uniqueColorIndex = 0;
+
     pr = ProgressDialog(context);
     return DefaultTabController(
       length: _totalTabs,
@@ -471,7 +472,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     child: const Text("What's my today's tasks ?")),
                 elevation: 0,
                 backgroundColor: Colors.transparent),
-            body: TabBarView(controller: _tabController, physics: const NeverScrollableScrollPhysics(), children: [
+            body: TabBarView(controller: _tabController, children: [
               for (int i = 1; i <= _totalTabs; i++)
                 CupertinoScrollbar(
                   isAlwaysShown: _resetOffset(i),
