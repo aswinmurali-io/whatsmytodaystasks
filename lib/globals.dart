@@ -31,8 +31,7 @@ final weeks = [
 
 // gradient text shader
 final Shader textGradientShader =
-      LinearGradient(colors: GradientColors.juicyOrange)
-          .createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
+    LinearGradient(colors: GradientColors.juicyOrange).createShader(Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
 
 // importance -> 0 low, 1 med, 2 high, 3 critical
 // time format 00:00AM/PM, image -> null or string
@@ -42,8 +41,8 @@ Map<String, Map<String, Object>> userTasks = {};
 int allGradColorsIndex = 0;
 
 // TODO: pls optimise memory here
-List<List<Color>> autoGenerateColorCard = List.generate(
-    10000, (index) => allGradColors[Random().nextInt(allGradColors.length)]);
+List<List<Color>> autoGenerateColorCard =
+    List.generate(10000, (index) => allGradColors[Random().nextInt(allGradColors.length)]);
 
 List<Color> getNextGradient() {
   allGradColorsIndex++;
@@ -55,4 +54,31 @@ List<Color> getNextGradientForPlanView() {
   allGradColorsIndex++;
   if (allGradColorsIndex >= allGradColors.length) allGradColorsIndex = 0;
   return allGradColors[allGradColorsIndex];
+}
+
+String getWeekNameFromIndex(int index) {
+  switch (index) {
+    case 0:
+      return "Monday";
+    case 1:
+      return "Tuesday";
+    case 2:
+      return "Wednesday";
+    case 3:
+      return "Thursday";
+    case 4:
+      return "Friday";
+    case 5:
+      return "Saturday";
+    case 6:
+      return "Sunday";
+    case 7:
+      return "All Days";
+    case 8:
+      return "Any Day";
+    case 9:
+      return "All Tasks";
+    default:
+      return "Unknown";
+  }
 }

@@ -28,6 +28,7 @@ showQuickTaskUI(BuildContext context, dynamic setStateFromTaskView, String week,
                       itemBuilder: (context, index) {
                         return ListTile(
                           title: Text(userTasks.keys.toList()[index]),
+                          subtitle: Text(getWeekNameFromIndex(userTasks[userTasks.keys.toList()[index]]["week"])),
                           leading: Icon(Icons.list),
                           trailing: IconButton(
                             icon: Icon(Icons.delete),
