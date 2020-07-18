@@ -951,7 +951,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
                     child: InkWell(
-                      onTap: () => showQuickTaskUI(context, setState, week, _tabController),
+                      onTap: () => showQuickTaskUI(context, setState, week, _tabController, taskViewScaffoldKey),
                       child: Material(
                         color: Colors.white,
                         elevation: 5.0,
