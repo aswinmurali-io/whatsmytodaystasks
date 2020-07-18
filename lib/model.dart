@@ -1,13 +1,16 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animator/flutter_animator.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:whatsmytodaystasks/database.dart';
-import 'package:whatsmytodaystasks/globals.dart';
 
-showQuickTaskUI(BuildContext context, dynamic setStateFromTaskView, String week, TabController tabController) {
+import 'database.dart';
+import 'globals.dart';
+
+showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String week, TabController tabController) {
   showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       barrierColor: Colors.black.withOpacity(0.01),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (builder) {
@@ -26,18 +29,20 @@ showQuickTaskUI(BuildContext context, dynamic setStateFromTaskView, String week,
                     child: ListView.builder(
                       itemCount: userTasks.keys.toList().length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(userTasks.keys.toList()[index]),
-                          subtitle: Text(getWeekNameFromIndex(userTasks[userTasks.keys.toList()[index]]["week"])),
-                          leading: Icon(Icons.list),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              userTasks.remove(userTasks.keys.toList()[index]);
-                              setState(() => userTasks);
-                              Database.upload(userTasks);
-                              setStateFromTaskView(() => userTasks);
-                            },
+                        return SlideInUp(
+                          child: ListTile(
+                            title: Text(userTasks.keys.toList()[index]),
+                            subtitle: Text(getWeekNameFromIndex(userTasks[userTasks.keys.toList()[index]]["week"])),
+                            leading: Icon(Icons.list),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                userTasks.remove(userTasks.keys.toList()[index]);
+                                setState(() => userTasks);
+                                Database.upload(userTasks);
+                                setStateFromTaskView(() => userTasks);
+                              },
+                            ),
                           ),
                         );
                       },
@@ -62,21 +67,22 @@ showQuickTaskUI(BuildContext context, dynamic setStateFromTaskView, String week,
                             ),
                           ),
                           onSubmitted: (value) => setStateFromTaskView(() {
-                            userTasks.addAll({
-                              value: {
-                                "time": "Any Time",
-                                "endtime": "Any Time",
-                                "notify": true,
-                                "description": '',
-                                "image": null,
-                                "importance": 0,
-                                "repeat": false,
-                                "done": false,
-                                "week": (tabController.index < 9)
-                                    ? tabController.index
-                                    : week.indexOf(Jiffy(DateTime.now()).EEEE)
-                              },
-                            });
+                            if (value.isNotEmpty)
+                              userTasks.addAll({
+                                value: {
+                                  "time": "Any Time",
+                                  "endtime": "Any Time",
+                                  "notify": true,
+                                  "description": '',
+                                  "image": null,
+                                  "importance": 0,
+                                  "repeat": false,
+                                  "done": false,
+                                  "week": (tabController.index < 9)
+                                      ? tabController.index
+                                      : week.indexOf(Jiffy(DateTime.now()).EEEE)
+                                },
+                              });
                             Database.upload(userTasks);
                             Navigator.of(context).pop();
                           }),
