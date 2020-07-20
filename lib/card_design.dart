@@ -1,5 +1,4 @@
 import 'package:circular_check_box/circular_check_box.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
