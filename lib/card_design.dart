@@ -52,6 +52,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
     visible: true,
     child: SizedBox(
       width: (kIsWeb) ? 500 : double.infinity,
+      height: (kIsWeb) ? 200 : null,
       child: BounceIn(
         preferences: AnimationPreferences(offset: Duration(milliseconds: offset += 50)),
         child: Padding(
