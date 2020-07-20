@@ -9,7 +9,7 @@ import 'globals.dart';
 
 List<bool> _visibility = [false, false, false];
 
-smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
+bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   List _check = [];
   // check how many tasks are there for different section and then display the necessary sections
   for (String task in userTasks.keys)
@@ -24,7 +24,8 @@ smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
     if ((userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8) &&
         tabIndex != 7 &&
         tabIndex != 8 &&
-        tabIndex != 9 && !userTasks[task]["done"]) _check.add(task);
+        tabIndex != 9 &&
+        !userTasks[task]["done"]) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[1] = true);
   else
@@ -42,6 +43,7 @@ smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   else
     _visibility[2] = false;
   _check.clear();
+  return (_visibility[0] == false && _visibility[1] == false && _visibility[2] == false) ? true : false;
 }
 
 Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dynamic tasksEditDialog,

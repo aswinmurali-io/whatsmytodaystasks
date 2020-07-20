@@ -208,45 +208,65 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(15, 15, 10, 0),
-                      child: Wrap(
-                        alignment: WrapAlignment.start,
-                        children: [
-                          smartShowSections(setState, _tabController.index) ?? Container(),
-                          taskSection("Pending", 0),
-                          // All Tasks
-                          for (String task in userTasks.keys)
-                            if (_tabController.index == 9 && !userTasks[task]["done"])
-                              taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          // Important Cards first
-                          for (String task in userTasks.keys)
-                            if (userTasks[task]["week"] == _tabController.index)
-                              if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
-                                taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          // Then other tasks
-                          for (String task in userTasks.keys)
-                            if (userTasks[task]["week"] == _tabController.index)
-                              if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
-                                taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
-                            taskSection("All Days & Any days", 1),
-                          // All day and any day tasks
-                          if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
-                            for (String task in userTasks.keys)
-                              if (userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
-                                if (!userTasks[task]["done"])
-                                  taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          taskSection("Completed", 2),
-                          // Task that are already done will be grey with strike text
-                          for (String task in userTasks.keys)
-                            if (userTasks[task]["week"] == _tabController.index ||
-                                userTasks[task]["week"] == 7 ||
-                                userTasks[task]["week"] == 8)
-                              if (userTasks[task]["done"])
-                                taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          // To give space for showing the last card's edit button
-                          const Padding(padding: const EdgeInsets.fromLTRB(0, 0, 0, 73))
-                        ],
-                      ),
+                      child: (smartShowSections(setState, _tabController.index))
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 120, 0, 0),
+                              child: Column(children: [
+                                Image.asset('assets/notes.png', width: 60, height: 60),
+                                const Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text("Nothing to show", style: TextStyle(color: Colors.blueGrey)))
+                              ]))
+                          : Wrap(
+                              alignment: WrapAlignment.start,
+                              children: [
+                                taskSection("Pending", 0),
+
+                                // All Tasks
+                                for (String task in userTasks.keys)
+                                  if (_tabController.index == 9 && !userTasks[task]["done"])
+                                    taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                // Important Cards first
+                                for (String task in userTasks.keys)
+                                  if (userTasks[task]["week"] == _tabController.index)
+                                    if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
+                                      taskCard(
+                                          userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                // Then other tasks
+                                for (String task in userTasks.keys)
+                                  if (userTasks[task]["week"] == _tabController.index)
+                                    if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
+                                      taskCard(
+                                          userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
+                                  taskSection("All Days & Any days", 1),
+
+                                // All day and any day tasks
+                                if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
+                                  for (String task in userTasks.keys)
+                                    if (userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
+                                      if (!userTasks[task]["done"])
+                                        taskCard(
+                                            userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                taskSection("Completed", 2),
+
+                                // Task that are already done will be grey with strike text
+                                for (String task in userTasks.keys)
+                                  if (userTasks[task]["week"] == _tabController.index ||
+                                      userTasks[task]["week"] == 7 ||
+                                      userTasks[task]["week"] == 8)
+                                    if (userTasks[task]["done"])
+                                      taskCard(
+                                          userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                // To give space for showing the last card's edit button
+                                const Padding(padding: const EdgeInsets.fromLTRB(0, 0, 0, 73))
+                              ],
+                            ),
                     ),
                   ),
                 )
