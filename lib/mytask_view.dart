@@ -41,6 +41,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
 
+  List<bool> showSections = [true, true, true];
+
   // setState() called after dispose()
   @override
   build(BuildContext context) {
@@ -213,7 +215,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                       child: Wrap(
                         alignment: WrapAlignment.start,
                         children: [
-                          taskSection("Pending", _showDividers),
+                          smartShowSections(setState, _tabController.index) ?? Container(),
+                          taskSection("Pending", 0),
                           // All Tasks
                           for (String task in userTasks.keys)
                             if (_tabController.index == 9 && !userTasks[task]["done"])
@@ -229,14 +232,14 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
                                 taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
                           if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
-                            taskSection("All Days & Any days", _showDividers),
+                            taskSection("All Days & Any days", 1),
                           // All day and any day tasks
                           if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
                             for (String task in userTasks.keys)
                               if (userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
                                 if (!userTasks[task]["done"])
                                   taskCard(userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
-                          taskSection("Completed", _showDividers),
+                          taskSection("Completed", 2),
                           // Task that are already done will be grey with strike text
                           for (String task in userTasks.keys)
                             if (userTasks[task]["week"] == _tabController.index ||
