@@ -31,7 +31,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   int __offset;
   String dropdown = "Choose Day";
   ProgressDialog pr;
-  bool _showDividers = false;
 
   // for details
   String title, description, week = "Monday";
@@ -40,8 +39,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   RefreshController _refreshController;
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
-
-  List<bool> showSections = [true, true, true];
 
   // setState() called after dispose()
   @override
@@ -207,7 +204,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         print(error);
                       }
                       _refreshController.refreshCompleted();
-                      setState(() => _showDividers = true);
                     },
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
