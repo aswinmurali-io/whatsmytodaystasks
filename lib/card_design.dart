@@ -51,8 +51,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
   return Visibility(
     visible: true,
     child: SizedBox(
-      width: (kIsWeb) ? 500 : null,
-      height: (kIsWeb) ? 90 : null,
+      width: (kIsWeb) ? 400 : null,
       child: BounceIn(
         preferences: AnimationPreferences(offset: Duration(milliseconds: offset += 50)),
         child: Padding(
@@ -174,7 +173,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
                     child: Transform.scale(
-                      scale: 2,
+                      scale: (kIsWeb) ? 1 : 2,
                       child: CircularCheckBox(
                           checkColor: Colors.blueGrey, // color of tick Mark
                           activeColor: Colors.white,
