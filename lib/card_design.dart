@@ -1,4 +1,5 @@
 import 'package:circular_check_box/circular_check_box.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
@@ -50,8 +51,8 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
   return Visibility(
     visible: true,
     child: SizedBox(
-      // width: (kIsWeb) ? 500 : double.infinity,
-      // height: (kIsWeb) ? 90 : null,
+      width: (kIsWeb) ? 500 : null,
+      height: (kIsWeb) ? 90 : null,
       child: BounceIn(
         preferences: AnimationPreferences(offset: Duration(milliseconds: offset += 50)),
         child: Padding(
