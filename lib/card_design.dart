@@ -96,7 +96,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                         textAlign: TextAlign.end,
                         style: TextStyle(color: Colors.white, fontSize: 23),
                       ),
-                      if (userTasks[task]['description'] != null || userTasks[task]['description'] != '')
+                      if (userTasks[task]['description'] != null && userTasks[task]['description'] != '')
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                           child: Text(
