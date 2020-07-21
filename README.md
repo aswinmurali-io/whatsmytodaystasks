@@ -6,6 +6,8 @@ Shows your tasks at that day
 
 Created by <https://github.com/aswinmurali-io/>
 
+flutter run -d chrome --web-hostname localhost --web-port 7357
+
 ## Build
 
 ### Android
