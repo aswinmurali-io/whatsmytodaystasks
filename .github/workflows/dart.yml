@@ -7,6 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    
+    - name: Remove old artifacts
+      uses: c-hive/gha-remove-artifacts@v1
+      with:
+        age: '2 week'
+        skip-recent: 5
 
     # Setup Java environment in order to build the Android app.
     - name: Java
