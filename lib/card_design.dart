@@ -109,69 +109,73 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                         ),
                       if (userTasks[task]['description'] == null || userTasks[task]['description'] == '')
                         Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 0)),
-                      Wrap(
-                        children: [
-                          Card(
-                            elevation: 10,
-                            color: Colors.black12,
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.timer, color: Colors.white, size: 17),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                    child: Text(
-                                      (userTasks[task]['time'] == userTasks[task]['endtime'])
-                                          ? "${userTasks[task]['time']}"
-                                          : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
-                                      style: const TextStyle(color: Colors.white),
+                      // hide time label if task has no deadline
+                      if ((userTasks[task]['time'] != "Any Time" && userTasks[task]['endtime'] != "Any Time") ||
+                          userTasks[task]['time'] != "Any Time" ||
+                          userTasks[task]['endtime'] != "Any Time")
+                        Wrap(
+                          children: [
+                            Card(
+                              elevation: 10,
+                              color: Colors.black12,
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.timer, color: Colors.white, size: 17),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                      child: Text(
+                                        (userTasks[task]['time'] == userTasks[task]['endtime'])
+                                            ? "${userTasks[task]['time']}"
+                                            : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
+                                        style: const TextStyle(color: Colors.white),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          if (userTasks[task]["importance"] == 1)
-                            SizedBox(
-                              width: 96,
-                              child: Card(
-                                  elevation: 10,
-                                  color: Colors.black12,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.notification_important, color: Colors.white, size: 17),
-                                        const Padding(
-                                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                          child: Text("Important", style: TextStyle(color: Colors.white)),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                            ),
-                          if (userTasks[task]["repeat"])
-                            SizedBox(
-                              width: 80,
-                              child: Card(
-                                  elevation: 10,
-                                  color: Colors.black12,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.repeat, color: Colors.white, size: 17),
-                                        const Padding(
-                                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                          child: Text("Repeat", style: TextStyle(color: Colors.white)),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                            ),
-                        ],
-                      ),
+                            if (userTasks[task]["importance"] == 1)
+                              SizedBox(
+                                width: 96,
+                                child: Card(
+                                    elevation: 10,
+                                    color: Colors.black12,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.notification_important, color: Colors.white, size: 17),
+                                          const Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                            child: Text("Important", style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                              ),
+                            if (userTasks[task]["repeat"])
+                              SizedBox(
+                                width: 80,
+                                child: Card(
+                                    elevation: 10,
+                                    color: Colors.black12,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.repeat, color: Colors.white, size: 17),
+                                          const Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                            child: Text("Repeat", style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                              ),
+                          ],
+                        ),
                     ]),
                   ),
                   Padding(
