@@ -46,10 +46,12 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   return (_visibility[0] == false && _visibility[1] == false && _visibility[2] == false) ? true : false;
 }
 
+bool taskCardBool = true;
+
 Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dynamic tasksEditDialog,
     int uniqueColorIndex, int offset) {
   return Visibility(
-    visible: true,
+    visible: taskCardBool,
     child: SizedBox(
       width: (kIsWeb) ? 400 : null,
       child: BounceIn(

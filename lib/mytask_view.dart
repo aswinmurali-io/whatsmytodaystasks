@@ -126,6 +126,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           onSelected: (email) async {
                             if (email == "Add Account")
                               _accountConnectDialog();
+                            // TODO: change it to switch later on
                             else if (email == "Delete Account") {
                               await pr.show();
                               await Database.deleteAccount();
@@ -374,6 +375,19 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     setState(() => _currentWeekTabSize += 30); // trigger the scale transition for the tab
     _tabController = TabController(length: _totalTabs, vsync: this);
     _tabController.index = weeks.indexOf(_currentWeek);
+
+    // show the card after the tab swipe animation is over otherwise it's very glitchy
+    bool lockSetStateInTabSwipe = true;
+    _tabController.animation.addListener(() {
+      if (int.parse(_tabController.animation.value.toString().substring(2)) > 0) {
+        if (lockSetStateInTabSwipe) setState(() => taskCardBool = false);
+        lockSetStateInTabSwipe = false;
+      } else {
+        if (lockSetStateInTabSwipe) setState(() => taskCardBool = true);
+        lockSetStateInTabSwipe = true;
+      }
+    });
+
     _tabController.addListener(() => setState(() => _currentWeek = weeks[_tabController.index]));
     _refreshController = RefreshController(initialRefresh: false);
     WidgetsBinding.instance.addPostFrameCallback((_) => _refreshController.requestRefresh()); // executes after build
@@ -391,190 +405,193 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         barrierColor: Colors.white.withOpacity(0.02),
         barrierDismissible: true,
         context: context,
-        builder: (context) => StatefulBuilder(
-            builder: (context, setState2) => AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: SystemUiOverlayStyle(
-                      statusBarColor: Colors.transparent,
-                      statusBarIconBrightness: Brightness.light,
-                      systemNavigationBarColor: Colors.black54,
-                      systemNavigationBarDividerColor: Colors.transparent,
-                      systemNavigationBarIconBrightness: Brightness.light),
-                  child: CustomGradientDialogForm(
-                    title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
-                    icon: Icon(Icons.account_box, color: Colors.white),
-                    content: SizedBox(
-                      height: 240,
-                      child: Column(
-                        children: [
-                          Expanded(
-                              child: TextField(
-                                  autofillHints: [AutofillHints.email],
-                                  keyboardType: TextInputType.emailAddress,
-                                  onChanged: (value) => _email = value,
-                                  decoration: const InputDecoration(hintText: 'Enter your email'))),
-                          Expanded(
-                              child: TextField(
-                            obscureText: true,
-                            onSubmitted: (_) async {
-                              if (_email != null && _password != null) {
-                                // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
-                                RegExp __regexEmail = RegExp(
-                                    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-                                if (!__regexEmail.hasMatch(_email)) {
-                                  setState2(() => _status = "Enter a valid email address.");
-                                  return;
-                                }
-                                if (_password.length < 8) {
-                                  setState2(() => _status = "Password should be atleast 8 characters long.");
-                                  return;
-                                }
-                                await pr.show();
-                                String errorStatus = await Database.auth(_email, _password, userTasks);
-                                setState2(() => _status = "");
-                                switch (errorStatus) {
-                                  case 'ERROR_NETWORK_REQUEST_FAILED':
-                                    await pr.hide();
-                                    setState2(() => _status = "Request Failed !");
-                                    return;
-                                  case "ERROR_WRONG_PASSWORD":
-                                    await pr.hide();
-                                    setState2(() => _status = "Wrong Password, Try again!");
-                                    return;
-                                  case "ERROR_TOO_MANY_REQUESTS":
-                                    await pr.hide();
-                                    setState2(() => _status = "Too many requests!");
-                                    return;
-                                  case "ERROR_USER_NOT_FOUND":
-                                  case "auth/user-not-found":
-                                    await pr.hide();
-                                    showDialog(
-                                        context: context,
-                                        child: AlertDialog(
-                                          content: Text("Account not found. Do you want to create account instead ?"),
-                                          actions: [
-                                            GradientButton(
-                                                elevation: (kIsWeb) ? 0.0 : 5.0,
-                                                child: const Text("Yes"),
-                                                callback: () async {
-                                                  await pr.show();
-                                                  String error = await Database.register(_email, _password);
-                                                  print(error);
-                                                  for (int i = 0; i < 3; i++) Navigator.of(context).pop();
-                                                  await pr.show();
-                                                }),
-                                            Padding(
-                                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                              child: GradientButton(
-                                                  elevation: (kIsWeb) ? 0.0 : 5.0,
-                                                  child: const Text("No"),
-                                                  callback: () => Navigator.of(context).pop()),
-                                            )
-                                          ],
-                                        ));
-                                    return;
-                                }
-                                Navigator.of(context).pop();
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState2) {
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  systemNavigationBarColor: Colors.black54,
+                  systemNavigationBarDividerColor: Colors.transparent,
+                  systemNavigationBarIconBrightness: Brightness.light),
+              child: CustomGradientDialogForm(
+                title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
+                icon: Icon(Icons.account_box, color: Colors.white),
+                content: SizedBox(
+                  height: 240,
+                  child: Column(
+                    children: [
+                      Expanded(
+                          child: TextField(
+                              autofillHints: [AutofillHints.email],
+                              keyboardType: TextInputType.emailAddress,
+                              onChanged: (value) => _email = value,
+                              decoration: const InputDecoration(hintText: 'Enter your email'))),
+                      Expanded(
+                          child: TextField(
+                        obscureText: true,
+                        onSubmitted: (_) async {
+                          if (_email != null && _password != null) {
+                            // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
+                            RegExp __regexEmail = RegExp(
+                                r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
+                            if (!__regexEmail.hasMatch(_email)) {
+                              setState2(() => _status = "Enter a valid email address.");
+                              return;
+                            }
+                            if (_password.length < 8) {
+                              setState2(() => _status = "Password should be atleast 8 characters long.");
+                              return;
+                            }
+                            await pr.show();
+                            String errorStatus = await Database.auth(_email, _password, userTasks);
+                            setState2(() => _status = "");
+                            switch (errorStatus) {
+                              case 'ERROR_NETWORK_REQUEST_FAILED':
                                 await pr.hide();
-                                _refreshController.requestRefresh();
-                              } else
-                                setState2(() => _status = "Make sure to fill both, email and password");
-                            },
-                            onChanged: (value) => _password = value,
-                            decoration: InputDecoration(hintText: 'Enter password'),
-                          )),
-                          Text(_status ?? '', style: TextStyle(color: Colors.red)),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                            child: GradientButton(
-                              elevation: (kIsWeb) ? 0.0 : 5.0,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [Icon(Icons.account_circle), Text("Connect")]),
-                              increaseWidthBy: 20,
-                              callback: () async {
-                                if (_email != null && _password != null) {
-                                  // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
-                                  RegExp __regexEmail = RegExp(
-                                      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
-                                  if (!__regexEmail.hasMatch(_email)) {
-                                    setState2(() => _status = "Enter a valid email address.");
-                                    return;
-                                  }
-                                  if (_password.length < 8) {
-                                    setState2(() => _status = "Password should be atleast 8 characters long.");
-                                    return;
-                                  }
-                                  await pr.show();
-                                  String errorStatus = await Database.auth(_email, _password, userTasks);
-                                  setState2(() => _status = "");
-                                  switch (errorStatus) {
-                                    case 'ERROR_NETWORK_REQUEST_FAILED':
-                                      await pr.hide();
-                                      setState2(() => _status = "Request Failed !");
-                                      return;
-                                    case "ERROR_WRONG_PASSWORD":
-                                      await pr.hide();
-                                      setState2(() => _status = "Wrong Password, Try again!");
-                                      return;
-                                    case "ERROR_TOO_MANY_REQUESTS":
-                                      await pr.hide();
-                                      setState2(() => _status = "Too many requests!");
-                                      return;
-                                    case "ERROR_USER_NOT_FOUND":
-                                    case "auth/user-not-found":
-                                      await pr.hide();
-                                      showDialog(
-                                          context: context,
-                                          child: AlertDialog(
-                                            content: Text("Account not found. Do you want to create account instead ?"),
-                                            actions: [
-                                              GradientButton(
-                                                  elevation: (kIsWeb) ? 0.0 : 5.0,
-                                                  child: const Text("Yes"),
-                                                  callback: () async {
-                                                    await pr.show();
-                                                    String error = await Database.register(_email, _password);
-                                                    print(error);
-                                                    for (int i = 0; i < 3; i++) Navigator.of(context).pop();
-                                                    await pr.show();
-                                                  }),
-                                              Padding(
-                                                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                                child: GradientButton(
-                                                    elevation: (kIsWeb) ? 0.0 : 5.0,
-                                                    child: const Text("No"),
-                                                    callback: () => Navigator.of(context).pop()),
-                                              )
-                                            ],
-                                          ));
-                                      return;
-                                  }
-                                  Navigator.of(context).pop();
+                                setState2(() => _status = "Request Failed !");
+                                return;
+                              case "ERROR_WRONG_PASSWORD":
+                                await pr.hide();
+                                setState2(() => _status = "Wrong Password, Try again!");
+                                return;
+                              case "ERROR_TOO_MANY_REQUESTS":
+                                await pr.hide();
+                                setState2(() => _status = "Too many requests!");
+                                return;
+                              case "ERROR_USER_NOT_FOUND":
+                              case "auth/user-not-found":
+                                await pr.hide();
+                                showDialog(
+                                    context: context,
+                                    child: AlertDialog(
+                                      content: Text("Account not found. Do you want to create account instead ?"),
+                                      actions: [
+                                        GradientButton(
+                                            elevation: (kIsWeb) ? 0.0 : 5.0,
+                                            child: const Text("Yes"),
+                                            callback: () async {
+                                              await pr.show();
+                                              String error = await Database.register(_email, _password);
+                                              print(error);
+                                              for (int i = 0; i < 3; i++) Navigator.of(context).pop();
+                                              await pr.show();
+                                            }),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                          child: GradientButton(
+                                              elevation: (kIsWeb) ? 0.0 : 5.0,
+                                              child: const Text("No"),
+                                              callback: () => Navigator.of(context).pop()),
+                                        )
+                                      ],
+                                    ));
+                                return;
+                            }
+                            Navigator.of(context).pop();
+                            await pr.hide();
+                            _refreshController.requestRefresh();
+                          } else
+                            setState2(() => _status = "Make sure to fill both, email and password");
+                        },
+                        onChanged: (value) => _password = value,
+                        decoration: InputDecoration(hintText: 'Enter password'),
+                      )),
+                      Text(_status ?? '', style: TextStyle(color: Colors.red)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        child: GradientButton(
+                          elevation: (kIsWeb) ? 0.0 : 5.0,
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [Icon(Icons.account_circle), Text("Connect")]),
+                          increaseWidthBy: 20,
+                          callback: () async {
+                            if (_email != null && _password != null) {
+                              // taken from https://stackoverflow.com/questions/16800540/validate-email-address-in-dart
+                              RegExp __regexEmail = RegExp(
+                                  r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
+                              if (!__regexEmail.hasMatch(_email)) {
+                                setState2(() => _status = "Enter a valid email address.");
+                                return;
+                              }
+                              if (_password.length < 8) {
+                                setState2(() => _status = "Password should be atleast 8 characters long.");
+                                return;
+                              }
+                              await pr.show();
+                              String errorStatus = await Database.auth(_email, _password, userTasks);
+                              setState2(() => _status = "");
+                              switch (errorStatus) {
+                                case 'ERROR_NETWORK_REQUEST_FAILED':
                                   await pr.hide();
-                                  _refreshController.requestRefresh();
-                                } else
-                                  setState2(() => _status = "Make sure to fill both, email and password");
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Divider(thickness: 1),
-                          ),
-                          SignInButton(
-                            Buttons.Google,
-                            padding: EdgeInsets.fromLTRB(40, 0, 0, 0),
-                            onPressed: () async {
-                              await Database.googleAuthDialog();
+                                  setState2(() => _status = "Request Failed !");
+                                  return;
+                                case "ERROR_WRONG_PASSWORD":
+                                  await pr.hide();
+                                  setState2(() => _status = "Wrong Password, Try again!");
+                                  return;
+                                case "ERROR_TOO_MANY_REQUESTS":
+                                  await pr.hide();
+                                  setState2(() => _status = "Too many requests!");
+                                  return;
+                                case "ERROR_USER_NOT_FOUND":
+                                case "auth/user-not-found":
+                                  await pr.hide();
+                                  showDialog(
+                                      context: context,
+                                      child: AlertDialog(
+                                        content: Text("Account not found. Do you want to create account instead ?"),
+                                        actions: [
+                                          GradientButton(
+                                              elevation: (kIsWeb) ? 0.0 : 5.0,
+                                              child: const Text("Yes"),
+                                              callback: () async {
+                                                await pr.show();
+                                                String error = await Database.register(_email, _password);
+                                                print(error);
+                                                for (int i = 0; i < 3; i++) Navigator.of(context).pop();
+                                                await pr.show();
+                                              }),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                            child: GradientButton(
+                                                elevation: (kIsWeb) ? 0.0 : 5.0,
+                                                child: const Text("No"),
+                                                callback: () => Navigator.of(context).pop()),
+                                          )
+                                        ],
+                                      ));
+                                  return;
+                              }
                               Navigator.of(context).pop();
+                              await pr.hide();
                               _refreshController.requestRefresh();
-                            },
-                          )
-                        ],
+                            } else
+                              setState2(() => _status = "Make sure to fill both, email and password");
+                          },
+                        ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Divider(thickness: 1),
+                      ),
+                      SignInButton(
+                        Buttons.Google,
+                        padding: EdgeInsets.fromLTRB(40, 0, 0, 0),
+                        onPressed: () async {
+                          await Database.googleAuthDialog();
+                          Navigator.of(context).pop();
+                          _refreshController.requestRefresh();
+                        },
+                      )
+                    ],
                   ),
-                )));
+                ),
+              ),
+            );
+          });
+        });
   }
 
   bool _resetOffset(int i) {
