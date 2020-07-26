@@ -377,14 +377,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     _tabController.index = weeks.indexOf(_currentWeek);
 
     // show the card after the tab swipe animation is over otherwise it's very glitchy
-    bool lockSetStateInTabSwipe = true;
     _tabController.animation.addListener(() {
-      if (int.parse(_tabController.animation.value.toString().substring(2)) > 0) {
-        if (lockSetStateInTabSwipe) setState(() => taskCardBool = false);
-        lockSetStateInTabSwipe = false;
+      if (int.parse(_tabController.animation.value.toString().substring(2)) != 0) {
+        if (taskCardBool) setState(() => taskCardBool = false);
       } else {
-        if (lockSetStateInTabSwipe) setState(() => taskCardBool = true);
-        lockSetStateInTabSwipe = true;
+        if (!taskCardBool) setState(() => taskCardBool = true);
       }
     });
 
