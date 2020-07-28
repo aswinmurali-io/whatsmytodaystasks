@@ -27,7 +27,7 @@ jobs:
         # The Flutter version to make available on the path
         flutter-version: 1.20.0-2.1.pre # optional
         # The Flutter build release channel
-        channel: dev # optional, default is stable
+        channel: beta # optional, default is stable
 
     # Get flutter dependencies.
     - name: Flutter dependencies
