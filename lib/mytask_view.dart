@@ -221,7 +221,23 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           : Wrap(
                               alignment: WrapAlignment.start,
                               children: [
-                                taskSection("Pending", 0),
+                                taskSection("Suppose to be completed yesterday", 0),
+
+                                // Important Cards first
+                                for (String task in userTasks.keys)
+                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1)
+                                    if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
+                                      taskCard(
+                                          userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                // Then other tasks
+                                for (String task in userTasks.keys)
+                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1)
+                                    if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
+                                      taskCard(
+                                          userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
+
+                                taskSection("Pending", 1),
 
                                 // All Tasks
                                 for (String task in userTasks.keys)
@@ -243,7 +259,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
                                 if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
-                                  taskSection("All Days & Any days", 1),
+                                  taskSection("All Days & Any days", 2),
 
                                 // All day and any day tasks
                                 if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
@@ -253,7 +269,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                         taskCard(
                                             userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
-                                taskSection("Completed", 2),
+                                taskSection("Completed", 3),
 
                                 // Task that are already done will be grey with strike text
                                 for (String task in userTasks.keys)

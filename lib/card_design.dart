@@ -7,18 +7,26 @@ import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
 import 'database.dart';
 import 'globals.dart';
 
-List<bool> _visibility = [false, false, false];
+List<bool> _visibility = [false, false, false, false];
 
 bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   if (tabIndex == 9) return false; // display all tasks page
   List _check = [];
   // check how many tasks are there for different section and then display the necessary sections
   for (String task in userTasks.keys)
-    if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex) _check.add(task);
+    if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex - 1) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[0] = true);
   else
     _visibility[0] = false;
+  _check.clear();
+
+  for (String task in userTasks.keys)
+    if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex) _check.add(task);
+  if (_check.isNotEmpty)
+    setStateFromTaskView(() => _visibility[1] = true);
+  else
+    _visibility[1] = false;
   _check.clear();
 
   for (String task in userTasks.keys)
@@ -28,9 +36,9 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
         tabIndex != 9 &&
         !userTasks[task]["done"]) _check.add(task);
   if (_check.isNotEmpty)
-    setStateFromTaskView(() => _visibility[1] = true);
+    setStateFromTaskView(() => _visibility[2] = true);
   else
-    _visibility[1] = false;
+    _visibility[2] = false;
   _check.clear();
 
   for (String task in userTasks.keys)
@@ -40,11 +48,13 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
             userTasks[task]["week"] == 8 ||
             userTasks[task]["week"] == 9)) _check.add(task);
   if (_check.isNotEmpty)
-    setStateFromTaskView(() => _visibility[2] = true);
+    setStateFromTaskView(() => _visibility[3] = true);
   else
-    _visibility[2] = false;
+    _visibility[3] = false;
   _check.clear();
-  return (_visibility[0] == false && _visibility[1] == false && _visibility[2] == false) ? true : false;
+  return (_visibility[0] == false && _visibility[1] == false && _visibility[2] == false && _visibility[3] == false)
+      ? true
+      : false;
 }
 
 bool taskCardBool = true;
