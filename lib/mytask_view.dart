@@ -124,35 +124,40 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               child: Icon(Icons.account_circle, color: Colors.white),
                               backgroundColor: Colors.red),
                           onSelected: (email) async {
-                            if (email == "Add Account")
-                              _accountConnectDialog();
-                            // TODO: change it to switch later on
-                            else if (email == "Delete Account") {
-                              await pr.show();
-                              await Database.deleteAccount();
-                              setState(() => userTasks = {});
-                              await pr.hide();
-                            } else if (email == "Signout Account") {
-                              await pr.show();
-                              await Database.signOut();
-                              setState(() => userTasks = {});
-                              await pr.hide();
-                            } else if (email == "Switch Google Account") {
-                              await pr.show();
-                              await Database.signOut();
-                              userTasks.clear();
-                              await Database.googleAuthDialog();
-                              userTasks = await Database.download();
-                              setState(() => userTasks = userTasks);
-                              await pr.hide();
-                            } else {
-                              await pr.show();
-                              await Database.signOut();
-                              userTasks.clear();
-                              await Database.auth(email, Database.getPassword(email), userTasks);
-                              userTasks = await Database.download();
-                              setState(() => userTasks = userTasks);
-                              await pr.hide();
+                            switch (email) {
+                              case "Add Account":
+                                _accountConnectDialog();
+                                return;
+                              case "Delete Account":
+                                await pr.show();
+                                await Database.deleteAccount();
+                                setState(() => userTasks = {});
+                                await pr.hide();
+                                return;
+                              case "Signout Account":
+                                await pr.show();
+                                await Database.signOut();
+                                setState(() => userTasks = {});
+                                await pr.hide();
+                                return;
+                              case "Switch Google Account":
+                                await pr.show();
+                                await Database.signOut();
+                                userTasks.clear();
+                                await Database.googleAuthDialog();
+                                userTasks = await Database.download();
+                                setState(() => userTasks = userTasks);
+                                await pr.hide();
+                                return;
+                              default:
+                                await pr.show();
+                                await Database.signOut();
+                                userTasks.clear();
+                                await Database.auth(email, Database.getPassword(email), userTasks);
+                                userTasks = await Database.download();
+                                setState(() => userTasks = userTasks);
+                                await pr.hide();
+                                return;
                             }
                           },
                           itemBuilder: (context) {
