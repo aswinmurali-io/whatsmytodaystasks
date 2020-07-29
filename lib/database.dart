@@ -1,8 +1,8 @@
 // should handle local and firebase storage
 import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsmytodaystasks/globals.dart';
 
@@ -23,16 +23,10 @@ class Database {
     auth/user-not-found
   */
 
-  static Future register(String email, password) async {
-    _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
-    _storage.setString("email", email);
-    _storage.setString("password", password);
-    addAccounts(email, password);
-    try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
-    } catch (error) {
-      print("$error @register()");
-      return error;
+  static addAccounts(String email, password) {
+    if (!_accounts.containsKey(email)) {
+      _accounts.addAll({email: password});
+      _storage.setString("accounts", jsonEncode(_accounts));
     }
   }
 
@@ -58,16 +52,6 @@ class Database {
     if (_email != null) await auth(_email, _storage.getString("password"), userTasks);
   }
 
-  static Future signOut() async {
-    // _accounts.remove(_storage.getString("email"));
-    _storage.setString("accounts", jsonEncode(_accounts));
-    _storage.setString("email", null);
-    _uid = null;
-    _storage.setString("data", "{}");
-    isgoogle = false;
-    await FirebaseAuth.instance.signOut();
-  }
-
   static Future deleteAccount() async {
     String email = _storage.getString("email");
     if (_accounts.containsKey(email)) {
@@ -86,51 +70,6 @@ class Database {
       _uid = null;
       googleSignIn.signOut();
       isgoogle = false;
-    }
-  }
-
-  static upload(Map<String, Map<String, dynamic>> data) async {
-    _storage.setString("data", jsonEncode(data));
-    try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(data);
-    } catch (error) {
-      print("$error @upload()");
-    }
-  }
-
-  static Future googleAuthAutoConnect() async {
-    final googleSignInAuthentication = await (await googleSignIn.signIn()).authentication;
-    final credential = GoogleAuthProvider.getCredential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-    final googleUser = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
-    _uid = googleUser.uid;
-    if (_uid != null) _storage.setString("email", null);
-  }
-
-  static Future googleAuthDialog() async {
-    await googleSignIn.signOut();
-    await googleAuthAutoConnect();
-  }
-
-  static Future resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
-    bool reset = _storage.getBool("reset");
-    if (reset == null)
-      _storage.setBool("reset", false);
-    else {
-      if (week == "Monday" && reset) {
-        for (String task in userTasks.keys) if (userTasks[task]["repeat"] ?? false) userTasks[task]["done"] = false;
-        _storage.setBool("reset", false);
-      } else if (week != "Monday" && !reset) {
-        _storage.setBool("reset", true);
-      }
-    }
-    _storage.setString("data", jsonEncode(data));
-    try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(data);
-    } catch (error) {
-      print("$error @resetTasks()");
     }
   }
 
@@ -154,16 +93,29 @@ class Database {
     return obj;
   }
 
+  static String getPassword(email) {
+    return _accounts[email];
+  }
+
+  static Future googleAuthAutoConnect() async {
+    final googleSignInAuthentication = await (await googleSignIn.signIn()).authentication;
+    final credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+    final googleUser = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
+    _uid = googleUser.uid;
+    if (_uid != null) _storage.setString("email", null);
+  }
+
+  static Future googleAuthDialog() async {
+    await googleSignIn.signOut();
+    await googleAuthAutoConnect();
+  }
+
   static bool isGoogleAccount(String value) {
     if (value.indexOf('@') < 0) return true;
     return false;
-  }
-
-  static addAccounts(String email, password) {
-    if (!_accounts.containsKey(email)) {
-      _accounts.addAll({email: password});
-      _storage.setString("accounts", jsonEncode(_accounts));
-    }
   }
 
   static List<String> loadAccounts() {
@@ -177,7 +129,55 @@ class Database {
     return emails;
   }
 
-  static String getPassword(email) {
-    return _accounts[email];
+  static Future register(String email, password) async {
+    _uid = (await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password)).user.uid;
+    _storage.setString("email", email);
+    _storage.setString("password", password);
+    addAccounts(email, password);
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
+    } catch (error) {
+      print("$error @register()");
+      return error;
+    }
+  }
+
+  static Future resetTasks(Map<String, Map<String, dynamic>> data, String week) async {
+    bool reset = _storage.getBool("reset");
+    if (reset == null)
+      _storage.setBool("reset", false);
+    else {
+      if (week == "Monday" && reset) {
+        for (String task in userTasks.keys) if (userTasks[task]["repeat"] ?? false) userTasks[task]["done"] = false;
+        _storage.setBool("reset", false);
+      } else if (week != "Monday" && !reset) {
+        _storage.setBool("reset", true);
+      }
+    }
+    _storage.setString("data", jsonEncode(data));
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+    } catch (error) {
+      print("$error @resetTasks()");
+    }
+  }
+
+  static Future signOut() async {
+    // _accounts.remove(_storage.getString("email"));
+    _storage.setString("accounts", jsonEncode(_accounts));
+    _storage.setString("email", null);
+    _uid = null;
+    _storage.setString("data", "{}");
+    isgoogle = false;
+    await FirebaseAuth.instance.signOut();
+  }
+
+  static upload(Map<String, Map<String, dynamic>> data) async {
+    _storage.setString("data", jsonEncode(data));
+    try {
+      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+    } catch (error) {
+      print("$error @upload()");
+    }
   }
 }
