@@ -57,7 +57,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                 titleSpacing: 20,
                 brightness: Brightness.light,
                 bottom: TabBar(
-                  physics: const BouncingScrollPhysics(),
+                  physics: (!kIsWeb) ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
                   isScrollable: true,
                   indicatorColor: Colors.transparent,
                   indicatorWeight: 0.1,
@@ -109,6 +109,33 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 onPressed: () async => await _refreshController.requestRefresh()),
                           ),
                         )),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      // sync button
+                      child: ZoomIn(
+                        preferences: AnimationPreferences(
+                            duration: const Duration(milliseconds: 400), offset: const Duration(seconds: 1)),
+                        child: CircleAvatar(
+                          radius: 16.0,
+                          backgroundColor: Colors.red,
+                          child: IconButton(
+                              tooltip: 'View',
+                              icon: Icon(
+                                  (() {
+                                    switch (isGrid) {
+                                      case 0:
+                                        return Icons.list;
+                                      case 1:
+                                        return Icons.grid_on;
+                                      case 2:
+                                        return Icons.grid_off;
+                                    }
+                                  }()),
+                                  size: 17.0),
+                              color: Colors.white,
+                              onPressed: () => setState(() => (isGrid < 3) ? isGrid++ : isGrid = 0)),
+                        ),
+                      )),
                   Padding(
                       padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
                       // profile button
@@ -362,13 +389,15 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
     _tabController.index = weeks.indexOf(_currentWeek);
 
     // show the card after the tab swipe animation is over otherwise it's very glitchy
-    _tabController.animation.addListener(() {
-      if (int.parse(_tabController.animation.value.toString().substring(2)) != 0) {
-        if (taskCardBool) setState(() => taskCardBool = false);
-      } else {
-        if (!taskCardBool) setState(() => taskCardBool = true);
-      }
-    });
+    // NOTE: to fix a tab issue in flutter web had to disable swipe tab in web platform
+    if (!kIsWeb)
+      _tabController.animation.addListener(() {
+        if (int.parse(_tabController.animation.value.toString().substring(2)) != 0) {
+          if (taskCardBool) setState(() => taskCardBool = false);
+        } else {
+          if (!taskCardBool) setState(() => taskCardBool = true);
+        }
+      });
 
     _tabController.addListener(() => setState(() => _currentWeek = weeks[_tabController.index]));
     _refreshController = RefreshController(initialRefresh: false);

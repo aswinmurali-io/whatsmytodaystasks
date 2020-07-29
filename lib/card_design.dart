@@ -8,10 +8,11 @@ import 'database.dart';
 import 'globals.dart';
 
 List<bool> _visibility = [false, false, false, false];
+int isGrid = (kIsWeb) ? 1 : 0;
 
 bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   // TODO: something wrong here fix it
-  if (tabIndex == 9 || tabIndex == 8 ) return false; // display all tasks page
+  if (tabIndex == 9 || tabIndex == 8) return false; // display all tasks page
   List _check = [];
   // check how many tasks are there for different section and then display the necessary sections
   for (String task in userTasks.keys)
@@ -69,7 +70,18 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
   return Visibility(
     visible: taskCardBool,
     child: SizedBox(
-      width: (kIsWeb) ? 400 : null,
+      width: (() {
+        switch (isGrid) {
+          case 0:
+            return null;
+          case 1:
+            return 300 + (task.length.toDouble() * 7);
+          case 2:
+            return 700;
+          default:
+            return null;
+        }
+      }()),
       child: BounceIn(
         preferences: AnimationPreferences(offset: Duration(milliseconds: offset += 50)),
         child: Padding(
