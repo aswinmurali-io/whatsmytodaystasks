@@ -62,6 +62,7 @@ class _TaskDialogState extends State<TaskDialog> {
   @override
   initState() {
     super.initState();
+
     _textFieldTaskController = TextEditingController(text: title);
     _textFieldDescriptionController = TextEditingController(text: description);
     _importance = importance ?? 0;
@@ -158,8 +159,6 @@ class _TaskDialogState extends State<TaskDialog> {
 
   @override
   build(BuildContext context) {
-    //List<String> _weeks = weeks;
-    //_weeks.remove("All Tasks");
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
@@ -219,8 +218,10 @@ class _TaskDialogState extends State<TaskDialog> {
                       DropdownButton(
                           value: dropdown,
                           focusNode: _dropdownFocusNode,
-                          items: (weeks + ["Tomorrow"])
-                                  .map((value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                          items: (weeks)
+                                  .map((value) => (value != "All Tasks")
+                                      ? DropdownMenuItem<String>(value: value, child: Text(value))
+                                      : const DropdownMenuItem<String>(value: "Tomorrow", child: Text("Tomorrow")))
                                   .toList() +
                               [],
                           onChanged: (value) {

@@ -10,6 +10,7 @@ import 'globals.dart';
 List<bool> _visibility = [false, false, false, false];
 
 bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
+  // TODO: something wrong here fix it
   if (tabIndex == 9 || tabIndex == 8 ) return false; // display all tasks page
   List _check = [];
   // check how many tasks are there for different section and then display the necessary sections
