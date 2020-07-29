@@ -75,9 +75,9 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
           case 0:
             return null;
           case 1:
-            return 300 + (task.length.toDouble() * 7);
+            return 300.0 + (task.length.toDouble() * 7.0);
           case 2:
-            return 700;
+            return 700.0;
           default:
             return null;
         }

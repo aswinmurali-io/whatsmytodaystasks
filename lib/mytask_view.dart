@@ -28,7 +28,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   final _totalTabs = 10;
   int _uniqueColorIndex;
   int __offset;
-  String dropdown = "Choose Day";
+  //String dropdown = "Choose Day";
   ProgressDialog pr;
 
   // for details
@@ -133,7 +133,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   }()),
                                   size: 17.0),
                               color: Colors.white,
-                              onPressed: () => setState(() => (isGrid < 3) ? isGrid++ : isGrid = 0)),
+                              onPressed: () => setState(() => (isGrid < 2) ? isGrid++ : isGrid = 0)),
                         ),
                       )),
                   Padding(
@@ -426,14 +426,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
       String oldTitle,
       dynamic endtime,
       selectedTime}) {
-    // reset the form details or fill the current card details for edit
-    if (!modifyWhat) {
-      title = null;
-      description = null;
-      selectedTime = null;
-      endtime = null;
-    } else
-      dropdown = week2;
+    
 
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,

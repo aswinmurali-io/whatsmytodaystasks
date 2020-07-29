@@ -13,13 +13,21 @@ import 'globals.dart';
 class TaskDialog extends StatefulWidget {
   final setState2, taskViewScaffoldKey;
 
-  final bool modifyWhat, done, repeat;
-  final int importance;
-  final String title, description, week2, oldTitle;
-  final dynamic endtime, selectedTime;
+  bool modifyWhat, done, repeat;
+  int importance;
+  String title, description, week2, oldTitle;
+  dynamic endtime, selectedTime;
 
   TaskDialog(this.setState2, this.modifyWhat, this.done, this.importance, this.title, this.description, this.week2,
-      this.oldTitle, this.endtime, this.selectedTime, this.repeat, this.taskViewScaffoldKey);
+      this.oldTitle, this.endtime, this.selectedTime, this.repeat, this.taskViewScaffoldKey) {
+    // reset the form details or fill the current card details for edit
+    if (!this.modifyWhat) {
+      this.title = null;
+      this.description = null;
+      this.selectedTime = null;
+      this.endtime = null;
+    }
+  }
 
   @override
   createState() => _TaskDialogState(setState2, modifyWhat, done, importance, title, description, week2, oldTitle,
