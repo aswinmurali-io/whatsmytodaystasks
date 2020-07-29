@@ -69,6 +69,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     for (String text in weeks)
                       if (_tabController.index == weeks.indexOf(_currentWeek))
                         Tab(
+                          // TODO: maybe some improvement
                           child: ZoomIn(
                             preferences: AnimationPreferences(
                                 duration: const Duration(milliseconds: 100), offset: const Duration(milliseconds: 500)),
@@ -132,18 +133,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                       children: [
                                         Padding(
                                             padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                            child: (() {
-                                              switch (choice) {
-                                                case "Add Account":
-                                                  return Icon(Icons.add);
-                                                case "Delete Account":
-                                                  return Icon(Icons.delete);
-                                                case "Signout Account":
-                                                  return Icon(Icons.close);
-                                                default:
-                                                  return Icon(Icons.account_circle);
-                                              }
-                                            }())),
+                                            child: TaskViewBackend.generateIconsForProfileList(choice)),
                                         Expanded(child: Text(choice))
                                       ],
                                     )))
@@ -194,14 +184,20 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
                                 // Important Cards first
                                 for (String task in userTasks.keys)
-                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1)
+                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1 &&
+                                      _tabController.index != 9 &&
+                                      _tabController.index != 8 &&
+                                      _tabController.index != 7)
                                     if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
                                       taskCard(
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
                                 // Then other tasks
                                 for (String task in userTasks.keys)
-                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1)
+                                  if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1 &&
+                                      _tabController.index != 9 &&
+                                      _tabController.index != 8 &&
+                                      _tabController.index != 7)
                                     if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
                                       taskCard(
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
@@ -233,7 +229,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 // All day and any day tasks
                                 if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
                                   for (String task in userTasks.keys)
-                                    if (userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8)
+                                    if ((userTasks[task]["week"] == 7 || userTasks[task]["week"] == 8))
                                       if (!userTasks[task]["done"])
                                         taskCard(
                                             userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
@@ -457,15 +453,15 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   }
 
   // TODO: this is bad code left for some weird issues, fix this later
-  void _tasksEditDialog(
+  _tasksEditDialog(
       {bool modifyWhat: false,
-      done: false,
-      repeat,
+      bool done: false,
+      bool repeat,
       int importance,
       String title,
-      description,
-      week2,
-      oldTitle,
+      String description,
+      String week2,
+      String oldTitle,
       dynamic endtime,
       selectedTime}) {
     // reset the form details or fill the current card details for edit
@@ -476,16 +472,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
       endtime = null;
     } else
       dropdown = week2;
-
-    // modifyWhat = modifyWhat;
-    // done = done;
-    // importance = importance;
-    // title = title;
-    // description = description;
-    // week2 = week2;
-    // oldTitle = oldTitle;
-    // endtime = endtime;
-    // selectedTime = selectedTime;
 
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,

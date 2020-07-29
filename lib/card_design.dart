@@ -22,7 +22,11 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
   _check.clear();
 
   for (String task in userTasks.keys)
-    if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex) _check.add(task);
+    if (!userTasks[task]["done"] &&
+        userTasks[task]["week"] == tabIndex &&
+        tabIndex != 7 &&
+        tabIndex != 8 &&
+        tabIndex != 9) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[1] = true);
   else

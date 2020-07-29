@@ -8,6 +8,19 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'database.dart';
 
 class TaskViewBackend {
+  static Icon generateIconsForProfileList(String choice) {
+    switch (choice) {
+      case "Add Account":
+        return Icon(Icons.add);
+      case "Delete Account":
+        return Icon(Icons.delete);
+      case "Signout Account":
+        return Icon(Icons.close);
+      default:
+        return Icon(Icons.account_circle);
+    }
+  }
+
   static profileButtonAction(
       String email, dynamic _accountConnectDialog, StateSetter setState, ProgressDialog pr, Map userTasks) async {
     switch (email) {
