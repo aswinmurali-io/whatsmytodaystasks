@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animator/flutter_animator.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -12,7 +11,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:whatsmytodaystasks/card_design.dart';
 import 'package:whatsmytodaystasks/mytask_view_partials.dart';
 
-import 'custom_dialog.dart' show CustomGradientDialogForm;
 import 'database.dart' show Database;
 import 'globals.dart';
 import 'quick_task_ui.dart';
@@ -124,7 +122,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                               child: Icon(Icons.account_circle, color: Colors.white),
                               backgroundColor: Colors.red),
                           onSelected: (email) => TaskViewBackend.profileButtonAction(
-                              email, _accountConnectDialog, setState, pr, userTasks),
+                              email, setState, pr, userTasks, context, _refreshController),
                           itemBuilder: (context) {
                             return (["Add Account"] + Database.loadAccounts())
                                 .map((String choice) => PopupMenuItem<String>(
@@ -180,7 +178,13 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                           : Wrap(
                               alignment: WrapAlignment.start,
                               children: [
-                                taskSection("Suppose to be completed yesterday", 0),
+                                taskSection(
+                                    (_tabController.index != 7 &&
+                                            _tabController.index != 8 &&
+                                            _tabController.index != 9)
+                                        ? "Suppose to be completed yesterday"
+                                        : "",
+                                    0),
 
                                 // Important Cards first
                                 for (String task in userTasks.keys)
@@ -374,77 +378,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
   @override
   setState(fn) {
     if (mounted) super.setState(fn);
-  }
-
-  _accountConnectDialog() {
-    String _email, _password, _status;
-
-    showDialog(
-        barrierColor: Colors.white.withOpacity(0.02),
-        barrierDismissible: true,
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(builder: (context, setState2) {
-            return AnnotatedRegion<SystemUiOverlayStyle>(
-              value: SystemUiOverlayStyle(
-                  statusBarColor: Colors.transparent,
-                  statusBarIconBrightness: Brightness.light,
-                  systemNavigationBarColor: Colors.black54,
-                  systemNavigationBarDividerColor: Colors.transparent,
-                  systemNavigationBarIconBrightness: Brightness.light),
-              child: CustomGradientDialogForm(
-                title: Text("Account", style: TextStyle(color: Colors.white, fontSize: 25)),
-                icon: Icon(Icons.account_box, color: Colors.white),
-                content: SizedBox(
-                  height: 240,
-                  child: Column(
-                    children: [
-                      Expanded(
-                          child: TextField(
-                              autofillHints: [AutofillHints.email],
-                              keyboardType: TextInputType.emailAddress,
-                              onChanged: (value) => _email = value,
-                              decoration: const InputDecoration(hintText: 'Enter your email'))),
-                      Expanded(
-                          child: TextField(
-                        obscureText: true,
-                        onSubmitted: (_) async => await TaskViewBackend.accountFormValidation(
-                            _email, _password, setState2, _status, pr, userTasks, context, _refreshController),
-                        onChanged: (value) => _password = value,
-                        decoration: InputDecoration(hintText: 'Enter password'),
-                      )),
-                      Text(_status ?? '', style: TextStyle(color: Colors.red)),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                        child: GradientButton(
-                            elevation: (kIsWeb) ? 0.0 : 5.0,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [Icon(Icons.account_circle), Text("Connect")]),
-                            increaseWidthBy: 20,
-                            callback: () async => await TaskViewBackend.accountFormValidation(
-                                _email, _password, setState2, _status, pr, userTasks, context, _refreshController)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Divider(thickness: 1),
-                      ),
-                      SignInButton(
-                        Buttons.Google,
-                        padding: EdgeInsets.fromLTRB(40, 0, 0, 0),
-                        onPressed: () async {
-                          await Database.googleAuthDialog();
-                          Navigator.of(context).pop();
-                          _refreshController.requestRefresh();
-                        },
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-          });
-        });
   }
 
   bool _resetOffset(int i) {

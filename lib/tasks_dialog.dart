@@ -158,6 +158,8 @@ class _TaskDialogState extends State<TaskDialog> {
 
   @override
   build(BuildContext context) {
+    //List<String> _weeks = weeks;
+    //_weeks.remove("All Tasks");
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

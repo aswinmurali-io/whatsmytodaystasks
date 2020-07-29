@@ -174,7 +174,6 @@ class Database {
 
     if (_storage.getString("email") != null || isgoogle)
       emails.insertAll(0, ["Delete Account", "Signout Account", "Switch Google Account"]);
-    print(_accounts);
     return emails;
   }
 
