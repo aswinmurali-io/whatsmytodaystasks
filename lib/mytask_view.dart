@@ -133,7 +133,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   }()),
                                   size: 17.0),
                               color: Colors.white,
-                              onPressed: () => setState(() => (isGrid < 2) ? isGrid++ : isGrid = 0)),
+                              onPressed: () => setState(() => (isGrid <= 1) ? isGrid++ : isGrid = 0)),
                         ),
                       )),
                   Padding(
@@ -269,9 +269,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
                                 // Task that are already done will be grey with strike text
                                 for (String task in userTasks.keys)
-                                  if (userTasks[task]["week"] == _tabController.index ||
-                                      userTasks[task]["week"] == 7 ||
-                                      userTasks[task]["week"] == 8)
+                                  if (userTasks[task]["week"] == _tabController.index)
                                     if (userTasks[task]["done"])
                                       taskCard(
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
