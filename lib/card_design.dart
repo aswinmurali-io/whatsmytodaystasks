@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animator/flutter_animator.dart';
 import 'package:flutter_gradient_colors/flutter_gradient_colors.dart';
+import 'package:gradient_widgets/gradient_widgets.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'database.dart';
 import 'globals.dart';
@@ -10,13 +12,33 @@ import 'globals.dart';
 List<bool> _visibility = [false, false, false, false];
 int isGrid = (kIsWeb) ? 1 : 0;
 
-bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
-  // TODO: something wrong here fix it
-  if (tabIndex == 9 || tabIndex == 8) return false; // display all tasks page
+bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex, String _currentWeek) {
+  // TODO: Make the code cleaner
   List _check = [];
+  if (tabIndex == 9)
+    return false;
+  else if (tabIndex == 8 || tabIndex == 7) {
+    for (String task in userTasks.keys)
+      if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex) _check.add(task);
+    if (_check.isNotEmpty)
+      setStateFromTaskView(() => _visibility[1] = true);
+    else
+      setStateFromTaskView(() => _visibility[1] = false);
+    _check.clear();
+    for (String task in userTasks.keys)
+      if (userTasks[task]["done"] && userTasks[task]["week"] == tabIndex) _check.add(task);
+    if (_check.isNotEmpty)
+      setStateFromTaskView(() => _visibility[3] = true);
+    else
+      setStateFromTaskView(() => _visibility[3] = false);
+    return (_visibility[1] == true || _visibility[3] == true) ? false : true;
+  } // display all tasks page
+
   // check how many tasks are there for different section and then display the necessary sections
   for (String task in userTasks.keys)
-    if (!userTasks[task]["done"] && userTasks[task]["week"] == tabIndex - 1) _check.add(task);
+    if (!userTasks[task]["done"] &&
+        userTasks[task]["week"] == tabIndex - 1 &&
+        weeks.indexOf(Jiffy(DateTime.now()).EEEE) == tabIndex) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[0] = true);
   else
@@ -31,6 +53,7 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
         tabIndex != 9) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[1] = true);
+  // TODO: not needed right?
   else
     _visibility[1] = false;
   _check.clear();
@@ -49,10 +72,10 @@ bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex) {
 
   for (String task in userTasks.keys)
     if (userTasks[task]["done"] &&
-        (userTasks[task]["week"] == tabIndex ||
-            userTasks[task]["week"] == 7 ||
-            userTasks[task]["week"] == 8 ||
-            userTasks[task]["week"] == 9)) _check.add(task);
+        (userTasks[task]["week"] == tabIndex &&
+            userTasks[task]["week"] != 7 &&
+            userTasks[task]["week"] != 8 &&
+            userTasks[task]["week"] != 9)) _check.add(task);
   if (_check.isNotEmpty)
     setStateFromTaskView(() => _visibility[3] = true);
   else
@@ -117,107 +140,113 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(
-                        task ?? "Unknown Task",
-                        textAlign: TextAlign.end,
-                        style: TextStyle(color: Colors.white, fontSize: 23),
-                      ),
-                      if (userTasks[task]['description'] != null && userTasks[task]['description'] != '')
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          child: Text(
-                            userTasks[task]['description'] ?? "",
-                            textAlign: TextAlign.start,
-                            softWrap: true,
-                            style: TextStyle(color: Colors.white),
-                          ),
+                  Expanded(
+                    flex: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(
+                          task ?? "Unknown Task",
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.end,
+                          style: TextStyle(color: Colors.white, fontSize: 23),
                         ),
-                      if (userTasks[task]['description'] == null || userTasks[task]['description'] == '')
-                        Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 0)),
-                      // hide time label if task has no deadline
-                      if ((userTasks[task]['time'] != "Any Time" && userTasks[task]['endtime'] != "Any Time") ||
-                          userTasks[task]['time'] != "Any Time" ||
-                          userTasks[task]['endtime'] != "Any Time")
-                        Wrap(
-                          children: [
-                            Card(
-                              elevation: 10,
-                              color: Colors.black12,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.timer, color: Colors.white, size: 17),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                      child: Text(
-                                        (userTasks[task]['time'] == userTasks[task]['endtime'])
-                                            ? "${userTasks[task]['time']}"
-                                            : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
-                                        style: const TextStyle(color: Colors.white),
+                        if (userTasks[task]['description'] != null && userTasks[task]['description'] != '')
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Text(
+                              userTasks[task]['description'] ?? "",
+                              textAlign: TextAlign.start,
+                              softWrap: true,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        if (userTasks[task]['description'] == null || userTasks[task]['description'] == '')
+                          Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 0)),
+                        // hide time label if task has no deadline
+                        if ((userTasks[task]['time'] != "Any Time" && userTasks[task]['endtime'] != "Any Time") ||
+                            userTasks[task]['time'] != "Any Time" ||
+                            userTasks[task]['endtime'] != "Any Time")
+                          Wrap(
+                            children: [
+                              Card(
+                                elevation: 10,
+                                color: Colors.black12,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.timer, color: Colors.white, size: 17),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                        child: Text(
+                                          (userTasks[task]['time'] == userTasks[task]['endtime'])
+                                              ? "${userTasks[task]['time']}"
+                                              : "${userTasks[task]['time']} ${(userTasks[task]['endtime'] != 'Any Time') ? '- ${userTasks[task]['endtime']}' : ''}",
+                                          style: const TextStyle(color: Colors.white),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (userTasks[task]["importance"] == 1)
-                              SizedBox(
-                                width: 96,
-                                child: Card(
-                                    elevation: 10,
-                                    color: Colors.black12,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.notification_important, color: Colors.white, size: 17),
-                                          const Padding(
-                                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                            child: Text("Important", style: TextStyle(color: Colors.white)),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
-                              ),
-                            if (userTasks[task]["repeat"])
-                              SizedBox(
-                                width: 80,
-                                child: Card(
-                                    elevation: 10,
-                                    color: Colors.black12,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.repeat, color: Colors.white, size: 17),
-                                          const Padding(
-                                            padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                            child: Text("Repeat", style: TextStyle(color: Colors.white)),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
-                              ),
-                          ],
-                        ),
-                    ]),
+                              if (userTasks[task]["importance"] == 1)
+                                SizedBox(
+                                  width: 96,
+                                  child: Card(
+                                      elevation: 10,
+                                      color: Colors.black12,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.notification_important, color: Colors.white, size: 17),
+                                            const Padding(
+                                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                              child: Text("Important", style: TextStyle(color: Colors.white)),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                ),
+                              if (userTasks[task]["repeat"])
+                                SizedBox(
+                                  width: 80,
+                                  child: Card(
+                                      elevation: 10,
+                                      color: Colors.black12,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.repeat, color: Colors.white, size: 17),
+                                            const Padding(
+                                              padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                              child: Text("Repeat", style: TextStyle(color: Colors.white)),
+                                            ),
+                                          ],
+                                        ),
+                                      )),
+                                ),
+                            ],
+                          ),
+                      ]),
+                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
-                    child: Transform.scale(
-                      scale: (kIsWeb) ? 1 : 2,
-                      child: CircularCheckBox(
-                          checkColor: Colors.blueGrey, // color of tick Mark
-                          activeColor: Colors.white,
-                          value: userTasks[task]['done'],
-                          onChanged: (value) {
-                            setStateFromTaskView(() => userTasks[task]['done'] = value);
-                            Database.upload(userTasks);
-                          }),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
+                      child: Transform.scale(
+                        scale: (kIsWeb) ? 1 : 2,
+                        child: CircularCheckBox(
+                            checkColor: Colors.blueGrey, // color of tick Mark
+                            activeColor: Colors.white,
+                            value: userTasks[task]['done'],
+                            onChanged: (value) {
+                              setStateFromTaskView(() => userTasks[task]['done'] = value);
+                              Database.upload(userTasks);
+                            }),
+                      ),
                     ),
                   ),
                 ],
@@ -230,7 +259,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
   );
 }
 
-Widget taskSection(String section, int index) {
+Widget taskSection(String section, int index, dynamic changeShowYesterday, bool showYesterday) {
   return Visibility(
     visible: _visibility[index],
     child: Padding(
@@ -242,6 +271,18 @@ Widget taskSection(String section, int index) {
           Text(section,
               style: TextStyle(
                   foreground: Paint()..shader = textGradientShader, fontWeight: FontWeight.bold, fontSize: 20)),
+          if (index == 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+              child: GradientButton(
+                child: Text((showYesterday) ? "Hide" : "Show"),
+                callback: () {
+                  print(_visibility[index]);
+
+                  changeShowYesterday();
+                },
+              ),
+            ),
           const Expanded(child: const Padding(padding: EdgeInsets.zero))
         ]),
       ),

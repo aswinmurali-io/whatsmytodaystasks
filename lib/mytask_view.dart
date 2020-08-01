@@ -39,13 +39,32 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool showYesterday = true;
+
+  changeShowYesterday() {
+    setState(() => showYesterday = !showYesterday);
+  }
+
   // setState() called after dispose()
   @override
   build(BuildContext context) {
     __offset = 200;
     _uniqueColorIndex = 0;
 
-    pr = ProgressDialog(context);
+    pr = ProgressDialog(context, type: ProgressDialogType.Normal, isDismissible: true);
+    pr.style(
+        borderRadius: 15.0,
+        message: 'Syncing...',
+        backgroundColor: Colors.white,
+        progressWidget: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: CircularProgressIndicator(strokeWidth: 6, valueColor: AlwaysStoppedAnimation<Color>(Colors.red)),
+        ),
+        elevation: 10.0,
+        insetAnimCurve: Curves.easeInOut,
+        progressTextStyle: TextStyle(color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+
     return DefaultTabController(
       length: _totalTabs,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -180,7 +199,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   child: SmartRefresher(
                     enablePullUp: false,
                     enablePullDown: true,
-                    header: WaterDropHeader(waterDropColor: Colors.red),
+                    header: MaterialClassicHeader(color: Colors.red),
                     controller: _refreshController,
                     onRefresh: () async {
                       try {
@@ -193,7 +212,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(15, 15, 10, 0),
-                      child: (smartShowSections(setState, _tabController.index))
+                      child: (smartShowSections(setState, _tabController.index, _currentWeek)
                           ? Padding(
                               padding: const EdgeInsets.fromLTRB(0, 120, 0, 0),
                               child: Column(children: [
@@ -209,16 +228,20 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                     (_tabController.index != 7 &&
                                             _tabController.index != 8 &&
                                             _tabController.index != 9)
-                                        ? "Suppose to be completed yesterday"
+                                        ? "Yesterday's Work"
                                         : "",
-                                    0),
+                                    0,
+                                    changeShowYesterday,
+                                    showYesterday),
 
                                 // Important Cards first
                                 for (String task in userTasks.keys)
                                   if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1 &&
                                       _tabController.index != 9 &&
                                       _tabController.index != 8 &&
-                                      _tabController.index != 7)
+                                      _tabController.index != 7 &&
+                                      _tabController.index == weeks.indexOf(Jiffy(DateTime.now()).EEEE) &&
+                                      showYesterday)
                                     if (!userTasks[task]["done"] && userTasks[task]["importance"] == 1)
                                       taskCard(
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
@@ -228,12 +251,14 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   if (userTasks[task]["week"] == weeks.indexOf(_currentWeek) - 1 &&
                                       _tabController.index != 9 &&
                                       _tabController.index != 8 &&
-                                      _tabController.index != 7)
+                                      _tabController.index != 7 &&
+                                      _tabController.index == weeks.indexOf(Jiffy(DateTime.now()).EEEE) &&
+                                      showYesterday)
                                     if (!userTasks[task]["done"] && userTasks[task]["importance"] == 0)
                                       taskCard(
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
-                                taskSection("Pending", 1),
+                                taskSection("Pending", 1, changeShowYesterday, showYesterday),
 
                                 // All Tasks
                                 for (String task in userTasks.keys)
@@ -255,7 +280,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
                                 if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
-                                  taskSection("All Days & Any days", 2),
+                                  taskSection("Daily & Any days", 2, changeShowYesterday, showYesterday),
 
                                 // All day and any day tasks
                                 if (_tabController.index != 7 && _tabController.index != 8 && _tabController.index != 9)
@@ -265,7 +290,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                         taskCard(
                                             userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
-                                taskSection("Completed", 3),
+                                taskSection("Completed", 3, changeShowYesterday, showYesterday),
 
                                 // Task that are already done will be grey with strike text
                                 for (String task in userTasks.keys)
@@ -277,7 +302,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 // To give space for showing the last card's edit button
                                 const Padding(padding: const EdgeInsets.fromLTRB(0, 0, 0, 73))
                               ],
-                            ),
+                            )),
                     ),
                   ),
                 )
@@ -424,8 +449,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
       String oldTitle,
       dynamic endtime,
       selectedTime}) {
-    
-
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) => TaskDialog(setState, modifyWhat, done, importance, title,

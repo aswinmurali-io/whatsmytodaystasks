@@ -24,7 +24,7 @@ final weeks = [
   "Friday",
   "Saturday",
   "Sunday",
-  "All Days",
+  "Daily",
   "Any Day",
   "All Tasks",
 ];
@@ -73,7 +73,7 @@ String getWeekNameFromIndex(int index) {
     case 6:
       return "Sunday";
     case 7:
-      return "All Days";
+      return "Daily";
     case 8:
       return "Any Day";
     case 9:
