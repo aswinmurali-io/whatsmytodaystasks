@@ -10,6 +10,7 @@ import 'custom_dialog.dart';
 import 'database.dart';
 import 'globals.dart';
 
+// ignore: must_be_immutable
 class TaskDialog extends StatefulWidget {
   final setState2, taskViewScaffoldKey;
 
