@@ -10,7 +10,8 @@ import 'database.dart';
 import 'globals.dart';
 
 List<bool> _visibility = [false, false, false, false];
-int isGrid = (kIsWeb) ? 1 : 0;
+int isGrid;
+bool showYesterday;
 
 bool smartShowSections(StateSetter setStateFromTaskView, int tabIndex, String _currentWeek) {
   // TODO: Make the code cleaner
@@ -276,11 +277,7 @@ Widget taskSection(String section, int index, dynamic changeShowYesterday, bool 
               padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
               child: GradientButton(
                 child: Text((showYesterday) ? "Hide" : "Show"),
-                callback: () {
-                  print(_visibility[index]);
-
-                  changeShowYesterday();
-                },
+                callback: changeShowYesterday,
               ),
             ),
           const Expanded(child: const Padding(padding: EdgeInsets.zero))

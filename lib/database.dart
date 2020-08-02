@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatsmytodaystasks/globals.dart';
 
@@ -95,6 +96,23 @@ class Database {
 
   static String getPassword(email) {
     return _accounts[email];
+  }
+
+  static saveLocalOption(int viewMode, bool showYesterday) {
+    _storage.setInt("view_mode", viewMode);
+    _storage.setBool("yesterday_view", showYesterday);
+  }
+
+  static List loadLocalOption() {
+    int viewMode = _storage.getInt("view_mode");
+    bool showYesterday = _storage.getBool("yesterday_view");
+    if (viewMode == null || showYesterday == null) {
+      viewMode = (kIsWeb) ? 1 : 0;
+      showYesterday = true;
+      _storage.setInt("view_mode", viewMode);
+      _storage.setBool("yesterday_view", showYesterday);
+    }
+    return [viewMode, showYesterday];
   }
 
   static Future googleAuthAutoConnect() async {

@@ -39,10 +39,11 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
 
-  bool showYesterday = true;
+  
 
   changeShowYesterday() {
     setState(() => showYesterday = !showYesterday);
+    Database.saveLocalOption(isGrid, showYesterday);
   }
 
   // setState() called after dispose()
@@ -152,7 +153,10 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                   }()),
                                   size: 17.0),
                               color: Colors.white,
-                              onPressed: () => setState(() => (isGrid <= 1) ? isGrid++ : isGrid = 0)),
+                              onPressed: () {
+                                setState(() => (isGrid <= 1) ? isGrid++ : isGrid = 0);
+                                Database.saveLocalOption(isGrid, showYesterday);
+                              }),
                         ),
                       )),
                   Padding(
@@ -398,6 +402,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   Future initAsync() async {
     await Database.autoconnect(userTasks);
+    isGrid = Database.loadLocalOption()[0];
+    showYesterday = Database.loadLocalOption()[1];
     userTasks = await Database.download();
     await Database.resetTasks(userTasks, _currentWeek);
     setState(() => userTasks = userTasks);
