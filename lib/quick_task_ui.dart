@@ -9,11 +9,15 @@ import 'tasks_dialog.dart';
 
 showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String week, TabController tabController,
     GlobalKey<ScaffoldState> taskViewScaffoldKey) async {
-  String day = "Today";
-  PersistentBottomSheetController _controller;
+  // task form properties
+  String day = "Selected Tab";
   bool important = false, repeat = false;
   DateTime date;
   TimeOfDay start, end;
+
+  int currentWeekIndex;
+
+  PersistentBottomSheetController _controller;
 
   _controller = taskViewScaffoldKey.currentState.showBottomSheet((context) {
     return Container(
@@ -59,7 +63,6 @@ showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String w
                       icon: Icon(Icons.delete),
                       onPressed: () {
                         userTasks.remove(userTasks.keys.toList()[index]);
-                        //setState(() => userTasks);
                         Database.upload(userTasks);
                         setStateFromTaskView(() => userTasks);
                       },
@@ -132,14 +135,28 @@ showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String w
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: GradientButton(
+                  gradient: (repeat) ? Gradients.cosmicFusion : Gradients.deepSpace,
+                  child: Text("Repeat"),
+                  callback: () {
+                    _controller.setState(() {
+                      day = null;
+                      date = null;
+                      repeat = !repeat;
+                    });
+                  },
+                ),
+              ),
               GradientButton(
-                gradient: (repeat) ? Gradients.cosmicFusion : Gradients.deepSpace,
-                child: Text("Repeat"),
+                gradient: (day == "Selected Tab") ? Gradients.cosmicFusion : Gradients.deepSpace,
+                child: Text("Selected Tab"),
+                increaseWidthBy: 30,
                 callback: () {
                   _controller.setState(() {
-                    day = null;
+                    day = "Selected Tab";
                     date = null;
-                    repeat = !repeat;
                   });
                 },
               ),
@@ -185,21 +202,27 @@ showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String w
                   ),
                 ),
                 onSubmitted: (value) => setStateFromTaskView(() {
+                  currentWeekIndex = weeks.indexOf(Jiffy(DateTime.now()).EEEE);
                   if (value.isNotEmpty)
                     userTasks.addAll({
                       value: {
-                        "time": "Any Time",
-                        "endtime": "Any Time",
+                        "time": start ?? "Any Time",
+                        "endtime": end ?? "Any Time",
                         "notify": true,
                         "description": '',
                         "image": null,
-                        "importance": 0,
-                        "repeat": false,
+                        "importance": (important) ? 1 : 0,
+                        "repeat": repeat,
                         "done": false,
-                        "week":
-                            (tabController.index < 9) ? tabController.index : week.indexOf(Jiffy(DateTime.now()).EEEE)
+                        "date": date,
+                        "week": (day == "Tomorrow")
+                            ? ((currentWeekIndex >= 7) ? 0 : currentWeekIndex + 1)
+                            : ((day == "Selected Tab")
+                                ? (tabController.index != 9) ? tabController.index : currentWeekIndex
+                                : (day == "Today") ? currentWeekIndex : weeks.indexOf(Jiffy(date).EEEE)),
                       },
                     });
+                  print(userTasks[value]);
                   Database.upload(userTasks);
                   Navigator.of(context).pop();
                 }),
