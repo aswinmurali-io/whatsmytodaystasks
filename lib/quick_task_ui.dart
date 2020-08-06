@@ -167,7 +167,7 @@ showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String w
                 padding: const EdgeInsets.fromLTRB(20, 0, 10, 0),
                 child: GradientButton(
                   gradient: (start != null) ? Gradients.jShine : Gradients.deepSpace,
-                  increaseWidthBy: 26,
+                  increaseWidthBy: 35,
                   child: Text((start == null) ? "Set Start Time" : start.format(context)),
                   callback: () async {
                     start = await showTimePicker(initialTime: TimeOfDay.now(), context: context);
@@ -176,7 +176,7 @@ showQuickTaskUI(BuildContext context, StateSetter setStateFromTaskView, String w
                 )),
             GradientButton(
               gradient: (end != null) ? Gradients.blush : Gradients.deepSpace,
-              increaseWidthBy: 26,
+              increaseWidthBy: 35,
               child: Text((end == null) ? "Set End Time" : end.format(context)),
               callback: () async {
                 end = await showTimePicker(initialTime: TimeOfDay.now(), context: context);

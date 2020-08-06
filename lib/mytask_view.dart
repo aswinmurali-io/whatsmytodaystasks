@@ -39,8 +39,6 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
 
   final taskViewScaffoldKey = GlobalKey<ScaffoldState>();
 
-  
-
   changeShowYesterday() {
     setState(() => showYesterday = !showYesterday);
     Database.saveLocalOption(isGrid, showYesterday);
@@ -67,50 +65,57 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
         messageTextStyle: TextStyle(color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
 
     return DefaultTabController(
-      length: _totalTabs,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-            systemNavigationBarColor: Colors.white, systemNavigationBarIconBrightness: Brightness.dark),
-        child: Scaffold(
+        length: _totalTabs,
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+              statusBarColor: Colors.white30,
+              statusBarIconBrightness: Brightness.dark,
+              systemNavigationBarColor: Colors.white30.withOpacity(0.2),
+              systemNavigationBarIconBrightness: Brightness.dark),
+          child: Scaffold(
             key: taskViewScaffoldKey,
-            appBar: AppBar(
-                titleSpacing: 20,
-                brightness: Brightness.light,
-                bottom: TabBar(
-                  physics: (!kIsWeb) ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
-                  isScrollable: true,
-                  indicatorColor: Colors.transparent,
-                  indicatorWeight: 0.1,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  controller: _tabController,
-                  tabs: [
-                    for (String text in weeks)
-                      if (_tabController.index == weeks.indexOf(_currentWeek))
-                        Tab(
-                          // TODO: maybe some improvement
-                          child: ZoomIn(
-                            preferences: AnimationPreferences(
-                                duration: const Duration(milliseconds: 100), offset: const Duration(milliseconds: 500)),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 500),
-                                curve: Curves.fastOutSlowIn,
-                                width: (text == _currentWeek) ? _currentWeekTabSize + 70 : _currentWeekTabSize + 60,
-                                height: (text == _currentWeek) ? _currentWeekTabSize : _currentWeekTabSize - 30,
-                                child: GradientButton(
-                                  gradient: (text == _currentWeek) ? Gradients.cosmicFusion : Gradients.taitanum,
-                                  shadowColor: Colors.transparent,
-                                  increaseWidthBy: _currentWeekTabSize + 10,
-                                  child: Text(text, style: TextStyle(fontSize: (text == _currentWeek) ? 20 : 15)),
-                                  callback: null,
-                                ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+              child: TabBar(
+                physics: (!kIsWeb) ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
+                isScrollable: true,
+                indicatorColor: Colors.transparent,
+                indicatorWeight: 0.1,
+                indicatorSize: TabBarIndicatorSize.label,
+                controller: _tabController,
+                tabs: [
+                  for (String text in weeks)
+                    if (_tabController.index == weeks.indexOf(_currentWeek))
+                      Tab(
+                        // TODO: maybe some improvement
+                        child: ZoomIn(
+                          preferences: AnimationPreferences(
+                              duration: const Duration(milliseconds: 100), offset: const Duration(milliseconds: 500)),
+                          child: Padding(
+                            //padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.fastOutSlowIn,
+                              width: (text == _currentWeek) ? _currentWeekTabSize + 70 : _currentWeekTabSize + 60,
+                              height: (text == _currentWeek) ? _currentWeekTabSize : _currentWeekTabSize - 30,
+                              child: GradientButton(
+                                gradient: (text == _currentWeek) ? Gradients.cosmicFusion : Gradients.taitanum,
+                                shadowColor: Colors.transparent,
+                                increaseWidthBy: _currentWeekTabSize + 10,
+                                child: Text(text, style: TextStyle(fontSize: (text == _currentWeek) ? 20 : 15)),
+                                callback: null,
                               ),
                             ),
                           ),
                         ),
-                  ],
-                ),
+                      ),
+                ],
+              ),
+            ),
+            appBar: AppBar(
+                titleSpacing: 20,
+                brightness: Brightness.light,
                 actions: [
                   if (kIsWeb)
                     Padding(
@@ -311,70 +316,27 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                   ),
                 )
             ]),
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(25, 0, 0, 0),
-                    child: InkWell(
-                      onTap: () => showQuickTaskUI(context, setState, week, _tabController, taskViewScaffoldKey),
-                      child: Material(
-                        color: Colors.white,
-                        elevation: 5.0,
-                        shadowColor: Colors.blueGrey[100],
-                        borderRadius: BorderRadius.circular(25.7),
-                        child: SizedBox(height: 40.0, child: Center(child: Text("Add / Search Tasks"))),
-                      ),
-                    ),
+            floatingActionButton: ZoomIn(
+              preferences:
+                  AnimationPreferences(duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                child: FloatingActionButton(
+                  heroTag: "Add Task",
+                  focusElevation: 80,
+                  onPressed: () => null,
+                  tooltip: "Add a task",
+                  child: CircularGradientButton(
+                    child: const Icon(Icons.add),
+                    callback: () => showQuickTaskUI(context, setState, week, _tabController, taskViewScaffoldKey),
+                    gradient: Gradients.hotLinear,
+                    elevation: 0,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: PopupMenuButton<String>(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
-                    child: Material(
-                        elevation: 5,
-                        shadowColor: Colors.blueGrey[100],
-                        borderRadius: BorderRadius.circular(25.7),
-                        child: CircleAvatar(radius: 23, child: Icon(Icons.list), backgroundColor: Colors.white)),
-                    onSelected: (value) => _tabController.animateTo(weeks.indexOf(value)),
-                    itemBuilder: (BuildContext context) {
-                      return weeks.map((String choice) {
-                        return PopupMenuItem<String>(
-                            value: choice,
-                            height: 40,
-                            child: Text(
-                              choice,
-                              style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),
-                            ));
-                      }).toList();
-                    },
-                  ),
-                ),
-                ZoomIn(
-                  preferences: AnimationPreferences(
-                      duration: const Duration(milliseconds: 300), offset: const Duration(seconds: 1)),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    child: FloatingActionButton(
-                      heroTag: "Add Task",
-                      focusElevation: 80,
-                      onPressed: () => null,
-                      tooltip: "Add a task",
-                      child: CircularGradientButton(
-                        child: const Icon(Icons.add),
-                        callback: () => _tasksEditDialog(),
-                        gradient: Gradients.hotLinear,
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )),
-      ),
-    );
+              ),
+            ),
+          ),
+        ));
   }
 
   @override
