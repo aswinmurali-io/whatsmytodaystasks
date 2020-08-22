@@ -106,8 +106,9 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
             return null;
         }
       }()),
-      child: BounceIn(
-        preferences: AnimationPreferences(offset: Duration(milliseconds: offset += 50)),
+      child: FadeIn(
+        preferences:
+            AnimationPreferences(offset: Duration(milliseconds: offset += 50), duration: Duration(milliseconds: 500)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 5, 10, 10),
           child: Container(
