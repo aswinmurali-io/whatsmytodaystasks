@@ -123,7 +123,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                   : LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: autoGenerateColorCard[uniqueColorIndex++]),
+                      colors: getNextGradient()),
               borderRadius: const BorderRadius.all(Radius.circular(15)),
             ),
             child: InkWell(
