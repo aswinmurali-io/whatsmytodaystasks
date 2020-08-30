@@ -23,7 +23,7 @@ class TaskView extends StatefulWidget {
 
 class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _tabController;
-  double _currentWeekTabSize = 10.0;
+  double _currentWeekTabSize = 30.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
   final _totalTabs = 10;
   int _uniqueColorIndex;

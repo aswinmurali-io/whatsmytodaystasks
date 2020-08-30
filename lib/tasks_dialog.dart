@@ -162,7 +162,7 @@ class _TaskDialogState extends State<TaskDialog> {
   build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
+          statusBarColor: Colors.blueGrey,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarColor: Colors.white,
           systemNavigationBarDividerColor: Colors.transparent,

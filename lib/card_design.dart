@@ -163,8 +163,8 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
-                        if (userTasks[task]['description'] == null || userTasks[task]['description'] == '')
-                          Padding(padding: const EdgeInsets.fromLTRB(0, 10, 0, 0)),
+                        //if (userTasks[task]['description'] == null || userTasks[task]['description'] == '')
+                        //  Container(),
                         // hide time label if task has no deadline
                         if ((userTasks[task]['time'] != "Any Time" && userTasks[task]['endtime'] != "Any Time") ||
                             userTasks[task]['time'] != "Any Time" ||
@@ -239,7 +239,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
                       child: Transform.scale(
-                        scale: (kIsWeb) ? 1 : 2,
+                        scale: (kIsWeb) ? 1 : 1.5,
                         child: CircularCheckBox(
                             checkColor: Colors.blueGrey, // color of tick Mark
                             activeColor: Colors.white,
