@@ -23,7 +23,7 @@ class TaskView extends StatefulWidget {
 
 class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _tabController;
-  double _currentWeekTabSize = 30.0;
+  double _currentWeekTabSize = 10.0;
   String _currentWeek = Jiffy(DateTime.now()).EEEE;
   final _totalTabs = 10;
   int _uniqueColorIndex;
@@ -91,9 +91,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                         child: ZoomIn(
                           preferences: AnimationPreferences(
                               duration: const Duration(milliseconds: 100), offset: const Duration(milliseconds: 500)),
-                          child: Padding(
-                            //padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: SizedBox(
+                            width: (text != 'Daily') ? 60 : 80,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.fastOutSlowIn,
@@ -103,7 +102,8 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                 gradient: (text == _currentWeek) ? Gradients.cosmicFusion : Gradients.taitanum,
                                 shadowColor: Colors.transparent,
                                 increaseWidthBy: _currentWeekTabSize + 10,
-                                child: Text(text, style: TextStyle(fontSize: (text == _currentWeek) ? 20 : 15)),
+                                child: Text((text != 'Daily') ? text.substring(0, 3) : text,
+                                    style: TextStyle(fontSize: (text == _currentWeek) ? 20 : 15)),
                                 callback: null,
                               ),
                             ),

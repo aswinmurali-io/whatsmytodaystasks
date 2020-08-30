@@ -6,7 +6,6 @@ import 'package:gradient_widgets/gradient_widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 
-import 'custom_dialog.dart';
 import 'database.dart';
 import 'globals.dart';
 
