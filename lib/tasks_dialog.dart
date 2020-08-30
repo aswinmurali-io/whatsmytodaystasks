@@ -165,190 +165,198 @@ class _TaskDialogState extends State<TaskDialog> {
       value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: Colors.black54.withOpacity(0.55),
+          systemNavigationBarColor: Colors.white,
           systemNavigationBarDividerColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.light),
-      child: CustomGradientDialogForm(
-        title: Text((modifyWhat) ? "Edit Task" : "New Task", style: TextStyle(color: Colors.white, fontSize: 25)),
-        content: SizedBox(
-          height: 350,
-          child: CupertinoScrollbar(
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("What's the task ?"),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                    child: TextField(
-                        controller: _textFieldTaskController,
-                        focusNode: _taskFocusNode,
-                        autocorrect: true,
-                        cursorColor: Colors.red,
-                        maxLines: 1,
-                        enableSuggestions: true,
-                        maxLength: 40,
-                        onSubmitted: (_) {
-                          scrollController.animateTo(
-                            10.0,
-                            curve: Curves.easeOut,
-                            duration: const Duration(milliseconds: 300),
-                          );
-                          _descFocusNode.requestFocus();
-                        },
-                        onChanged: (value) => title = value),
-                  ),
-                  const Text("Something else to remember with it?"),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                    child: TextField(
-                        controller: _textFieldDescriptionController,
-                        focusNode: _descFocusNode,
-                        autocorrect: true,
-                        cursorColor: Colors.red,
-                        maxLines: 1,
-                        enableSuggestions: true,
-                        maxLength: 30,
-                        onSubmitted: (_) => _dropdownFocusNode.requestFocus(),
-                        onChanged: (value) => description = value),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Pick a day"),
-                      DropdownButton(
-                          value: dropdown,
-                          focusNode: _dropdownFocusNode,
-                          items: (weeks)
-                                  .map((value) => (value != "All Tasks")
-                                      ? DropdownMenuItem<String>(value: value, child: Text(value))
-                                      : const DropdownMenuItem<String>(value: "Tomorrow", child: Text("Tomorrow")))
-                                  .toList() +
-                              [],
-                          onChanged: (value) {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            week = value;
-                            setState(() => dropdown = value);
-                          }),
-                    ],
-                  ),
-                  Row(children: [
-                    const Text("Important task"),
-                    Checkbox(
-                        value: (_importance == 0) ? false : true,
-                        onChanged: (bool value) => setState(() => _importance = (value) ? 1 : 0))
-                  ]),
-                  Row(children: [
-                    const Text("Repeat task every week"),
-                    Checkbox(value: repeat, onChanged: (value) => setState(() => repeat = value))
-                  ]),
-                  ExpansionTile(
-                    title: Text("Time"),
-                    onExpansionChanged: (value) => Future.delayed(
-                        const Duration(milliseconds: 300),
-                        () => scrollController.animateTo(300,
-                            duration: const Duration(milliseconds: 100), curve: Curves.bounceIn)),
-                    children: [
-                      SingleChildScrollView(
-                        child: Wrap(children: [
-                          const Text(
-                              "if you already set the time and want to remove it. Open the time selector and just press cancel"),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Set the start time" +
-                                    ((_awaitedTime != null)
-                                        ? ", ${(_awaitedTime.hour > 12) ? _awaitedTime.hour - 12 : _awaitedTime.hour}:${(_awaitedTime.minute < 10) ? '0${_awaitedTime.minute}' : _awaitedTime.minute} ${(_awaitedTime.period.index == 1) ? 'PM' : 'AM'}"
-                                        : ''),
-                              ),
-                              GradientButton(
-                                  shadowColor: Colors.black26,
-                                  elevation: (kIsWeb) ? 0.0 : 6.0,
-                                  shapeRadius: BorderRadius.circular(10),
-                                  gradient: Gradients.blush,
-                                  increaseWidthBy: 40,
-                                  child: Text("Choose Start Time"),
-                                  callback: () => setState(() async {
-                                        selectedTime = showTimePicker(context: context, initialTime: TimeOfDay.now());
-                                        _awaitedTime = await selectedTime ?? '';
-                                        setState(() => _awaitedTime = _awaitedTime);
+          systemNavigationBarIconBrightness: Brightness.dark),
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.white),
+          title: Text((modifyWhat) ? "Edit Task" : "New Task", style: TextStyle(color: Colors.white, fontSize: 25)),
+        ),
+        body: CupertinoScrollbar(
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                      child: const Text("What's the task ?"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                      child: TextField(
+                          controller: _textFieldTaskController,
+                          focusNode: _taskFocusNode,
+                          autocorrect: true,
+                          cursorColor: Colors.red,
+                          maxLines: 1,
+                          enableSuggestions: true,
+                          maxLength: 40,
+                          onSubmitted: (_) {
+                            scrollController.animateTo(
+                              10.0,
+                              curve: Curves.easeOut,
+                              duration: const Duration(milliseconds: 300),
+                            );
+                            _descFocusNode.requestFocus();
+                          },
+                          onChanged: (value) => title = value),
+                    ),
+                    const Text("Something else to remember with it?"),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
+                      child: TextField(
+                          controller: _textFieldDescriptionController,
+                          focusNode: _descFocusNode,
+                          autocorrect: true,
+                          cursorColor: Colors.red,
+                          maxLines: 1,
+                          enableSuggestions: true,
+                          maxLength: 30,
+                          onSubmitted: (_) => _dropdownFocusNode.requestFocus(),
+                          onChanged: (value) => description = value),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Pick a day"),
+                        DropdownButton(
+                            value: dropdown,
+                            focusNode: _dropdownFocusNode,
+                            items: (weeks)
+                                    .map((value) => (value != "All Tasks")
+                                        ? DropdownMenuItem<String>(value: value, child: Text(value))
+                                        : const DropdownMenuItem<String>(value: "Tomorrow", child: Text("Tomorrow")))
+                                    .toList() +
+                                [],
+                            onChanged: (value) {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              week = value;
+                              setState(() => dropdown = value);
+                            }),
+                      ],
+                    ),
+                    Row(children: [
+                      const Text("Important task"),
+                      Checkbox(
+                          value: (_importance == 0) ? false : true,
+                          onChanged: (bool value) => setState(() => _importance = (value) ? 1 : 0))
+                    ]),
+                    Row(children: [
+                      const Text("Repeat task every week"),
+                      Checkbox(value: repeat, onChanged: (value) => setState(() => repeat = value))
+                    ]),
+                    ExpansionTile(
+                      initiallyExpanded: true,
+                      title: Text("Time"),
+                      onExpansionChanged: (value) => Future.delayed(
+                          const Duration(milliseconds: 300),
+                          () => scrollController.animateTo(300,
+                              duration: const Duration(milliseconds: 100), curve: Curves.bounceIn)),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: SingleChildScrollView(
+                            child: Wrap(children: [
+                              const Text(
+                                  "if you already set the time and want to remove it. Open the time selector and just press cancel"),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Set the start time" +
+                                        ((_awaitedTime != null)
+                                            ? ", ${(_awaitedTime.hour > 12) ? _awaitedTime.hour - 12 : _awaitedTime.hour}:${(_awaitedTime.minute < 10) ? '0${_awaitedTime.minute}' : _awaitedTime.minute} ${(_awaitedTime.period.index == 1) ? 'PM' : 'AM'}"
+                                            : ''),
+                                  ),
+                                  GradientButton(
+                                      shadowColor: Colors.black26,
+                                      elevation: (kIsWeb) ? 0.0 : 6.0,
+                                      shapeRadius: BorderRadius.circular(10),
+                                      gradient: Gradients.blush,
+                                      increaseWidthBy: 40,
+                                      child: Text("Choose Start Time"),
+                                      callback: () => setState(() async {
+                                            selectedTime = showTimePicker(context: context, initialTime: TimeOfDay.now());
+                                            _awaitedTime = await selectedTime ?? '';
+                                            setState(() => _awaitedTime = _awaitedTime);
 
+                                            FocusScope.of(context).requestFocus(FocusNode());
+                                            Future.delayed(
+                                                const Duration(milliseconds: 300),
+                                                () => scrollController.animateTo(300,
+                                                    duration: const Duration(milliseconds: 100), curve: Curves.bounceIn));
+                                          })),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Set the end time" +
+                                        ((_awaitedTime2 != null)
+                                            ? ", ${(_awaitedTime2.hour > 12) ? _awaitedTime2.hour - 12 : _awaitedTime2.hour}:${(_awaitedTime2.minute < 10) ? '0${_awaitedTime2.minute}' : _awaitedTime2.minute} ${(_awaitedTime2.period.index == 1) ? 'PM' : 'AM'}"
+                                            : ''),
+                                  ),
+                                  GradientButton(
+                                      shadowColor: Colors.black26,
+                                      elevation: (kIsWeb) ? 0.0 : 6.0,
+                                      shapeRadius: BorderRadius.circular(10),
+                                      gradient: Gradients.blush,
+                                      increaseWidthBy: 40,
+                                      child: Text("Choose End Time"),
+                                      callback: () async {
+                                        endtime = showTimePicker(context: context, initialTime: TimeOfDay.now());
+                                        _awaitedTime2 = await endtime ?? '';
                                         FocusScope.of(context).requestFocus(FocusNode());
+                                        setState(() => _awaitedTime2 = _awaitedTime2);
                                         Future.delayed(
                                             const Duration(milliseconds: 300),
                                             () => scrollController.animateTo(300,
                                                 duration: const Duration(milliseconds: 100), curve: Curves.bounceIn));
-                                      })),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Set the end time" +
-                                    ((_awaitedTime2 != null)
-                                        ? ", ${(_awaitedTime2.hour > 12) ? _awaitedTime2.hour - 12 : _awaitedTime2.hour}:${(_awaitedTime2.minute < 10) ? '0${_awaitedTime2.minute}' : _awaitedTime2.minute} ${(_awaitedTime2.period.index == 1) ? 'PM' : 'AM'}"
-                                        : ''),
+                                      }),
+                                ],
                               ),
-                              GradientButton(
-                                  shadowColor: Colors.black26,
-                                  elevation: (kIsWeb) ? 0.0 : 6.0,
-                                  shapeRadius: BorderRadius.circular(10),
-                                  gradient: Gradients.blush,
-                                  increaseWidthBy: 40,
-                                  child: Text("Choose End Time"),
-                                  callback: () async {
-                                    endtime = showTimePicker(context: context, initialTime: TimeOfDay.now());
-                                    _awaitedTime2 = await endtime ?? '';
-                                    FocusScope.of(context).requestFocus(FocusNode());
-                                    setState(() => _awaitedTime2 = _awaitedTime2);
-                                    Future.delayed(
-                                        const Duration(milliseconds: 300),
-                                        () => scrollController.animateTo(300,
-                                            duration: const Duration(milliseconds: 100), curve: Curves.bounceIn));
-                                  }),
-                            ],
+                            ]),
                           ),
-                        ]),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GradientButton(
-                            shadowColor: Colors.black26,
-                            elevation: (kIsWeb) ? 0.0 : 6.0,
-                            shapeRadius: BorderRadius.circular(10),
-                            gradient: Gradients.coldLinear,
-                            increaseWidthBy: 20,
-                            child: const Text("Save", style: TextStyle(color: Colors.white)),
-                            callback: save),
-                        if (modifyWhat)
-                          GradientButton(
-                            shadowColor: Colors.black26,
-                            elevation: (kIsWeb) ? 0.0 : 6.0,
-                            shapeRadius: BorderRadius.circular(10),
-                            gradient: Gradients.aliHussien,
-                            increaseWidthBy: 20,
-                            child: const Text("Delete", style: TextStyle(color: Colors.white)),
-                            callback: delete,
-                          )
+                        )
                       ],
                     ),
-                  )
-                ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GradientButton(
+                              shadowColor: Colors.black26,
+                              elevation: (kIsWeb) ? 0.0 : 6.0,
+                              shapeRadius: BorderRadius.circular(10),
+                              gradient: Gradients.coldLinear,
+                              increaseWidthBy: 20,
+                              child: const Text("Save", style: TextStyle(color: Colors.white)),
+                              callback: save),
+                          if (modifyWhat)
+                            GradientButton(
+                              shadowColor: Colors.black26,
+                              elevation: (kIsWeb) ? 0.0 : 6.0,
+                              shapeRadius: BorderRadius.circular(10),
+                              gradient: Gradients.aliHussien,
+                              increaseWidthBy: 20,
+                              child: const Text("Delete", style: TextStyle(color: Colors.white)),
+                              callback: delete,
+                            )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
         ),
-        titleBackground: Colors.red,
-        contentBackground: Colors.white,
-        icon: const Icon(Icons.edit, color: Colors.white, size: 25),
       ),
     );
   }
