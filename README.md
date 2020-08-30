@@ -1,4 +1,4 @@
-# What's my today's tasks
+# What's my today's tasks?
 
 A tasker with a partial gantt-style week-based project planner! Build your project faster by assigning tasks with a deadline in a week-based fashion, this makes devs more productive.
 
