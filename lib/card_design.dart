@@ -194,7 +194,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                               ),
                               if (userTasks[task]["importance"] == 1)
                                 SizedBox(
-                                  width: 96,
+                                  width: 102,
                                   child: Card(
                                       elevation: 10,
                                       color: Colors.black12,
@@ -213,7 +213,7 @@ Widget taskCard(Map userTasks, String task, StateSetter setStateFromTaskView, dy
                                 ),
                               if (userTasks[task]["repeat"])
                                 SizedBox(
-                                  width: 80,
+                                  width: 84,
                                   child: Card(
                                       elevation: 10,
                                       color: Colors.black12,

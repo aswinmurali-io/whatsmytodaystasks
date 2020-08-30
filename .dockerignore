@@ -1,0 +1,15 @@
+/.dart_tool
+/.idea
+/.metadata
+/.packages
+/.vscode
+/.firebase
+
+/build
+
+.flutter-plugins
+.flutter-plugins-dependencies
+
+*.log
+
+generated_plugin_registrant.dart
