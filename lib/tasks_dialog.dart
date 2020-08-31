@@ -162,15 +162,17 @@ class _TaskDialogState extends State<TaskDialog> {
   build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-          statusBarColor: Colors.blueGrey,
-          statusBarIconBrightness: Brightness.light,
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
           systemNavigationBarColor: Colors.white,
           systemNavigationBarDividerColor: Colors.transparent,
           systemNavigationBarIconBrightness: Brightness.dark),
       child: Scaffold(
         appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.white),
-          title: Text((modifyWhat) ? "Edit Task" : "New Task", style: TextStyle(color: Colors.white, fontSize: 25)),
+          backgroundColor: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          elevation: 20.0,
+          title: Text((modifyWhat) ? "Edit Task" : "New Task", style: TextStyle(color: Colors.black, fontSize: 25)),
         ),
         body: CupertinoScrollbar(
           child: SingleChildScrollView(
@@ -180,9 +182,13 @@ class _TaskDialogState extends State<TaskDialog> {
                 padding: const EdgeInsets.all(15.0),
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                      child: const Text("What's the task ?"),
+                    const Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 5),
+                      child: const Align(
+                        alignment: Alignment.centerLeft,
+                        child: const Text("What's the task ?",
+                            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
@@ -204,20 +210,24 @@ class _TaskDialogState extends State<TaskDialog> {
                           },
                           onChanged: (value) => title = value),
                     ),
-                    const Text("Something else to remember with it?"),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 0),
-                      child: TextField(
-                          controller: _textFieldDescriptionController,
-                          focusNode: _descFocusNode,
-                          autocorrect: true,
-                          cursorColor: Colors.red,
-                          maxLines: 1,
-                          enableSuggestions: true,
-                          maxLength: 30,
-                          onSubmitted: (_) => _dropdownFocusNode.requestFocus(),
-                          onChanged: (value) => description = value),
+                    const Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                      child: const Align(
+                        alignment: Alignment.centerLeft,
+                        child: const Text("Something else to remember with it?",
+                            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+                      ),
                     ),
+                    TextField(
+                        controller: _textFieldDescriptionController,
+                        focusNode: _descFocusNode,
+                        autocorrect: true,
+                        cursorColor: Colors.red,
+                        maxLines: 1,
+                        enableSuggestions: true,
+                        maxLength: 30,
+                        onSubmitted: (_) => _dropdownFocusNode.requestFocus(),
+                        onChanged: (value) => description = value),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -279,7 +289,8 @@ class _TaskDialogState extends State<TaskDialog> {
                                       increaseWidthBy: 40,
                                       child: Text("Choose Start Time"),
                                       callback: () => setState(() async {
-                                            selectedTime = showTimePicker(context: context, initialTime: TimeOfDay.now());
+                                            selectedTime =
+                                                showTimePicker(context: context, initialTime: TimeOfDay.now());
                                             _awaitedTime = await selectedTime ?? '';
                                             setState(() => _awaitedTime = _awaitedTime);
 
@@ -287,7 +298,8 @@ class _TaskDialogState extends State<TaskDialog> {
                                             Future.delayed(
                                                 const Duration(milliseconds: 300),
                                                 () => scrollController.animateTo(300,
-                                                    duration: const Duration(milliseconds: 100), curve: Curves.bounceIn));
+                                                    duration: const Duration(milliseconds: 100),
+                                                    curve: Curves.bounceIn));
                                           })),
                                 ],
                               ),
