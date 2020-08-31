@@ -309,7 +309,7 @@ class _TaskViewState extends State<TaskView> with SingleTickerProviderStateMixin
                                           userTasks, task, setState, _tasksEditDialog, _uniqueColorIndex, __offset),
 
                                 // To give space for showing the last card's edit button
-                                const Padding(padding: const EdgeInsets.fromLTRB(0, 0, 0, 73))
+                                Padding(padding: const EdgeInsets.fromLTRB(0, 0, 0, 73), child: Container()),
                               ],
                             )),
                     ),
