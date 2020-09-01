@@ -260,7 +260,7 @@ class _TaskDialogState extends State<TaskDialog> {
                     ]),
                     ExpansionTile(
                       initiallyExpanded: true,
-                      title: Text("Time"),
+                      title: const Text("Time"),
                       onExpansionChanged: (value) => Future.delayed(
                           const Duration(milliseconds: 300),
                           () => scrollController.animateTo(300,
@@ -287,7 +287,7 @@ class _TaskDialogState extends State<TaskDialog> {
                                       shapeRadius: BorderRadius.circular(10),
                                       gradient: Gradients.blush,
                                       increaseWidthBy: 40,
-                                      child: Text("Choose Start Time"),
+                                      child: const Text("Choose Start Time"),
                                       callback: () => setState(() async {
                                             selectedTime =
                                                 showTimePicker(context: context, initialTime: TimeOfDay.now());
