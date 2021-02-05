@@ -14,12 +14,16 @@ dependencies:
   jiffy: ^3.0.1
   flutter_animator: ^2.0.9
   intl: ^0.16.1
-  shared_preferences: 0.5.7+3
-  firebase_auth: ^0.16.1
-  cloud_firestore: ^0.13.7
+  shared_preferences: ^0.5.12+4
+
+  firebase_core: ^0.7.0
+  firebase_auth: ^0.20.0+1
+  firebase_analytics: ^7.0.1
+  cloud_firestore: ^0.16.0
+
   progress_dialog: ^1.2.4
   pull_to_refresh: ^1.6.0
-  google_sign_in: ^4.5.1
+  google_sign_in: ^4.5.9
   flutter_signin_button: ^1.0.0
   circular_check_box: 1.0.2
 

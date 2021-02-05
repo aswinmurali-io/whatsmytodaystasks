@@ -60,14 +60,14 @@ class Database {
       _accounts.remove(email);
       _storage.setString("accounts", jsonEncode(_accounts));
       _storage.setString("email", null);
-      await Firestore.instance.collection(_uid).document("tasks").delete();
+      await FirebaseFirestore.instance.collection(_uid).doc("tasks").delete();
       _uid = null;
-      await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+      await FirebaseAuth.instance.currentUser.delete();
     } else {
       // google account delete
       _storage.setString("email", null);
-      await Firestore.instance.collection(_uid).document("tasks").delete();
-      await FirebaseAuth.instance.currentUser().then((user) => user.delete());
+      await FirebaseFirestore.instance.collection(_uid).doc("tasks").delete();
+      await FirebaseAuth.instance.currentUser.delete();
       _uid = null;
       googleSignIn.signOut();
       isgoogle = false;
@@ -85,8 +85,8 @@ class Database {
     if (data != null) jsonDecode(data).forEach((key, value) => obj.addAll({key: value}));
     try {
       if (_uid != null) obj.clear(); // if data in cloud thn remove local, use directly from cloud
-      (await Firestore.instance.collection(_uid).document('tasks').get())
-          .data
+      (await FirebaseFirestore.instance.collection(_uid).doc('tasks').get())
+          .data()
           .forEach((key, value) => obj.addAll({key: Map<String, Object>.from(value)}));
     } catch (error) {
       print("$error @download()");
@@ -117,7 +117,7 @@ class Database {
 
   static Future googleAuthAutoConnect() async {
     final googleSignInAuthentication = await (await googleSignIn.signIn()).authentication;
-    final credential = GoogleAuthProvider.getCredential(
+    final credential = GoogleAuthProvider.credential(
       accessToken: googleSignInAuthentication.accessToken,
       idToken: googleSignInAuthentication.idToken,
     );
@@ -153,7 +153,7 @@ class Database {
     _storage.setString("password", password);
     addAccounts(email, password);
     try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(userTasks);
+      await FirebaseFirestore.instance.collection(_uid).doc('tasks').set(userTasks);
     } catch (error) {
       print("$error @register()");
       return error;
@@ -174,7 +174,7 @@ class Database {
     }
     _storage.setString("data", jsonEncode(data));
     try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+      await FirebaseFirestore.instance.collection(_uid).doc('tasks').set(data);
     } catch (error) {
       print("$error @resetTasks()");
     }
@@ -193,7 +193,7 @@ class Database {
   static upload(Map<String, Map<String, dynamic>> data) async {
     _storage.setString("data", jsonEncode(data));
     try {
-      await Firestore.instance.collection(_uid).document('tasks').setData(data);
+      await FirebaseFirestore.instance.collection(_uid).doc('tasks').set(data);
     } catch (error) {
       print("$error @upload()");
     }
