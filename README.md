@@ -2,8 +2,6 @@
 
 A tasker with a partial gantt-style week-based project planner! Build your project faster by assigning tasks with a deadline in a week-based fashion, this makes devs more productive.
 
-![Build Status](https://github.com/aswinmurali-io/whatsmytodaystasks/workflows/Flutter%20CI/badge.svg)
-
 Created by [aswinmurali-io](https://github.com/aswinmurali-io/)
 
 ![Preview](preview.png)
